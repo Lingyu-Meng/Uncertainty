@@ -244,8 +244,8 @@ H4_w3
 
 ```{r save figures}
 ggsave2("H4.png", H4, width = 6, height = 4)
-ggsave2("H4_w3.png", H4_w3, width = 6, height = 4)
-ggsave2("H3_w2.png", H3_w2, width = 6, height = 4)
+ggsave2("H4_w3.png", H4_w3, width = 7, height = 4)
+ggsave2("H3_w2.png", H3_w2, width = 7, height = 4)
 ggsave2("H3.png", H3, width = 6, height = 4)
 ggsave2("H2.png", H2, width = 6, height = 4)
 ggsave2("H1.png", H1, width = 6, height = 4)
