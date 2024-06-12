@@ -1,0 +1,254 @@
+---
+title: "Extending material"
+author: "Lingyu Meng"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, echo=FALSE, message = FALSE}
+knitr::opts_chunk$set(warning = FALSE, echo=FALSE)
+library("tidyverse")
+library("cowplot")
+colorset_1 <- c("#9FD2CD", "#76C3D2", "#165D95", "#3E377E", "#662B77") # Colours of Sheffield row 5
+colorset_2 <- c("#A3CFAD", "#54AF7A", "#447E5D", "#668136", "#36532C") # Colours of Sheffield row 6
+```
+
+# Expected results
+
+## Conditions
+
+I supposed that losing condition will lead to more direct exploration. That will yield a result that higher w2 in losing condition than in wining condition.
+
+However, I am not really sure about whether we should suppose it, especially, when we control the risk aversion. It has a fair chance that the framing effect (wining/losing condition) have nothing to do with exploration. 
+
+```{r simulation of condition}
+V <- seq(-6, 6, 0.01)
+Win <- pnorm(V + 0.5 + V/ 1.72) # 1.72 is the standard deviation of the population (TU)
+Loss <- pnorm(V + 1 + V/ 1.72)
+data_win_loss <- data.frame(V, Win, Loss) %>% 
+  gather(key = "condition", value = "P", -V)
+
+SR <- pnorm(V + 0.5 + (-0.3) * V/ 1.72)
+RR <- pnorm(V + (-0.3) * V/ 1.09) # 1.09 is the standard deviation of the population (TU)
+data_SR_RR <- data.frame(V, SR, RR) %>% 
+  gather(key = "condition", value = "P", -V)
+```
+
+```{r figure of win}
+win_loss <- ggplot(data_win_loss, aes(x = V, y = P, linetype = condition)) +
+  geom_line(linewidth = 1) +
+  labs(x = "Expected value difference V(1) - V(2)",
+       y = "Choice Probability P(1)",
+       title = "Hypothetical result of winning and losing condition") +
+  theme_cowplot() +
+  theme(legend.position = c(0.05, 0.9))
+win_loss
+```
+
+As previous study found that the relative risk in RR condition will be close to 0, I supposed there will be a different intercept between SR and RR condition. The TU is set to the real value of variance in the population. Based on the definition of TU: $TU=\sqrt{(\sigma_1^2+\sigma_2^2)}$, in our experiment, the TU in RR is actually smaller than in SR condition. The TU is SR is 
+
+```{r calculation of TU, echo=TRUE}
+rr <- c(-1,-1,-1,0,0,0,0,0,0,1,1,1)
+sr <- c(1,2,3,3,4,4,4,4,5,5,6,7)
+V_rr <- var(rr) * 12/11 # using the variance of the population instead of the unbiased estimator
+V_sr <- var(sr) * 12/11
+sqrt(V_sr + 0)
+```
+
+Whereas the TU in RR is 
+
+```{r, echo=TRUE}
+sqrt(2 * V_rr)
+```
+
+Those are not real TU, as the TU should be estimated during subjects' decision making. However, it is a little bit tricky to explain the setting. We may need to discuss it later. For now, I will use the real value of variance in the population in the following simulation.
+
+I setted same w3 for RR and SR. However, the slop is different due to the different TU.
+
+```{r figure of RR}
+SR_RR <- ggplot(data_SR_RR, aes(x = V, y = P, colour = condition)) +
+  geom_line( linewidth = 1) +
+  labs(x = "Expected value difference V(1) - V(2)",
+       y = "Choice Probability P(1)",
+       title = "Hypothetical result of SR and RR condition") +
+  theme_cowplot() +
+  theme(legend.position = c(0.05, 0.9))
+SR_RR
+```
+
+# Individual difference
+
+## Intolerance of Uncertaint (IU)
+
+H1: High IU lead to less direct exploration
+
+```{r simulation of IU, echo=FALSE}
+Low <- pnorm(V + 1 + V/ 1.72)
+Low_M <- pnorm(V + 0.8 + V/ 1.72)
+Medium <- pnorm(V + 0.5 + V/ 1.72)
+Medium_H <- pnorm(V + 0.3 + V/ 1.72)
+High <- pnorm(V + 0.1 + V/ 1.72)
+levels = c("Low", "Low_M", "Medium", "Medium_H", "High")
+labs = c("Low", "Low to medium", "Medium", "Medium to high", "High")
+
+data_H1 <- data.frame(V, Low, Low_M, Medium, Medium_H, High) %>% 
+  gather(key = "IU level", value = "P", -V) %>% 
+  mutate(`IU level` = factor(`IU level`, levels = levels, labels = labs))
+```
+
+```{r figure of H1}
+H1 <- ggplot(data_H1, aes(x = V, y = P , colour = `IU level`)) +
+  geom_line() +
+  labs(x = "Expected value difference V(1) - V(2)",
+       y = "Choice Probability P(1)",
+       title = "Hypothetical result of IU level") +
+  scale_colour_manual(values = colorset_1) +
+  theme_cowplot() +
+  theme(legend.position = c(0.05, 0.8))
+H1
+```
+
+## Impulsiveness (IM)
+
+H2: High IM will lead to more random exploration
+
+Notice: the sign of w3 is changed to negative.
+
+The hybride model is a function with 3 variables, the w3 is actually a slop of the totel uncertainty (TU). By fixed the TU, the comparison of w3 will be anti-intuitive. A higher w3 will lead to a steep slop of value. Therefore, for convenience, I changed the sign of w3.
+
+Please let me know if you have any suggestions.
+
+```{r simulation of Im, echo=FALSE}
+Low <- pnorm(V + 0.5 + (-0.3) * V/ 1.72)
+Low_M <- pnorm(V + 0.5 + (-0.5) * V/ 1.72)
+Medium <- pnorm(V + 0.5 + (-0.7) * V/ 1.72)
+Medium_H <- pnorm(V + 0.5 + (-0.9) * V/ 1.72)
+High <- pnorm(V + 0.5 + (-1.1) * V/ 1.72)
+levels = c("Low", "Low_M", "Medium", "Medium_H", "High")
+labs = c("Low", "Low to medium", "Medium", "Medium to high", "High")
+
+data_H2 <- data.frame(V, Low, Low_M, Medium, Medium_H, High) %>% 
+  gather(key = "IM level", value = "P", -V) %>% 
+  mutate(`IM level` = factor(`IM level`, levels = levels, labels = labs))
+```
+
+```{r figure of H2}
+H2 <- ggplot(data_H2, aes(x = V, y = P , colour = `IM level`)) +
+  geom_line() +
+  labs(x = "Expected value difference V(1) - V(2)",
+       y = "Choice Probability P(1)",
+       title = "Hypothetical result of IM level") +
+  scale_colour_manual(values = colorset_2) +
+  theme_cowplot() +
+  theme(legend.position = c(0.05, 0.8))
+H2
+```
+
+# Interactions
+
+## IU x Win/Loss
+
+H3: In loss condition, participates with lower IU will show a similar level of direct exploration compared to participates with higher IU. In win condition, participates with lower IU will show a greater increase in direct exploration compared to participates with higher IU.
+
+Although I lake of the evidence to support the hypothesis of framing effect, there are some evidence support the interaction between IU and win/loss condition. As the IU is supposed to show overestimation of the probability of negative events, the losing condition will lead to more direct exploration.
+
+```{r simulation of IU x Loss, echo=FALSE}
+w2_LW <- 0.6
+w2_HW <- 0.4
+w2_LL <- 1
+w2_HL <- 0.5
+Low_Win <- pnorm(V + w2_LW + V/ 1.72)
+Low_Loss <- pnorm(V + w2_LL + V/ 1.72)
+High_Win <- pnorm(V + w2_HW + V/ 1.72)
+High_Loss <- pnorm(V + w2_HL + V/ 1.72)
+data_H3 <- data.frame(V, Low_Win, Low_Loss, High_Win, High_Loss) %>% 
+  gather(key = "Condition", value = "P", -V) %>%
+  separate(Condition, into = c("IU level", "Condition"), sep = "_") 
+
+data_H3_w2 <- tibble(
+  w2 = c(w2_LW, w2_HW, w2_LL, w2_HL),
+  Condition = c("Win", "Win", "Loss", "Loss"),
+  `IU level` = c("Low", "High", "Low", "High"))
+```
+
+```{r figure of H3}
+H3 <- ggplot(data_H3, aes(x = V, y = P, colour = `IU level`, linetype = Condition)) +
+  geom_line() +
+  labs(x = "Expected value difference V(1) - V(2)",
+       y = "Choice Probability P(1)",
+       title = "Hypothetical result of IU level and win/loss interaction") +
+  scale_colour_manual(values = c(colorset_1[[5]], colorset_1[[2]])) +
+  theme_cowplot() +
+  theme(legend.position = c(0.05, 0.75))
+H3
+```
+
+```{r figure of H3 in w2}
+H3_w2 <- ggplot(data_H3_w2, aes(x = Condition, y = w2, fill = `IU level`)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "Win/Loss condition",
+       y = "Direct exploration indicated by w2",
+       title = "Hypothetical result of IU level and win/loss interaction \nindicated by parameter") +
+  theme_cowplot() +
+  scale_fill_manual(values = c(colorset_1[[5]], colorset_1[[2]])) +
+  theme(legend.position = c(0.05, 0.85))
+H3_w2
+```
+
+## IM x Win/Loss
+
+H4: In win condition, participates with higher IM will show a small higher random exploration compared to participates with lower IM In loss condition, participates with higher IM will show a greater increase in random exploration compared to participates with lower IM.
+
+```{r simulation of IM x Loss, echo=FALSE}
+w3_LW <- 0.4
+w3_HW <- 0.6
+w3_LL <- 0.7
+w3_HL <- 1.3
+Low_Win <- pnorm(V + w3_LW * V/ 1.72 * -1)
+Low_Loss <- pnorm(V + w3_LL * V/ 1.72 * -1)
+High_Win <- pnorm(V + w3_HW * V/ 1.72 * -1)
+High_Loss <- pnorm(V + w3_HL * V/ 1.72 * -1)
+data_H4 <- data.frame(V, Low_Win, Low_Loss, High_Win, High_Loss) %>% 
+  gather(key = "Condition", value = "P", -V) %>%
+  separate(Condition, into = c("IM level", "Condition"), sep = "_") 
+
+data_H4_w3 <- tibble(
+  w3 = c(w3_LW, w3_HW, w3_LL, w3_HL),
+  Condition = c("Win", "Win", "Loss", "Loss"),
+  `IM level` = c("Low", "High", "Low", "High"))
+```
+
+```{r figure of H4}
+H4 <- ggplot(data_H4, aes(x = V, y = P, colour = `IM level`, linetype = Condition)) +
+  geom_line() +
+  labs(x = "Expected value difference V(1) - V(2)",
+       y = "Choice Probability P(1)",
+       title = "Hypothetical result of IM level and win/loss interaction") +
+  scale_colour_manual(values = c(colorset_2[[5]], colorset_2[[2]])) +
+  theme_cowplot() +
+  theme(legend.position = c(0.05, 0.75))
+H4
+```
+
+```{r figure of H4 in w3}
+H4_w3 <- ggplot(data_H4_w3, aes(x = Condition, y = w3, fill = `IM level`)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "Win/Loss condition",
+       y = "Random exploration indicated by w3",
+       title = "Hypothetical result of IM level and win/loss interaction \nindicated by parameter") +
+  scale_fill_manual(values = c(colorset_2[[5]], colorset_2[[2]])) +
+  theme_cowplot() +
+  theme(legend.position = c(0.8, 0.85))
+H4_w3
+```
+
+```{r save figures}
+ggsave2("H4.png", H4, width = 6, height = 4)
+ggsave2("H4_w3.png", H4_w3, width = 6, height = 4)
+ggsave2("H3_w2.png", H3_w2, width = 6, height = 4)
+ggsave2("H3.png", H3, width = 6, height = 4)
+ggsave2("H2.png", H2, width = 6, height = 4)
+ggsave2("H1.png", H1, width = 6, height = 4)
+ggsave2("SR_RR.png", SR_RR, width = 6, height = 4)
+ggsave2("win_loss.png", win_loss, width = 6, height = 4)
+```
