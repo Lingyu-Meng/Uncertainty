@@ -94,7 +94,7 @@ simvar <- "Subject" # which random variable do we want to vary in the simulation
 
 # ------------------------------------------ #
 # SIMULATION PARAMETERS
-steps <- c(20,60,100,140,180) # which sample sizes do we want to look at?
+steps <- c(200,300,400,600,700) # which sample sizes do we want to look at?
 critical_value <- 2 # which t/z value do we want to use to test for significance?
 n_sim <- 1000 # how many single simulations should be used to estimate power?
 
