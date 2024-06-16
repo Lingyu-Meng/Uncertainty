@@ -1,10 +1,12 @@
 # Powever analysis for GLMM
+# Notice: Calculation intensive script, may need a whole day
+# We only caculate the power for the fixed effects of RU:IU, as it may be the smallest effect in the model. The hypothetic effect size is 0.06, which is chosen based on the effect size of anxiety in the model (Fan et al., 2023).
+# We suppose that the effect size of interaction RU:IU:Loss is 0.06 too.
+# It turns out 700 sample size may not enough to get the power of 0.75.
+
 # Reference: Kumle, L., Võ, M. L., & Draschkow, D. (2021). Estimating power in (generalized) linear mixed models: an open introduction and tutorial in R. Behav Res. doi:10.3758/s13428-021-01546-0
 #            Green, P., & MacLeod, C. J. (2016). SIMR: An R package for power analysis of generalized linear mixed models by simulation. Methods in Ecology and Evolution, 7(4), 493–498. https://doi.org/10.1111/2041-210X.12504
 # Priori: Fan, H., Gershman, S. J., & Phelps, E. A. (2023). Trait somatic anxiety is associated with reduced directed exploration and underestimation of uncertainty. Nature Human Behaviour, 7(1), 102–113. https://doi.org/10.1038/s41562-022-01455-y
-
-# We only caculate the power for the fixed effects of RU:IU, as it may be the smallest effect in the model. The hypothetic effect size is 0.06, which is chosen based on the effect size of anxiety in the model (Fan et al., 2023).
-# We suppose that the effect size of interaction RU:IU:Loss is 0.06 too.
 
 # List of required packages
 required_packages <- c("tidyverse","lme4","simr")
@@ -106,7 +108,6 @@ power <- mixedpower(model = model, data = data,
                     simvar = "Subject", steps = c(200,300,400,600,700),
                     critical_value = 2, n_sim = 1000,
                     SESOI = SESOI)
-
 # ------------------------------------------ #
 # PLOT THE RESULTS
 multiplotPower(power)
