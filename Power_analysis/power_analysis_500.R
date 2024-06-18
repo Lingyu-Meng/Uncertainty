@@ -1,7 +1,7 @@
 # Power analysis for GLMM
 # Notice: Calculation intensive script, may need a whole day
 # We only calculate the power for the fixed effects of RU:IU, as it may be the 
-# largest effect in the model. The hypothetical max effect size is 0.2, which is
+# smallest effect in the model. The hypothetical max effect size is 0.2, which is
 # chosen based on the effect size of anxiety in the model (Fan et al., 2023).
 
 # We omitted interaction RU:IU:Loss this time.
@@ -24,11 +24,6 @@ install_if_missing <- function(packages) {
 }
 
 install_if_missing(required_packages)
-
-if (!require("devtools")) {
-  install.packages("devtools", dependencies = TRUE)}
-
-devtools::install_github("DejanDraschkow/mixedpower") # Install the mixedpower package
 
 # Load the required packages
 library("tidyverse")
@@ -76,7 +71,7 @@ IU <- rnorm(500, 0, 1)
 artificial_data <- cbind(artificial_data, loss, V, RU, `V/TU`, IU)
 
 # Define a range of effect sizes
-effect_sizes <- seq(0.05,0.2, by = 0.02)
+effect_sizes <- seq(0.04, 0.2, by = 0.02)
 # SPECIFY BETA COEFFICIENTS FOR FIXED EFFECTS
 fixed_effects <-  c(0, 1.2, 0.4, 1.5, 0.2) # order follows the order in formula; intercept as 0
 # 0.2 for V:RU; fixed effect of V, RU, V/TU are estimated from the Supplementary 
@@ -95,17 +90,15 @@ artificial_glmer <- makeGlmer(formula = Choice ~ V + RU + `V/TU` + RU:IU +
 # lets have a look!
 summary(artificial_glmer)
 
-# power_analysis <- powerSim(artificial_glmer, test = fixed("RU:IU"), nsim = 100)
-
 # Store power results
 power_results <- data.frame(effect_size = effect_sizes,
                             power = NA, lower = NA, upper = NA)
 
 # Function to perform power analysis for a given effect size
-power_analysis_function <- function(effect_size, model) {
+power_analysis_function <- function(effect_size, model, predictor) {
   model_copy <- model
-  fixef(model_copy)["RU:IU"] <- effect_size
-  power_sim <- powerSim(model_copy, test = fixed("RU:IU"),
+  fixef(model_copy)[predictor] <- effect_size
+  power_sim <- powerSim(model_copy, test = fixed(predictor),
                         nsim = 1000)  # it is suggested to use 1000 simulations (Kumle et al., 2021)
   summary_sim <- summary(power_sim)
   return(data.frame(
@@ -120,7 +113,7 @@ power_analysis_function <- function(effect_size, model) {
 plan(multisession)
 
 # Perform power analysis in parallel
-power_results <- future_map_dfr(effect_sizes, ~power_analysis_function(.x, artificial_glmer))
+power_results <- future_map_dfr(effect_sizes, ~power_analysis_function(.x, artificial_glmer, "RU:IU"))
 
 # Plot the power results
 power_500 <- ggplot(power_results, aes(x = effect_size, y = power)) +
@@ -132,6 +125,8 @@ power_500 <- ggplot(power_results, aes(x = effect_size, y = power)) +
     y = "Power",
     caption = "95% CI are shown as shaded regions"
   ) +
+  xlim(0.05, 0.2) +
+  geom_abline(aes(intercept = 0.8, slope = 0), linetype = "dashed") +
   theme_cowplot()
 
 ggsave("power_500.png")
