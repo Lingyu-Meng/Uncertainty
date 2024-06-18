@@ -12,7 +12,7 @@
 # Priori: Fan, H., Gershman, S. J., & Phelps, E. A. (2023). Trait somatic anxiety is associated with reduced directed exploration and underestimation of uncertainty. Nature Human Behaviour, 7(1), 102–113. https://doi.org/10.1038/s41562-022-01455-y
 
 # List of required packages
-required_packages <- c("tidyverse","lme4","simr","cowplot")
+required_packages <- c("tidyverse","lme4","simr","cowplot","furrr")
 
 # Check and install missing packages
 install_if_missing <- function(packages) {
@@ -36,6 +36,7 @@ library("mixedpower")
 library("lme4")
 library("simr")
 library("cowplot")
+library("furrr")
 
 # According to the tutorial, we are in the scenario 3 as the existing data does 
 # not have the variable we interested in (IU, IM, Loss)
@@ -75,7 +76,7 @@ IU <- rnorm(500, 0, 1)
 artificial_data <- cbind(artificial_data, loss, V, RU, `V/TU`, IU)
 
 # Define a range of effect sizes
-effect_sizes <- seq(0.05,0.2, by = 0.05)
+effect_sizes <- seq(0.05,0.2, by = 0.02)
 # SPECIFY BETA COEFFICIENTS FOR FIXED EFFECTS
 fixed_effects <-  c(0, 1.2, 0.4, 1.5, 0.2) # order follows the order in formula; intercept as 0
 # 0.2 for V:RU; fixed effect of V, RU, V/TU are estimated from the Supplementary 
@@ -100,35 +101,31 @@ summary(artificial_glmer)
 power_results <- data.frame(effect_size = effect_sizes,
                             power = NA, lower = NA, upper = NA)
 
-for (i in seq_along(effect_sizes)) {
-  # Set the effect size for the predictor
-  fixef(artificial_glmer)["RU:IU"] <- effect_sizes[i]
-  
-  # Perform the power analysis
-  power_sim <- powerSim(artificial_glmer, test = fixed("RU:IU"), nsim = 1000)
-  # it is suggested to simulate for 1000 times (Kumle, 2021)
-  
-  # Print the power analysis
-  print(power_sim)
-  
-  # Store the power result
-  power_results$power[i] <- summary(power_sim)$mean
-  power_results$lower[i] <- summary(power_sim)$lower
-  power_results$upper[i] <- summary(power_sim)$upper
-  
-  remain_round <- max(seq_along(effect_sizes)) - i
-  
-  print(paste("Will finish in",
-              as.character(
-                seconds_to_period(
-                  round(power_sim$timing[["elapsed"]] * remain_round)
-                ))))
+# Function to perform power analysis for a given effect size
+power_analysis_function <- function(effect_size, model) {
+  model_copy <- model
+  fixef(model_copy)["RU:IU"] <- effect_size
+  power_sim <- powerSim(model_copy, test = fixed("RU:IU"),
+                        nsim = 1000)  # it is suggested to use 1000 simulations (Kumle et al., 2021)
+  summary_sim <- summary(power_sim)
+  return(data.frame(
+    effect_size = effect_size,
+    power = summary_sim$mean,
+    lower_ci = summary_sim$lower,
+    upper_ci = summary_sim$upper
+  ))
 }
+
+# Set up parallel processing
+plan(multisession)
+
+# Perform power analysis in parallel
+power_results <- future_map_dfr(effect_sizes, ~power_analysis_function(.x, artificial_glmer))
 
 # Plot the power results
 power_500 <- ggplot(power_results, aes(x = effect_size, y = power)) +
   geom_line() +
-  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2) +
+  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci), alpha = 0.2) +
   labs(
     title = "Power Analysis on RU:IU for 500 sample size",
     x = "Effect Size",
