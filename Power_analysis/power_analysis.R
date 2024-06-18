@@ -2,7 +2,6 @@
 # Notice: Calculation intensive script, may need a whole day
 # We only caculate the power for the fixed effects of RU:IU, as it may be the smallest effect in the model. The hypothetic effect size is 0.06, which is chosen based on the effect size of anxiety in the model (Fan et al., 2023).
 # We suppose that the effect size of interaction RU:IU:Loss is 0.06 too.
-# It turns out 700 sample size may not enough to get the power of 0.75.
 
 # Reference: Kumle, L., Võ, M. L., & Draschkow, D. (2021). Estimating power in (generalized) linear mixed models: an open introduction and tutorial in R. Behav Res. doi:10.3758/s13428-021-01546-0
 #            Green, P., & MacLeod, C. J. (2016). SIMR: An R package for power analysis of generalized linear mixed models by simulation. Methods in Ecology and Evolution, 7(4), 493–498. https://doi.org/10.1111/2041-210X.12504
@@ -60,7 +59,7 @@ RU <- runif(240, -0.6, -0.2)
 `V/TU` <- runif(240, 0.45, 0.7)
 
 # 8. create vector of IU (assumed to be standard normal distributed)
-IU <- rnorm(240, 0, 1)
+IU <- rnorm(500, 0, 1)
 
 # 9. combine all vectors to the artificial data
 artificial_data <- cbind(artificial_data, loss, V, RU, `V/TU`, IU)
@@ -94,7 +93,7 @@ simvar <- "Subject" # which random variable do we want to vary in the simulation
 
 # ------------------------------------------ #
 # SIMULATION PARAMETERS
-steps <- c(200,300,400,600,700) # which sample sizes do we want to look at?
+steps <- c(500, 700, 900, 1100) # which sample sizes do we want to look at?
 critical_value <- 2 # which t/z value do we want to use to test for significance?
 n_sim <- 1000 # how many single simulations should be used to estimate power?
 
@@ -105,9 +104,10 @@ SESOI <- c(0, 1.02, 0.34, 1.275, 0.051, 0.051) # specify SESOI (15% smaller beta
 # RUN SIMULATION WITH MIXEDPOWER
 power <- mixedpower(model = model, data = data,
                     fixed_effects = fixed_effects,
-                    simvar = "Subject", steps = c(200,300,400,600,700),
-                    critical_value = 2, n_sim = 1000,
+                    simvar = "Subject", steps = steps,
+                    critical_value = critical_value, n_sim = n_sim,
                     SESOI = SESOI)
 # ------------------------------------------ #
 # PLOT THE RESULTS
 multiplotPower(power)
+# multiplotPower(power, filename = "multiplot_powerSimulation_700_1000")
