@@ -15,23 +15,16 @@
 required_packages <- c("tidyverse","lme4","simr","cowplot","furrr")
 
 # Check and install missing packages
-install_if_missing <- function(packages) {
+install_and_Load <- function(packages) {
   for (pkg in packages) {
     if (!requireNamespace(pkg, quietly = TRUE)) {
       install.packages(pkg, dependencies = TRUE)
     }
+    library(pkg, character.only = TRUE) # Load the required packages
   }
 }
 
-install_if_missing(required_packages)
-
-# Load the required packages
-library("tidyverse")
-library("mixedpower")
-library("lme4")
-library("simr")
-library("cowplot")
-library("furrr")
+install_and_Load(required_packages)
 
 # According to the tutorial, we are in the scenario 3 as the existing data does 
 # not have the variable we interested in (IU, IM, Loss)
@@ -125,7 +118,7 @@ power_500 <- ggplot(power_results, aes(x = effect_size, y = power)) +
     y = "Power",
     caption = "95% CI are shown as shaded regions"
   ) +
-  xlim(0.05, 0.2) +
+  xlim(0.04, 0.2) +
   geom_abline(aes(intercept = 0.8, slope = 0), linetype = "dashed") +
   theme_cowplot()
 
