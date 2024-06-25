@@ -29,8 +29,8 @@ data_win_loss <- data.frame(V, Win, Loss) %>%
   gather(key = "condition", value = "P", -V)
 
 SR <- pnorm(V + 0.5 + V/ 1.72)
-RR <- pnorm(V + V/ 1.09) # 1.09 is the standard deviation of the population (TU)
-data_SR_RR <- data.frame(V, SR, RR) %>% 
+rR <- pnorm(V + V/ 1.89) # 1.89 is the standard deviation of the population (TU)
+data_SR_rR <- data.frame(V, SR, rR) %>% 
   gather(key = "condition", value = "P", -V)
 ```
 
@@ -45,35 +45,35 @@ win_loss <- ggplot(data_win_loss, aes(x = V, y = P, linetype = condition)) +
 win_loss
 ```
 
-As previous study found that the relative risk in RR condition will be close to 0, I supposed there will be a different intercept between SR and RR condition. The TU is set to the real value of variance in the population. Based on the definition of TU: $TU=\sqrt{(\sigma_1^2+\sigma_2^2)}$, in our experiment, the TU in RR is actually smaller than in SR condition. The TU is SR is
+As previous study found that the relative risk in RR condition will be close to 0, I supposed there will be a different intercept between SR and rR condition. The TU is set to the real value of variance in the population. Based on the definition of TU: $TU=\sqrt{(\sigma_1^2+\sigma_2^2)}$, in our experiment, the TU in SR is
 
 ```{r calculation of TU, echo=TRUE}
-rr <- c(-1,-1,-1,0,0,0,0,0,0,1,1,1)
-sr <- c(1,2,3,3,4,4,4,4,5,5,6,7)
-V_rr <- var(rr) * 12/11 # using the variance of the population instead of the unbiased estimator
-V_sr <- var(sr) * 12/11
-sqrt(V_sr + 0)
+r <- c(-1,-1,-1,0,0,0,0,0,0,1,1,1)
+R <- c(1,2,3,3,4,4,4,4,5,5,6,7)
+V_r <- var(r) * 12/11 # using the variance of the population instead of the unbiased estimator
+V_R <- var(R) * 12/11
+sqrt(V_R + 0)
 ```
 
-Whereas the TU in RR is
+Whereas the TU in rR is
 
 ```{r, echo=TRUE}
-sqrt(2 * V_rr)
+sqrt(V_r + V_R)
 ```
 
 Those are not real TU, as the TU should be estimated during subjects' decision making. However, it is a little bit tricky to explain the setting. We may need to discuss it later. For now, I will use the real value of variance in the population in the following simulation.
 
-I setted same w3 for RR and SR. However, the slop is different due to the different TU.
+I setted same w3 for rR and SR. However, the slop is different due to the different TU.
 
-```{r figure of RR}
-SR_RR <- ggplot(data_SR_RR, aes(x = V, y = P, colour = condition)) +
-  geom_line( linewidth = 1) +
+```{r figure of rR}
+SR_rR <- ggplot(data_SR_rR, aes(x = V, y = P, colour = condition)) +
+  geom_line(linewidth = 1) +
   labs(x = "Expected value difference V(1) - V(2)",
        y = "Choice Probability P(1)",
-       title = "Hypothetical result of SR and RR condition") +
+       title = "Hypothetical result of SR and rR condition") +
   theme_cowplot() +
   theme(legend.position = c(0.05, 0.9))
-SR_RR
+SR_rR
 ```
 
 # Individual difference
@@ -116,7 +116,7 @@ Notice: the sum of $w_1$ and $w_3$ is 2.
 
 This two items should be and actually are negative correlated with each other (Fan et al., 2023).
 
-```{r simulation of Im, echo=FALSE}
+```{r simulation of IM, echo=FALSE}
 Low <- pnorm(0.8 * V + 0.5 + 1.2 * V/ 1.72)
 Low_M <- pnorm(0.4 * V + 0.5 + 1.6 * V/ 1.72)
 Medium <- pnorm(0 * V + 0.5 + 2 * V/ 1.72)
@@ -247,6 +247,6 @@ ggsave2("fig/H3_w2.png", H3_w2, width = 7, height = 4)
 ggsave2("fig/H3.png", H3, width = 7, height = 4)
 ggsave2("fig/H2.png", H2, width = 6, height = 4)
 ggsave2("fig/H1.png", H1, width = 6, height = 4)
-ggsave2("fig/SR_RR.png", SR_RR, width = 6, height = 4)
+ggsave2("fig/SR_rR.png", SR_rR, width = 6, height = 4)
 ggsave2("fig/win_loss.png", win_loss, width = 6, height = 4)
 ```
