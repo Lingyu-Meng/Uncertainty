@@ -29,7 +29,8 @@ data_win_loss <- data.frame(V, Win, Loss) %>%
   gather(key = "condition", value = "P", -V)
 
 SR <- pnorm(V + 0.5 + V/ 1.72)
-rR <- pnorm(V + V/ 1.89) # 1.89 is the standard deviation of the population (TU)
+rR <- pnorm(V + 0.5 * 0.55 + V/ 1.89) # 1.89 is the standard deviation of the population (TU)
+# RU(rR)/RU(SR) ≈ 0.55
 data_SR_rR <- data.frame(V, SR, rR) %>% 
   gather(key = "condition", value = "P", -V)
 ```
@@ -62,6 +63,12 @@ sqrt(V_r + V_R)
 ```
 
 Those are not real TU, as the TU should be estimated during subjects' decision making. However, it is a little bit tricky to explain the setting. We may need to discuss it later. For now, I will use the real value of variance in the population in the following simulation.
+
+The RU in rR condition is
+
+```{r RU in rR}
+sqrt(V_R) - sqrt(V_r)
+```
 
 I setted same w3 for rR and SR. However, the slop is different due to the different TU.
 

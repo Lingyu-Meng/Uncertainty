@@ -4,7 +4,7 @@ $$
 P(a=1|w)=\Phi(w_1 \times V+ w_2 \times RU + w_3 \times V/TU)
 $$
 
-where $w_1$ is fixed to 1, and the value of $w_2$, $w_3$ are assigned arbitrarily for the sake of demonstration. RU is fixed to 1 for convenience in SR condition, while in RR condition RU is fixed to 0. TU is assigned to 1.72 and 1.09 respectively. (Please read the pdf or code for detail and reason)
+where $w_1$ is fixed to 1, and the value of $w_2$, $w_3$ are assigned arbitrarily for the sake of demonstration. RU is fixed to 1 for convenience in SR condition, while in rR condition RU is fixed to 0.55. TU is assigned to 1.72 and 1.89 respectively. (Please read the pdf or code for detail and reason)
 
 H1: High intolerance of uncertainty (IU) lead to less direct exploration
 
