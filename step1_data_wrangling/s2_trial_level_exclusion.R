@@ -62,6 +62,10 @@ hist_RT <- ggplot(main_data, aes(x = `Reaction Time`)) +
   theme_minimal()
 ggsave("step1_data_wrangling/output/hist_RT.png", hist_RT, width = 6, height = 4)
 
+# read excluded participants
+excluded_participants <- read_csv("step1_data_wrangling/output/inclusion.csv") %>% 
+  filter(pass == FALSE)
+
 # consider 100ms as the threshold for too fast trials and treat them as omission
 cleaned_data <- main_data %>%
   mutate(Response = ifelse(`Reaction Time` < 100, "No Response", Response)) %>% 
@@ -69,7 +73,8 @@ cleaned_data <- main_data %>%
   mutate(block_omit = sum(Response == "No Response")) %>% # count omission trials and too fast trials
   ungroup(`Participant Private ID`, `Spreadsheet: block_flag`) %>% 
   filter(block_omit < 5) %>% # remove block with less than 8 valid response trials
-  filter(Response != "No Response") # remove omission trials
+  filter(Response != "No Response") %>%  # remove omission trials
+  anti_join(excluded_participants, by = join_by(`Participant Private ID`)) # remove excluded participants
 
 # save cleaned data
 write_csv(cleaned_data, "step1_data_wrangling/output/cleaned_data.csv")
