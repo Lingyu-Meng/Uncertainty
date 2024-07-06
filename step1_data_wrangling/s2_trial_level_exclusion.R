@@ -1,6 +1,6 @@
 # Remove invalid trials and participants
 # input: main task data, inclusion.csv
-# output: hist_too_fast.png, hist_RT.png, cleaned_data.csv
+# output: cleaned_data.csv
 
 # List of required packages
 required_packages <- c("tidyverse")
@@ -41,36 +41,14 @@ second_response <- main_data %>%
 
 main_data <- anti_join(main_data, second_response) # remove
 
-## remove omission and too fast trials
-# have a look on distribution of response time
-too_fast <- main_data %>% 
-  filter(`Reaction Time` < 150) %>% # remove trials with response time less than 100ms
-  select(`Participant Private ID`, `Reaction Time`)
-
-hist_too_fast <- ggplot(too_fast, aes(x = `Reaction Time`)) +
-  geom_histogram(binwidth = 10, fill = "skyblue", color = "black") +
-  labs(title = "Too fast trials distribution", x = "RT (ms)", y = "Frequency") +
-  theme_minimal()
-ggsave("step1_data_wrangling/output/hist_too_fast.png", hist_too_fast, width = 6, height = 4)
-
-hist_RT <- ggplot(main_data, aes(x = `Reaction Time`)) +
-  geom_histogram(binwidth = 50, fill = "skyblue", color = "black") +
-  labs(title = "RT distribution", x = "RT (ms)", y = "Frequency") +
-  geom_vline(xintercept = 150, linetype = "dashed", color = "black") +
-  geom_vline(xintercept = 100, linetype = "dashed", color = "red") +
-  xlim(0, 4000) +
-  theme_minimal()
-ggsave("step1_data_wrangling/output/hist_RT.png", hist_RT, width = 6, height = 4)
-
+## remove omission
 # read excluded participants
 excluded_participants <- read_csv("step1_data_wrangling/output/inclusion.csv") %>% 
   filter(pass == FALSE)
 
-# consider 100ms as the threshold for too fast trials and treat them as omission
 cleaned_data <- main_data %>%
-  mutate(Response = ifelse(`Reaction Time` < 100, "No Response", Response)) %>% 
   group_by(`Participant Private ID`, `Spreadsheet: block_flag`) %>%
-  mutate(block_omit = sum(Response == "No Response")) %>% # count omission trials and too fast trials
+  mutate(block_omit = sum(Response == "No Response")) %>% # count omission trials
   ungroup(`Participant Private ID`, `Spreadsheet: block_flag`) %>% 
   filter(block_omit < 5) %>% # remove block with less than 8 valid response trials
   filter(Response != "No Response") %>%  # remove omission trials
