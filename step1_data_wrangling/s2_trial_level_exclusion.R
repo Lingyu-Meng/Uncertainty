@@ -1,6 +1,6 @@
-# Remove uneligible blocks
-# input: main task data
-# output: pass inclusive criteria (inclusion.csv), questionnaire scores (questionnaire_score.csv)
+# Remove invalid trials and participants
+# input: main task data, inclusion.csv
+# output: hist_too_fast.png, hist_RT.png, cleaned_data.csv
 
 # List of required packages
 required_packages <- c("tidyverse")
