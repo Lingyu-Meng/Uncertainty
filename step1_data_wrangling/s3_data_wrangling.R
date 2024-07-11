@@ -17,10 +17,20 @@ install_and_Load <- function(packages) {
 install_and_Load(required_packages)
 
 cleaned_data <- read_csv("step1_data_wrangling/output/cleaned_data.csv")
+questionnaire <- read_csv("step1_data_wrangling/output/questionnaire_score.csv") %>% 
+  # mutate(across(-1, scale))
+  transmute(
+    `Participant Private ID` = `Participant Private ID`,
+    IIU = scale(IIU),
+    PIU = scale(PIU),
+    IU  = scale(IU),
+    IM  = scale(`Overall impulsiveness`),
+    Anx = scale(Overall_anxiety),
+  )
 
 kalman_data <- cleaned_data %>%
   transmute(
-    ID = as.integer(factor(`Participant Private ID`)),  # transform to 1, 2, 3
+    `Participant Private ID` = `Participant Private ID`,
     trial_number = `Trial Number`,
     block_number = `Spreadsheet: block_flag`,
     payoff = `Store: trial_payoff`,
@@ -49,11 +59,13 @@ kalman_data <- cleaned_data %>%
     ),
     trial = trial_number %% 12 + 1,
   ) %>% 
-  group_by(ID, block_number) %>%
+  group_by(`Participant Private ID`, block_number) %>%
   mutate(
     value_left = mean(payoff_left),
     value_right = mean(payoff_right),
   ) %>%
-  ungroup()
+  ungroup() %>% 
+  left_join(questionnaire, by = "Participant Private ID") %>%
+  transmute(ID = as.integer(factor(`Participant Private ID`)))  # transform to 1, 2, 3
 
 write_csv(kalman_data, "step1_data_wrangling/output/kalman_data.csv")
