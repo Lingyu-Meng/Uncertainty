@@ -100,3 +100,6 @@ for n = 1:max(data.ID) % individual level
     end
     data(data.ID == n, :) = data_sub;
 end
+
+cd("output/")
+save("estimated_data.csv","data")
