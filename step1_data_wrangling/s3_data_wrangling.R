@@ -26,7 +26,7 @@ questionnaire <- read_csv("step1_data_wrangling/output/questionnaire_score.csv")
     IU  = scale(IU),
     IM  = scale(`Overall impulsiveness`),
     Anx = scale(Overall_anxiety),
-  )
+  ) %>% as.matrix() %>% as.data.frame()
 
 kalman_data <- cleaned_data %>%
   transmute(
@@ -57,7 +57,7 @@ kalman_data <- cleaned_data %>%
       response == "Left" ~ 1,
       response == "Right" ~ 2
     ),
-    trial = trial_number %% 12 + 1,
+    trial = (trial_number - 1) %% 12 + 1,
   ) %>% 
   group_by(`Participant Private ID`, block_number) %>%
   mutate(
@@ -66,6 +66,7 @@ kalman_data <- cleaned_data %>%
   ) %>%
   ungroup() %>% 
   left_join(questionnaire, by = "Participant Private ID") %>%
-  transmute(ID = as.integer(factor(`Participant Private ID`)))  # transform to 1, 2, 3
+  mutate(ID = as.integer(factor(`Participant Private ID`))) %>%   # transform to 1, 2, 3
+  select(-`Participant Private ID`)
 
 write_csv(kalman_data, "step1_data_wrangling/output/kalman_data.csv")
