@@ -335,7 +335,7 @@ model_IM_frame <- glmer(
 model_IM_frame_2 <- glmer(
   choice ~ -1 + V + RU + VTU +
            (V + RU + VTU):frame +
-           RU:frame:IM + (-1 + RU + VTU|ID),
+           VTU:frame:IM + (-1 + RU + VTU|ID),
   data = data,
   family = binomial,
   control = glmerControl(optimizer = "bobyqa")

@@ -42,7 +42,7 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <tr>
 <td>RU</td>
 <td>&ensp;1.145<sup>&#42;&#42;&#42;</sup></td>
-<td>&ensp;1.142<sup>&#42;&#42;&#42;</sup></td>
+<td>&ensp;1.145<sup>&#42;&#42;&#42;</sup></td>
 <td>&ensp;1.142<sup>&#42;&#42;&#42;</sup></td>
 </tr>
 <tr>
@@ -66,7 +66,7 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <tr>
 <td>V:frame</td>
 <td>&ensp;1.030<sup>&#42;&#42;&#42;</sup></td>
-<td>&ensp;1.031<sup>&#42;&#42;&#42;</sup></td>
+<td>&ensp;1.030<sup>&#42;&#42;&#42;</sup></td>
 <td>&ensp;1.031<sup>&#42;&#42;&#42;</sup></td>
 </tr>
 <tr>
@@ -78,7 +78,7 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <tr>
 <td>RU:frame</td>
 <td>&ensp;2.654<sup>&#42;&#42;&#42;</sup></td>
-<td>&ensp;2.654<sup>&#42;&#42;&#42;</sup></td>
+<td>&ensp;2.655<sup>&#42;&#42;&#42;</sup></td>
 <td>&ensp;2.655<sup>&#42;&#42;&#42;</sup></td>
 </tr>
 <tr>
@@ -114,25 +114,25 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <tr>
 <td>RU:frame:IM</td>
 <td>&ensp;0.031</td>
-<td>&ensp;0.019</td>
+<td></td>
 <td></td>
 </tr>
 <tr>
 <td></td>
 <td>(0.071)</td>
-<td>(0.070)</td>
+<td></td>
 <td></td>
 </tr>
 <tr>
 <td>VTU:frame:IM</td>
 <td>–0.010</td>
-<td></td>
+<td>–0.020</td>
 <td></td>
 </tr>
 <tr>
 <td></td>
 <td>(0.019)</td>
-<td></td>
+<td>(0.011)</td>
 <td></td>
 </tr>
 <tr class="rule">
@@ -144,19 +144,19 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <tr>
 <td>Conditional <i>R</i><sup>2</sup></td>
 <td>&ensp;0.593</td>
-<td>&ensp;0.592</td>
+<td>&ensp;0.593</td>
 <td>&ensp;0.592</td>
 </tr>
 <tr>
 <td>AIC</td>
 <td>24343.503</td>
-<td>24343.395</td>
+<td>24340.060</td>
 <td>24341.468</td>
 </tr>
 <tr>
 <td>BIC</td>
 <td>24441.992</td>
-<td>24425.469</td>
+<td>24422.134</td>
 <td>24415.335</td>
 </tr>
 <tr>
@@ -174,19 +174,19 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <tr>
 <td>Var: ID RU</td>
 <td>&ensp;0.126</td>
-<td>&ensp;0.122</td>
+<td>&ensp;0.124</td>
 <td>&ensp;0.122</td>
 </tr>
 <tr>
 <td>Var: ID VTU</td>
 <td>&ensp;0.015</td>
-<td>&ensp;0.015</td>
+<td>&ensp;0.014</td>
 <td>&ensp;0.014</td>
 </tr>
 <tr class="bottomrule">
 <td>Cov: ID RU VTU</td>
 <td>–0.013</td>
-<td>–0.011</td>
+<td>–0.012</td>
 <td>–0.011</td>
 </tr>
 </tbody>
