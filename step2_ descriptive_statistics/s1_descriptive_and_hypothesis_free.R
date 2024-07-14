@@ -1,6 +1,6 @@
 # Describetive statistics
 # input: cleaned_data.csv, inclusion.csv, questionnaire_score.csv, data_exp_172913-v29_questionnaire-y2w6.csv
-# output: age_hist.png, gender_bar, age_gender_rain.png, RT_hist.png, trait_corr.png, rain_meanRT_frame_arms.png, RT_cond_inter.png, response_rate_stack.png, acc_hist.png, accuracy_rain.png, acc_cond_inter.png, RT_acc.png, acc_trait_RT_plot.png
+# output: age_hist.png, gender_bar, age_gender_rain.png, RT_hist.png, trait_corr.png, rain_meanRT_context_arms.png, RT_cond_inter.png, response_rate_stack.png, acc_hist.png, accuracy_rain.png, acc_cond_inter.png, RT_acc.png, acc_trait_RT_plot.png
 
 # List of required packages
 required_packages <- c("tidyverse",
@@ -112,7 +112,7 @@ trait_cor <- questionnaire_data %>%
 # Load the RT data
 RT_data <- read_csv("step1_data_wrangling/output/cleaned_data.csv") %>% 
   mutate(
-    frame = case_when(
+    context = case_when(
       grepl("Win", `Spreadsheet: Condition`) ~ "Win",
       grepl("Lose", `Spreadsheet: Condition`) ~ "Lose",
     ),
@@ -121,9 +121,9 @@ RT_data <- read_csv("step1_data_wrangling/output/cleaned_data.csv") %>%
       grepl("r", `Spreadsheet: Condition`) ~ "rR",
     )
   ) %>% 
-  select(`Participant Private ID`, `Reaction Time`, frame, arms) %>% 
+  select(`Participant Private ID`, `Reaction Time`, context, arms) %>% 
   left_join(demo, by = "Participant Private ID") %>% 
-  mutate(frame = factor(frame, levels = c("Win", "Lose")),
+  mutate(context = factor(context, levels = c("Win", "Lose")),
          arms = factor(arms, levels = c("SR", "rR")))
 
 # RT
@@ -138,36 +138,36 @@ RT_hist <- RT_data %>%
 # RT x Condition
 # calculate the mean RT in same condition per participants
 mean_RT <- RT_data %>% 
-  group_by(`Participant Private ID`, frame, arms) %>%
+  group_by(`Participant Private ID`, context, arms) %>%
   summarise(`Mean RT` = mean(`Reaction Time`)) %>%
-  ungroup(`Participant Private ID`, frame, arms)
+  ungroup(`Participant Private ID`, context, arms)
 
-rain_meanRT_frame_arms <- mean_RT %>% 
-  ggplot(aes(x = frame, y = `Mean RT`, fill = arms)) +
+rain_meanRT_context_arms <- mean_RT %>% 
+  ggplot(aes(x = context, y = `Mean RT`, fill = arms)) +
   geom_rain(rain.side = 'f2x2', id.long.var = "Participant Private ID", alpha = 0.5) +
   theme_cowplot()
 
-# RT Linear Mixed Model (RT ~ frame:arms + (1|Participant Private ID)
+# RT Linear Mixed Model (RT ~ context:arms + (1|Participant Private ID)
 lmm_RT <- RT_data %>% 
-  lmer(`Reaction Time` ~ frame*arms + (1|`Participant Private ID`), data = .)
+  lmer(`Reaction Time` ~ context*arms + (1|`Participant Private ID`), data = .)
 HLM_summary(lmm_RT) # WIN SR as baseline
-RT_posthoc <- lsmeans(lmm_RT, pairwise ~ frame:arms, adjust = "tukey") # post hoc test
+RT_posthoc <- lsmeans(lmm_RT, pairwise ~ context:arms, adjust = "tukey") # post hoc test
 # Only Win SR - Win rR and Lose SR - Lose rR is not significant
 # Or conduct ANOVA, the results are the same
 # RT_aov <- RT_data %>%
-#   aov(`Reaction Time` ~ frame*arms + Error(`Participant Private ID`), data = .)
-# summary(RT_aov) # main effect of frame only
+#   aov(`Reaction Time` ~ context*arms + Error(`Participant Private ID`), data = .)
+# summary(RT_aov) # main effect of context only
 
 # Visiualise the HLM results
-# Create a data frame for visualization
-vis_data <- expand.grid(frame = levels(RT_data$frame),
+# Create a data context for visualization
+vis_data <- expand.grid(context = levels(RT_data$context),
                         arms = levels(RT_data$arms))
 
 vis_data$RT <-  predict(lmm_RT, newdata = vis_data, re.form = NA)
 
 # Plot the interaction
 RT_cond_inter <- vis_data %>% 
-  ggplot(aes(x = frame, y = RT, color = arms, group = arms)) +
+  ggplot(aes(x = context, y = RT, color = arms, group = arms)) +
   geom_line(size = 1) +
   geom_point(size = 3) +
   geom_signif(comparisons = list(c("Win", "Lose")),
@@ -190,9 +190,9 @@ RT_cond_inter <- vis_data %>%
 
 ## Response rate
 response_rate <- RT_data %>% 
-  group_by(`Participant Private ID`, frame, arms) %>%
+  group_by(`Participant Private ID`, context, arms) %>%
   summarise(`Response Rate` = n() / 60) %>%
-  ungroup(`Participant Private ID`, frame, arms) %>% 
+  ungroup(`Participant Private ID`, context, arms) %>% 
   mutate(Grade = case_when(
     `Response Rate` == 1 ~ "100%",
     `Response Rate` > 0.9 ~ ">90%",
@@ -202,14 +202,14 @@ response_rate <- RT_data %>%
   ))
 
 response_rate_grade <- response_rate %>% 
-  group_by(frame, arms, Grade) %>%
+  group_by(context, arms, Grade) %>%
   summarise(Count = n()) %>%
-  group_by(frame, arms) %>%
+  group_by(context, arms) %>%
   mutate(Proportion = Count / sum(Count)) %>%
   ungroup() %>% 
-  unite("Condition", c("frame", "arms"), sep = "_")
+  unite("Condition", c("context", "arms"), sep = "_")
 
-# response rate ~ frame x arms
+# response rate ~ context x arms
 response_rate_stack <- response_rate_grade %>% 
   ggplot(aes(x = Condition, y = Proportion, fill = Grade)) +
   geom_bar(stat = "identity", position = "stack") +
@@ -238,7 +238,7 @@ response_rate_chi <- response_rate_grade %>%
 # Load the accuracy data
 accuracy_data <- read_csv("step1_data_wrangling/output/cleaned_data.csv") %>% 
   mutate(
-    frame = case_when(
+    context = case_when(
       grepl("Win", `Spreadsheet: Condition`) ~ "Win",
       grepl("Lose", `Spreadsheet: Condition`) ~ "Lose",
     ),
@@ -248,11 +248,11 @@ accuracy_data <- read_csv("step1_data_wrangling/output/cleaned_data.csv") %>%
     )
   ) %>% 
   group_by(`Participant Private ID`, `Spreadsheet: block_flag`) %>%
-  transmute(`Participant Private ID`, frame, arms,
+  transmute(`Participant Private ID`, context, arms,
             performance = max(`Store: round_correct`, na.rm = T)/12) %>%
   unique() %>%
   left_join(demo, by = "Participant Private ID") %>% 
-  mutate(frame = factor(frame, levels = c("Win", "Lose")),
+  mutate(context = factor(context, levels = c("Win", "Lose")),
          arms = factor(arms, levels = c("SR", "rR")))
 
 acc_hist <- accuracy_data %>% 
@@ -265,30 +265,30 @@ acc_hist <- accuracy_data %>%
        y = "Frequency") +
   theme_cowplot()
 
-# accuracy ~ frame x arms
+# accuracy ~ context x arms
 acc_aov <- accuracy_data %>%
-  aov(performance ~ frame*arms + Error(`Participant Private ID`), data = .)
+  aov(performance ~ context*arms + Error(`Participant Private ID`), data = .)
 summary(acc_aov)
 
 acc_lmm <- accuracy_data %>% 
-  lmer(performance ~ frame*arms + (1|`Participant Private ID`), data = .)
+  lmer(performance ~ context*arms + (1|`Participant Private ID`), data = .)
 HLM_summary(acc_lmm) # Lose rR as baseline
-acc_posthoc <- lsmeans(acc_lmm, pairwise ~ frame*arms, adjust = "tukey") # post hoc test
+acc_posthoc <- lsmeans(acc_lmm, pairwise ~ context*arms, adjust = "tukey") # post hoc test
 
 accuracy_rain <- accuracy_data %>% 
-  group_by(`Participant Private ID`, frame, arms) %>%
+  group_by(`Participant Private ID`, context, arms) %>%
   summarise(performance = mean(performance)) %>%
-  ggplot(aes(x = frame, y = performance, fill = arms)) +
+  ggplot(aes(x = context, y = performance, fill = arms)) +
   geom_rain(rain.side = 'f2x2', id.long.var = "Participant Private ID", alpha = 0.5) +
   theme_cowplot()
 
 # Visiualise the HLM results
-# Create a data frame for visualization
+# Create a data context for visualization
 vis_data$performance <-  predict(acc_lmm, newdata = vis_data, re.form = NA)
 
 # Plot the interaction
 acc_cond_inter <- vis_data %>% 
-  ggplot(aes(x = frame, y = performance, color = arms, group = arms)) +
+  ggplot(aes(x = context, y = performance, color = arms, group = arms)) +
   geom_line(size = 1) +
   geom_point(size = 3) +
   geom_signif(comparisons = list(c("Win", "Lose")),
@@ -310,10 +310,10 @@ acc_cond_inter <- vis_data %>%
        x = "Context") +
   theme_cowplot()
 
-## RT x Accuracy by frame x arms
+## RT x Accuracy by context x arms
 RT_acc <- vis_data %>% 
   ggplot(aes(x = RT, y = performance, color = arms,
-             shape = frame, group = arms)) +
+             shape = context, group = arms)) +
   geom_line(size = 1) +
   geom_point(size = 4) +
   labs(title = "RT x Accuracy",
@@ -387,9 +387,10 @@ acc_trait_RT_plot <- plot_grid(acc_trait_plot, RT_trait_plot, ncol = 1)
 ggsave("step2_ descriptive_statistics/output/age_hist.png", age_hist, width = 8, height = 6)
 ggsave("step2_ descriptive_statistics/output/gender_bar.png", gender_bar, width = 8, height = 6)
 ggsave("step2_ descriptive_statistics/output/age_gender_rain.png", age_gender_rain, width = 8, height = 6)
+ggsave("step2_ descriptive_statistics/output/age_2gender_rain.png", age_2gender_rain, width = 8, height = 6)
 ggsave("step2_ descriptive_statistics/output/RT_hist.png", RT_hist, width = 8, height = 6)
 ggsave("step2_ descriptive_statistics/output/trait_corr.png", trait_cor$plot, width = 8, height = 6)
-ggsave("step2_ descriptive_statistics/output/rain_meanRT_frame_arms.png", rain_meanRT_frame_arms, width = 8, height = 6)
+ggsave("step2_ descriptive_statistics/output/rain_meanRT_context_arms.png", rain_meanRT_context_arms, width = 8, height = 6)
 ggsave("step2_ descriptive_statistics/output/RT_condition_interaction.png", RT_cond_inter, width = 8, height = 6)
 ggsave("step2_ descriptive_statistics/output/response_rate_stack.png", response_rate_stack, width = 8, height = 6)
 ggsave("step2_ descriptive_statistics/output/accuracy_hist.png", acc_hist, width = 8, height = 6)

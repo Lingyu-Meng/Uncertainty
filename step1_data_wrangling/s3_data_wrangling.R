@@ -39,7 +39,7 @@ kalman_data <- cleaned_data %>%
     right = `Spreadsheet: Right SR`,
     payoff_left = `Spreadsheet: Left Payoff`,
     payoff_right = `Spreadsheet: Right Payoff`,
-    frame = case_when(
+    context = case_when(
       grepl("Win", `Spreadsheet: Condition`) ~ "Win",
       grepl("Lose", `Spreadsheet: Condition`) ~ "Lose",
     ),

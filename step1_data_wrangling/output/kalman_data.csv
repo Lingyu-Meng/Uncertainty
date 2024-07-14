@@ -1,4 +1,4 @@
-trial_number,block_number,payoff,response,left,right,payoff_left,payoff_right,frame,arms,choice,trial,value_left,value_right,IIU,PIU,IU,IM,Anx,ID
+trial_number,block_number,payoff,response,left,right,payoff_left,payoff_right,context,arms,choice,trial,value_left,value_right,IIU,PIU,IU,IM,Anx,ID
 1,6,4,Left,**R**,**S**,4,2,Win,SR,1,1,4,2,-0.29409940581538674,-0.7288068563000624,-0.6517703085845489,1.128027688619212,-0.20830199519567816,1
 2,6,5,Left,**R**,**S**,5,2,Win,SR,1,2,4,2,-0.29409940581538674,-0.7288068563000624,-0.6517703085845489,1.128027688619212,-0.20830199519567816,1
 3,6,4,Left,**R**,**S**,4,2,Win,SR,1,3,4,2,-0.29409940581538674,-0.7288068563000624,-0.6517703085845489,1.128027688619212,-0.20830199519567816,1
