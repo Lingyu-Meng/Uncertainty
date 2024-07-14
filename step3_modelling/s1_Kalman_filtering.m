@@ -7,7 +7,7 @@
 
 workpath = pwd;
 cd('../');
-data = readtable('step1_data_wrangling/output/kalman_data.csv');
+data = readtable('step2_descriptive_statistics/output/kalman_data.csv');
 cd(workpath);
 
 % initialize the V, RU, and VTU values
