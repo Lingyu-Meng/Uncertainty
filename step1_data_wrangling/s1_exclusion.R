@@ -101,14 +101,28 @@ RAS_data_list <- map(RAS_files, read_csv)
 RAS_data_list <- map(RAS_data_list, ~mutate_all(.x, as.character)) %>% 
                  map(~head(.x, -1)) # remove the last row
 
-combined_RAS <- bind_rows(RAS_data_list) %>% 
-                filter(`Response Type` != "info") # remove the information row
+combined_RAS <- bind_rows(RAS_data_list)
 
 attention_RAS <- combined_RAS %>% 
   filter(Key == "value") %>%
   filter(OptionOrder == "Please select this option for this question.|A fair coin flip in which you get £200 if it is heads, £0 if it is tails.") %>% 
   select(Response, `Participant Private ID`) %>% 
   mutate(RAS_pass = (Response == "Please select this option for this question."))
+
+# wrangling RAS data
+combined_RAS <- combined_RAS %>% 
+  filter(`Response Type` != "info") %>%  # remove the information row
+  filter(`Object Number` != 9) %>% # remove attention check
+  filter(Key == "quantised") %>% # remove string responses
+  mutate(
+    Response = as.numeric(Response) - 1, # 1 for gamble, 0 for sure
+    gain = 200,
+    safe = as.numeric(
+      str_extract(OptionOrder, "(?<=£)\\d+(?= for sure)")
+    )
+  ) %>%
+  select(`Participant Private ID`, Response, gain, safe) %>% 
+  mutate(ID = as.integer(factor(`Participant Private ID`))) # transform to 1, 2, 3
 
 # combine questionnaire scores
 questionnaire_score <- IUS_score_short %>% 
