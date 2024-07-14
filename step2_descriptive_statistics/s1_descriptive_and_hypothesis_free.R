@@ -124,7 +124,8 @@ RT_data <- read_csv("step1_data_wrangling/output/cleaned_data.csv") %>%
   select(`Participant Private ID`, `Reaction Time`, context, arms) %>% 
   left_join(demo, by = "Participant Private ID") %>% 
   mutate(context = factor(context, levels = c("Win", "Lose")),
-         arms = factor(arms, levels = c("SR", "rR")))
+         arms = factor(arms, levels = c("SR", "rR")),
+         lgRT = log(`Reaction Time`))
 
 # RT
 RT_hist <- RT_data %>% 
@@ -134,29 +135,61 @@ RT_hist <- RT_data %>%
        x = "RT (ms)",
        y = "Frequency") +
   theme_cowplot()
+lgRT_hist <- RT_data %>% 
+  ggplot(aes(x = lgRT)) +
+  geom_histogram(binwidth = 0.1, fill = "skyblue", color = "black") +
+  labs(title = "Log RT Distribution",
+       x = "Log RT",
+       y = "Frequency") +
+  theme_cowplot()
+RT_dist <- plot_grid(RT_hist, lgRT_hist, ncol = 1)
 
 # RT x Condition
 # calculate the mean RT in same condition per participants
 mean_RT <- RT_data %>% 
   group_by(`Participant Private ID`, context, arms) %>%
-  summarise(`Mean RT` = mean(`Reaction Time`)) %>%
+  summarise(`Mean RT` = mean(`Reaction Time`),
+            `Mean lgRT` = mean(lgRT)) %>%
   ungroup(`Participant Private ID`, context, arms)
 
-rain_meanRT_context_arms <- mean_RT %>% 
-  ggplot(aes(x = context, y = `Mean RT`, fill = arms)) +
+rain_meanlgRT_context_arms <- mean_RT %>% 
+  mutate(`Participant Private ID` = ifelse(
+    arms == "SR", `Participant Private ID` * 10,
+    `Participant Private ID`) # to separate the two conditions
+  ) %>%
+  ggplot(aes(x = context, y = `Mean lgRT`, fill = arms)) +
   geom_rain(rain.side = 'f2x2', id.long.var = "Participant Private ID", alpha = 0.5) +
   theme_cowplot()
 
+rain_meanRT_context_arms <- mean_RT %>% 
+  mutate(`Participant Private ID` = ifelse(
+    arms == "SR", `Participant Private ID` * 10,
+    `Participant Private ID`) # to separate the two conditions
+  ) %>%
+  ggplot(aes(x = context, y = `Mean RT`, fill = arms, color = arms)) +
+  geom_rain(rain.side = 'f2x2', id.long.var = "Participant Private ID", alpha = 0.5) +
+  geom_signif(comparisons = list(c("Win", "Lose")),
+              annotation = c("***"), tip_length = 0,
+              color = "black") +
+  theme_cowplot()
+
 # RT Linear Mixed Model (RT ~ context:arms + (1|Participant Private ID)
+lmm_lgRT <- RT_data %>% 
+  lmer(lgRT ~ context*arms + (1|`Participant Private ID`), data = .)
+HLM_summary(lmm_lgRT) # WIN SR as baseline
+lgRT_posthoc <- lsmeans(lmm_RT, pairwise ~ context:arms, adjust = "tukey") # post hoc test
+# Only Win SR - Win rR and Lose SR - Lose rR is not significant
+# Or conduct ANOVA, which may has less power, but the results are the same
+# RT_aov <- RT_data %>%
+#   aov(`Reaction Time` ~ context*arms + Error(`Participant Private ID`), data = .)
+# summary(RT_aov) # main effect of context only
+
+# This result is consistent with the analysis without log trans
 lmm_RT <- RT_data %>% 
   lmer(`Reaction Time` ~ context*arms + (1|`Participant Private ID`), data = .)
 HLM_summary(lmm_RT) # WIN SR as baseline
 RT_posthoc <- lsmeans(lmm_RT, pairwise ~ context:arms, adjust = "tukey") # post hoc test
-# Only Win SR - Win rR and Lose SR - Lose rR is not significant
-# Or conduct ANOVA, the results are the same
-# RT_aov <- RT_data %>%
-#   aov(`Reaction Time` ~ context*arms + Error(`Participant Private ID`), data = .)
-# summary(RT_aov) # main effect of context only
+# only difference is interaction. context x arms is p = 0.065 in log, whereas p = 0.152 in original RT
 
 # Visiualise the HLM results
 # Create a data context for visualization
@@ -164,11 +197,12 @@ vis_data <- expand.grid(context = levels(RT_data$context),
                         arms = levels(RT_data$arms))
 
 vis_data$RT <-  predict(lmm_RT, newdata = vis_data, re.form = NA)
+vis_data$lgRT <-  predict(lmm_lgRT, newdata = vis_data, re.form = NA)
 
 # Plot the interaction
 RT_cond_inter <- vis_data %>% 
   ggplot(aes(x = context, y = RT, color = arms, group = arms)) +
-  geom_line(size = 1) +
+  geom_line(linewidth = 1) +
   geom_point(size = 3) +
   geom_signif(comparisons = list(c("Win", "Lose")),
               annotation = c("***"), tip_length = 0) +
@@ -184,9 +218,33 @@ RT_cond_inter <- vis_data %>%
               colour = "black", vjust = 2) +
   labs(title = "Interaction Plot for RT Results",
        color = "Arms",
-       y = "RT (ms)",
+       y = "Log RT",
        x = "Context") +
   theme_cowplot()
+
+lgRT_cond_inter <- vis_data %>% 
+  ggplot(aes(x = context, y = lgRT, color = arms, group = arms)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 3) +
+  geom_signif(comparisons = list(c("Win", "Lose")),
+              annotation = c("***"), tip_length = 0) +
+  geom_signif(comparisons = list(c("Win", "Lose")),
+              annotation = c("***"), tip_length = 0,
+              y_position = 6.344,
+              vjust = 2.3, colour = "#00BFC4") +
+  geom_signif(y_position = 6.25, xmin = 0.99, xmax = 1.01,
+              annotation = c("NS."), tip_length = 0,
+              colour = "black") +
+  geom_signif(y_position = 6.325, xmin = 1.99, xmax = 2.01,
+              annotation = c("NS."), tip_length = 0,
+              colour = "black", vjust = 2) +
+  labs(title = "Interaction Plot for RT Results",
+       color = "Arms",
+       y = "Log RT",
+       x = "Context") +
+  theme_cowplot()
+
+RTs_inter_plot <- plot_grid(RT_cond_inter, lgRT_cond_inter, ncol = 1)
 
 ## Response rate
 response_rate <- RT_data %>% 
@@ -354,7 +412,8 @@ summary(acc_trait_lm)
 ## trait x RT
 RT_trait <- RT_data %>% 
   group_by(`Participant Private ID`) %>%
-  summarise(`Mean RT` = mean(`Reaction Time`)) %>%
+  summarise(`Mean RT` = mean(`Reaction Time`),
+            `Mean lgRT` = mean(lgRT)) %>%
   left_join(questionnaire_data, by = "Participant Private ID")
 
 RT_IU <- RT_trait %>%
@@ -380,6 +439,11 @@ RT_trait_plot <- plot_grid(RT_IU, RT_IM, RT_anx, ncol = 3)
 RT_trait_lm <- RT_trait %>% 
   lm(`Mean RT` ~ IU*IM*Anxi, data = .)
 summary(RT_trait_lm)
+# original RT is marginal significant in IU (p = 0.095) and IM (p = 0.098)
+lgRT_trait_lm <- RT_trait %>% 
+  lm(`Mean lgRT` ~ IU*IM*Anxi, data = .)
+summary(lgRT_trait_lm)
+# log RT is not significant in IU, IM, and Anxi
 
 acc_trait_RT_plot <- plot_grid(acc_trait_plot, RT_trait_plot, ncol = 1)
 
@@ -389,9 +453,12 @@ ggsave("step2_descriptive_statistics/output/gender_bar.png", gender_bar, width =
 ggsave("step2_descriptive_statistics/output/age_gender_rain.png", age_gender_rain, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/age_2gender_rain.png", age_2gender_rain, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/RT_hist.png", RT_hist, width = 8, height = 6)
+ggsave("step2_descriptive_statistics/output/lgRT_hist.png", lgRT_hist, width = 8, height = 6)
+ggsave("step2_descriptive_statistics/output/RT_dist.png", RT_dist, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/trait_corr.png", trait_cor$plot, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/rain_meanRT_context_arms.png", rain_meanRT_context_arms, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/RT_condition_interaction.png", RT_cond_inter, width = 8, height = 6)
+ggsave("step2_descriptive_statistics/output/RTs_inter_plot.png", RTs_inter_plot, width = 8, height = 12)
 ggsave("step2_descriptive_statistics/output/response_rate_stack.png", response_rate_stack, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/accuracy_hist.png", acc_hist, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/accuracy_rain.png", accuracy_rain, width = 8, height = 6)
