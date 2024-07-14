@@ -91,9 +91,9 @@ age_2gender_rain <- demo %>%
               annotations = "NS.") +
   theme_cowplot()
 
-## Questionnaire
+## Traits
 # Load the questionnaire data
-questionnaire_data <- read_csv("step1_data_wrangling/output/questionnaire_score.csv") %>% 
+traits_data <- read_csv("step1_data_wrangling/output/questionnaire_score.csv") %>% 
   transmute(
     `Participant Private ID` = `Participant Private ID`,
     IU = IU,
@@ -103,8 +103,16 @@ questionnaire_data <- read_csv("step1_data_wrangling/output/questionnaire_score.
     Anxi = Overall_anxiety
   )
 
+# load risk aversion
+risk_aversion <- read_csv("step2_descriptive_statistics/output/risk_aversion.csv") %>% 
+  transmute(`Participant Private ID` = ParticipantPrivateID,
+            RA = gamma) # Risk Aversion
+
+traits_data <- traits_data %>% 
+  left_join(risk_aversion, by = "Participant Private ID")
+
 # correlation matrix
-trait_cor <- questionnaire_data %>% 
+trait_cor <- traits_data %>% 
   select(-`Participant Private ID`) %>%
   Corr()
 
@@ -177,7 +185,7 @@ rain_meanRT_context_arms <- mean_RT %>%
 lmm_lgRT <- RT_data %>% 
   lmer(lgRT ~ context*arms + (1|`Participant Private ID`), data = .)
 HLM_summary(lmm_lgRT) # WIN SR as baseline
-lgRT_posthoc <- lsmeans(lmm_RT, pairwise ~ context:arms, adjust = "tukey") # post hoc test
+lgRT_posthoc <- lsmeans(lmm_lgRT, pairwise ~ context:arms, adjust = "tukey") # post hoc test
 # Only Win SR - Win rR and Lose SR - Lose rR is not significant
 # Or conduct ANOVA, which may has less power, but the results are the same
 # RT_aov <- RT_data %>%
@@ -383,7 +391,7 @@ RT_acc <- vis_data %>%
 accuracy_trait <- accuracy_data %>% 
   group_by(`Participant Private ID`) %>%
   summarise(performance = mean(performance)) %>%
-  left_join(questionnaire_data, by = "Participant Private ID")
+  left_join(traits_data, by = "Participant Private ID")
 
 acc_IU <- accuracy_trait %>% 
   ggplot(aes(x = IU, y = performance)) +
@@ -403,18 +411,24 @@ acc_anx <- accuracy_trait %>%
   geom_smooth(method = "lm") +
   theme_cowplot()
 
-acc_trait_plot <- plot_grid(acc_IU, acc_IM, acc_anx, ncol = 3)
+acc_risk <- accuracy_trait %>% 
+  ggplot(aes(x = RA, y = performance)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  theme_cowplot()
+
+acc_trait_plot <- plot_grid(acc_IU, acc_IM, acc_anx, acc_risk, ncol = 4)
 
 acc_trait_lm <- accuracy_trait %>% 
-  lm(performance ~ IU*IM*Anxi, data = .)
-summary(acc_trait_lm)
+  lm(performance ~ IU + IM + Anxi + RA, data = .)
+model_summary(acc_trait_lm)
 
 ## trait x RT
 RT_trait <- RT_data %>% 
   group_by(`Participant Private ID`) %>%
   summarise(`Mean RT` = mean(`Reaction Time`),
             `Mean lgRT` = mean(lgRT)) %>%
-  left_join(questionnaire_data, by = "Participant Private ID")
+  left_join(traits_data, by = "Participant Private ID")
 
 RT_IU <- RT_trait %>%
   ggplot(aes(x = IU, y = `Mean RT`)) +
@@ -434,15 +448,21 @@ RT_anx <- RT_trait %>%
   geom_smooth(method = "lm") +
   theme_cowplot()
 
-RT_trait_plot <- plot_grid(RT_IU, RT_IM, RT_anx, ncol = 3)
+RT_risk <- RT_trait %>%
+  ggplot(aes(x = RA, y = `Mean RT`)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  theme_cowplot()
+
+RT_trait_plot <- plot_grid(RT_IU, RT_IM, RT_anx, RT_risk, ncol = 4)
 
 RT_trait_lm <- RT_trait %>% 
-  lm(`Mean RT` ~ IU*IM*Anxi, data = .)
-summary(RT_trait_lm)
-# original RT is marginal significant in IU (p = 0.095) and IM (p = 0.098)
+  lm(`Mean RT` ~ IU + IM + Anxi + RA, data = .)
+model_summary(RT_trait_lm)
+# original RT is marginal significant in IU (p = 0.095) and IM (p = 0.098) (without RA)
 lgRT_trait_lm <- RT_trait %>% 
-  lm(`Mean lgRT` ~ IU*IM*Anxi, data = .)
-summary(lgRT_trait_lm)
+  lm(`Mean lgRT` ~ IU + IM + Anxi + RA, data = .)
+model_summary(lgRT_trait_lm)
 # log RT is not significant in IU, IM, and Anxi
 
 acc_trait_RT_plot <- plot_grid(acc_trait_plot, RT_trait_plot, ncol = 1)
@@ -464,4 +484,5 @@ ggsave("step2_descriptive_statistics/output/accuracy_hist.png", acc_hist, width 
 ggsave("step2_descriptive_statistics/output/accuracy_rain.png", accuracy_rain, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/accuracy_condition_interaction.png", acc_cond_inter, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/RT_accuracy.png", RT_acc, width = 8, height = 6)
-ggsave("step2_descriptive_statistics/output/trait_accuracy_RT_plot.png", acc_trait_RT_plot, width = 10, height = 6)
+ggsave("step2_descriptive_statistics/output/trait_accuracy_RT_plot.png", acc_trait_RT_plot, width = 12, height = 6)
+save(acc_trait_lm, lgRT_trait_lm, file = "step2_descriptive_statistics/output/acc_trait_RT_lm.RData")

@@ -1,4 +1,8 @@
 %% fit risk aversion parameters gamma
+% Mehra and Prescott (1985) suggest that γ = 10 is an upper bound for a reasonable value of relative risk aversion.
+% Reference: 
+%   Mehra, R., & Prescott, E. C. (1985). The equity premium: A puzzle. Journal of Monetary Economics, 15(2), 145–161. https://doi.org/10.1016/0304-3932(85)90061-3
+%   Boyle, P. A., Yu, L., Buchman, A., & Bennett, D. (2012). Risk aversion is associated with decision making among community-based older persons. Frontiers in Psychology, 3. https://doi.org/10.3389/fpsyg.2012.00205
 
 % load data
 wd = pwd;
@@ -38,7 +42,7 @@ for i = 1:length(unique_ids)
     fun = @(x) log_likelihood(x, ra_data_i.gain, ra_data_i.safe, ra_data_i.Response);
     
     % Fit gamma using fminbnd
-    gamma = fminbnd(fun, 0, 1);
+    gamma = fminbnd(fun, 0, 10);
     ra_data.gamma(ra_data.ID == id) = gamma;
 end
 
