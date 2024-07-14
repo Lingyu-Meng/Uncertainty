@@ -485,4 +485,6 @@ ggsave("step2_descriptive_statistics/output/accuracy_rain.png", accuracy_rain, w
 ggsave("step2_descriptive_statistics/output/accuracy_condition_interaction.png", acc_cond_inter, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/RT_accuracy.png", RT_acc, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/trait_accuracy_RT_plot.png", acc_trait_RT_plot, width = 12, height = 6)
+
+# Save the models
 save(acc_trait_lm, lgRT_trait_lm, file = "step2_descriptive_statistics/output/acc_trait_RT_lm.RData")
