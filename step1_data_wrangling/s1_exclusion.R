@@ -101,7 +101,8 @@ RAS_data_list <- map(RAS_files, read_csv)
 RAS_data_list <- map(RAS_data_list, ~mutate_all(.x, as.character)) %>% 
                  map(~head(.x, -1)) # remove the last row
 
-combined_RAS <- bind_rows(RAS_data_list)
+combined_RAS <- bind_rows(RAS_data_list) %>% 
+                filter(`Response Type` != "info") # remove the information row
 
 attention_RAS <- combined_RAS %>% 
   filter(Key == "value") %>%
@@ -159,3 +160,6 @@ write_csv(inclusion, paste0(output_dir,"inclusion.csv"))
 
 # save combined questionnaire scores
 write_csv(questionnaire_score, paste0(output_dir,"questionnaire_score.csv"))
+
+# save RAS data
+write_csv(combined_RAS, paste0(output_dir,"RAS.csv"))
