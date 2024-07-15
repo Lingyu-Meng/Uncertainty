@@ -2,25 +2,25 @@ Descriptive statistics results
 
 # Demographic
 
-![](step2_%20descriptive_statistics/output/age_hist.png)
+![](step2_descriptive_statistics/output/age_hist.png)
 
-![](step2_%20descriptive_statistics/output/age_gender_rain.png)
+![](step2_descriptive_statistics/output/age_gender_rain.png)
 
-![](step2_%20descriptive_statistics/output/gender_bar.png)
+![](step2_descriptive_statistics/output/gender_bar.png)
 
 # Response rate
 
 Checked whether there is any condition perticularly hard for the participants to make a decision.
 
-![](step2_%20descriptive_statistics/output/response_rate_stack.png)
+![](step2_descriptive_statistics/output/response_rate_stack.png)
 
 # RT
 
-![](step2_%20descriptive_statistics/output/RT_hist.png)
+![](step2_descriptive_statistics/output/RT_hist.png)
 
-![](step2_%20descriptive_statistics/output/rain_meanRT_frame_arms.png)
+![](step2_descriptive_statistics/output/rain_meanRT_context_arms.png)
 
-![](step2_%20descriptive_statistics/output/RT_condition_interaction.png)
+![](step2_descriptive_statistics/output/RT_condition_interaction.png)
 
 # Accuracy
 
@@ -28,23 +28,26 @@ The accuracy is calculated by the number of correct choices (high expected value
 
 This distribution is calculated by averaging the accuracy of each participant.
 
-![](step2_%20descriptive_statistics/output/accuracy_hist.png)
+![](step2_descriptive_statistics/output/accuracy_hist.png)
 
-![](step2_%20descriptive_statistics/output/accuracy_rain.png)
+![](step2_descriptive_statistics/output/accuracy_rain.png)
 
-![](step2_%20descriptive_statistics/output/accuracy_condition_interaction.png)
+![](step2_descriptive_statistics/output/accuracy_condition_interaction.png)
 
 In sum, the RT and accuracy are respectively affected by frame and arms.
 
-![](step2_%20descriptive_statistics/output/RT_accuracy.png)
+![](step2_descriptive_statistics/output/RT_accuracy.png)
 
 # Trait
 
-![](step2_%20descriptive_statistics/output/trait_corr.png)
+![](step2_descriptive_statistics/output/trait_corr.png)
 
-None of the traits are significantly correlated with the RT and accuracy at 0.05 level.
+-   Higher levels of IU significantly predict lower accuracy and quick decision of the participants.
+-   Higher levels of IM significantly predict higher accuracy.
+-   Higher levels of Anx significantly predict higher accuracy.
+-   Higher levels of RA significantly predict slower decision of the participants.
 
-![](step2_%20descriptive_statistics/output/trait_accuracy_RT_plot.png)
+![](step2_descriptive_statistics/output/trait_accuracy_RT_plot.png)
 
 ------------------------------------------------------------------------
 
