@@ -344,7 +344,11 @@ acc_posthoc <- lsmeans(acc_lmm, pairwise ~ context*arms, adjust = "tukey") # pos
 accuracy_rain <- accuracy_data %>% 
   group_by(`Participant Private ID`, context, arms) %>%
   summarise(performance = mean(performance)) %>%
-  ggplot(aes(x = context, y = performance, fill = arms)) +
+  mutate(`Participant Private ID` = ifelse(
+    arms == "SR", `Participant Private ID` * 10,
+    `Participant Private ID`) # to separate the two conditions
+  ) %>%
+  ggplot(aes(x = context, y = performance, fill = arms, colour = arms)) +
   geom_rain(rain.side = 'f2x2', id.long.var = "Participant Private ID", alpha = 0.5) +
   theme_cowplot()
 
