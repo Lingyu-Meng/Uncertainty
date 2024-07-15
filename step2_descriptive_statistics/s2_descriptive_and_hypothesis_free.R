@@ -350,6 +350,18 @@ accuracy_rain <- accuracy_data %>%
   ) %>%
   ggplot(aes(x = context, y = performance, fill = arms, colour = arms)) +
   geom_rain(rain.side = 'f2x2', id.long.var = "Participant Private ID", alpha = 0.5) +
+  geom_signif(comparisons = list(c("Win", "Lose")),
+              annotation = c("NS."), tip_length = 0) +
+  geom_signif(comparisons = list(c("Win", "Lose")),
+              annotation = c("NS."), tip_length = 0,
+              y_position = 0.775, colour = "#00BFC4",
+              vjust = 2.3) +
+  geom_signif(y_position = 0.8, xmin = 0.85, xmax = 0.95,
+              annotation = c("**"), tip_length = 0,
+              colour = "black") +
+  geom_signif(y_position = 0.8, xmin = 2.05, xmax = 2.15,
+              annotation = c("NS."), tip_length = 0,
+              colour = "black") +
   theme_cowplot()
 
 # Visiualise the HLM results
