@@ -322,7 +322,57 @@ model_summary(list(
 ),
 file = "theory_Anx_Models.doc"
 )
+# theory-driven models RA
+# RA affect all
+model_RA_1 <- glmer(
+  choice ~ -1 + V + RU + VTU +
+           V:RA +
+           RU:RA +
+           VTU:RA +
+           (-1 + V + RU + VTU|ID),
+  data = data,
+  family = binomial(link = "probit"),
+  control = glmerControl(optimizer = "bobyqa")
+)
+# RA x context affect all
+model_RA_2 <- glmer(
+  choice ~ -1 + V + RU + VTU +
+           V:RA +
+           RU:RA +
+           VTU:RA +
+           V:RA:context +
+           RU:RA:context +
+           VTU:RA:context +
+          (-1 + V + RU + VTU|ID),
+  data = data,
+  family = binomial(link = "probit"),
+  control = glmerControl(optimizer = "bobyqa")
+)
+# with context
+model_RA_3 <- glmer(
+  choice ~ -1 + V + RU + VTU +
+           V:RA +
+           RU:RA +
+           VTU:RA +
+           V:RA:context +
+           RU:RA:context +
+           VTU:RA:context +
+          (V + RU + VTU):context +
+          (-1 + V + RU + VTU|ID),
+  data = data,
+  family = binomial(link = "probit"),
+  control = glmerControl(optimizer = "bobyqa")
+)
+model_summary(list(
+  model_RA_1,
+  model_RA_2,
+  model_RA_3,
+  context_model
+),
+file = "theory_RA_Models.doc"
+)
+
 rm(data) # remove data from memory
 # save all models
-save.image(file = 'theory_driven_models.rds')
+save.image(file = 'theory_driven_models.rds', compress = "xz")
 setwd("../../")
