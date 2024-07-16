@@ -82,7 +82,7 @@ for n = 1:max(data.ID) % individual level
                 alpha(2) = sigma(2)^2 / (sigma(2)^2 + tau_r^2);
                 tau(2)   = tau_r;
             case '**R**'
-                sigma(2) = tau_R;
+                sigma(2) = tau_0_R;
                 alpha(2) = sigma(2)^2 / (sigma(2)^2 + tau_R^2);
                 tau(2)   = tau_R;
         end

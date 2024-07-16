@@ -76,7 +76,7 @@ for i = 1:20 % block level
             alpha(1) = sigma(1)^2 / (sigma(1)^2 + tau_r^2);
             tau(1)   = tau_r;
         case '**R**'
-            sigma(1) = tau_R; % aviod zero learning rate
+            sigma(1) = tau_0_R; % aviod zero learning rate
             alpha(1) = sigma(1)^2 / (sigma(1)^2 + tau_R^2);
             tau(1)   = tau_R;
     end
@@ -92,7 +92,7 @@ for i = 1:20 % block level
             alpha(2) = sigma(2)^2 / (sigma(2)^2 + tau_r^2);
             tau(2)   = tau_r;
         case '**R**'
-            sigma(2) = tau_R;
+            sigma(2) = tau_0_R;
             alpha(2) = sigma(2)^2 / (sigma(2)^2 + tau_R^2);
             tau(2)   = tau_R;
     end

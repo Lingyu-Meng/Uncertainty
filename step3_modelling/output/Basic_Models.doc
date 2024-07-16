@@ -31,11 +31,11 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <tbody>
 <tr class="rule">
 <td>V</td>
-<td>&ensp;0.409<sup>&#42;&#42;&#42;</sup></td>
+<td>&ensp;0.408<sup>&#42;&#42;&#42;</sup></td>
 <td></td>
 <td>&ensp;0.406<sup>&#42;&#42;&#42;</sup></td>
 <td>–0.131<sup>&#42;&#42;&#42;</sup></td>
-<td>–0.145<sup>&#42;&#42;&#42;</sup></td>
+<td>–0.144<sup>&#42;&#42;&#42;</sup></td>
 </tr>
 <tr>
 <td></td>
@@ -65,9 +65,9 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td>RU</td>
 <td></td>
 <td></td>
-<td>–0.592<sup>&#42;&#42;&#42;</sup></td>
+<td>–0.591<sup>&#42;&#42;&#42;</sup></td>
 <td>–0.648<sup>&#42;&#42;&#42;</sup></td>
-<td>–0.649<sup>&#42;&#42;&#42;</sup></td>
+<td>–0.648<sup>&#42;&#42;&#42;</sup></td>
 </tr>
 <tr>
 <td></td>
@@ -83,7 +83,7 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td></td>
 <td></td>
 <td></td>
-<td>&ensp;0.159<sup>&#42;&#42;&#42;</sup></td>
+<td>&ensp;0.160<sup>&#42;&#42;&#42;</sup></td>
 </tr>
 <tr>
 <td></td>
@@ -99,7 +99,7 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td></td>
 <td></td>
 <td></td>
-<td>–0.051<sup>&#42;</sup></td>
+<td>–0.050<sup>&#42;</sup></td>
 </tr>
 <tr>
 <td></td>
@@ -115,7 +115,7 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td></td>
 <td></td>
 <td></td>
-<td>–0.092<sup>&#42;</sup></td>
+<td>–0.093<sup>&#42;</sup></td>
 </tr>
 <tr>
 <td></td>
@@ -143,19 +143,19 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 </tr>
 <tr>
 <td>AIC</td>
-<td>32294.281</td>
-<td>32308.830</td>
-<td>27954.747</td>
-<td>27297.113</td>
-<td>27265.782</td>
+<td>32294.730</td>
+<td>32308.985</td>
+<td>27954.323</td>
+<td>27296.131</td>
+<td>27264.493</td>
 </tr>
 <tr>
 <td>BIC</td>
-<td>32310.696</td>
-<td>32325.245</td>
-<td>27995.784</td>
-<td>27370.980</td>
-<td>27364.271</td>
+<td>32311.144</td>
+<td>32325.399</td>
+<td>27995.361</td>
+<td>27369.998</td>
+<td>27362.982</td>
 </tr>
 <tr>
 <td>Num. obs.</td>
@@ -194,7 +194,7 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td></td>
 <td></td>
 <td>&ensp;0.086</td>
-<td>&ensp;0.083</td>
+<td>&ensp;0.082</td>
 <td>&ensp;0.084</td>
 </tr>
 <tr>
@@ -210,7 +210,7 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td></td>
 <td></td>
 <td></td>
-<td>–0.062</td>
+<td>–0.061</td>
 <td>–0.063</td>
 </tr>
 <tr class="bottomrule">
@@ -219,7 +219,7 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td></td>
 <td></td>
 <td>–0.047</td>
-<td>–0.048</td>
+<td>–0.047</td>
 </tr>
 </tbody>
 </table>

@@ -33,7 +33,7 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td>–0.131<sup>&#42;&#42;&#42;</sup></td>
 <td>–0.132<sup>&#42;&#42;&#42;</sup></td>
 <td>–0.145<sup>&#42;&#42;&#42;</sup></td>
-<td>–0.145<sup>&#42;&#42;&#42;</sup></td>
+<td>–0.144<sup>&#42;&#42;&#42;</sup></td>
 </tr>
 <tr>
 <td></td>
@@ -45,9 +45,9 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <tr>
 <td>RU</td>
 <td>–0.648<sup>&#42;&#42;&#42;</sup></td>
+<td>–0.648<sup>&#42;&#42;&#42;</sup></td>
 <td>–0.649<sup>&#42;&#42;&#42;</sup></td>
-<td>–0.649<sup>&#42;&#42;&#42;</sup></td>
-<td>–0.649<sup>&#42;&#42;&#42;</sup></td>
+<td>–0.648<sup>&#42;&#42;&#42;</sup></td>
 </tr>
 <tr>
 <td></td>
@@ -86,9 +86,9 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 </tr>
 <tr>
 <td>RU:RA</td>
-<td>–0.080<sup>&#42;&#42;</sup></td>
-<td>–0.082<sup>&#42;&#42;</sup></td>
+<td>–0.079<sup>&#42;&#42;</sup></td>
 <td>–0.081<sup>&#42;&#42;</sup></td>
+<td>–0.080<sup>&#42;&#42;</sup></td>
 <td></td>
 </tr>
 <tr>
@@ -158,8 +158,8 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td>V:context</td>
 <td></td>
 <td></td>
-<td>&ensp;0.161<sup>&#42;&#42;&#42;</sup></td>
-<td>&ensp;0.159<sup>&#42;&#42;&#42;</sup></td>
+<td>&ensp;0.162<sup>&#42;&#42;&#42;</sup></td>
+<td>&ensp;0.160<sup>&#42;&#42;&#42;</sup></td>
 </tr>
 <tr>
 <td></td>
@@ -173,7 +173,7 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td></td>
 <td></td>
 <td>–0.050<sup>&#42;</sup></td>
-<td>–0.051<sup>&#42;</sup></td>
+<td>–0.050<sup>&#42;</sup></td>
 </tr>
 <tr>
 <td></td>
@@ -186,8 +186,8 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td>VTU:context</td>
 <td></td>
 <td></td>
-<td>–0.097<sup>&#42;</sup></td>
-<td>–0.092<sup>&#42;</sup></td>
+<td>–0.098<sup>&#42;</sup></td>
+<td>–0.093<sup>&#42;</sup></td>
 </tr>
 <tr>
 <td></td>
@@ -212,17 +212,17 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 </tr>
 <tr>
 <td>AIC</td>
-<td>27294.433</td>
-<td>27284.824</td>
-<td>27255.578</td>
-<td>27265.782</td>
+<td>27293.453</td>
+<td>27283.836</td>
+<td>27254.289</td>
+<td>27264.493</td>
 </tr>
 <tr>
 <td>BIC</td>
-<td>27392.922</td>
-<td>27407.936</td>
-<td>27403.312</td>
-<td>27364.271</td>
+<td>27391.942</td>
+<td>27406.948</td>
+<td>27402.023</td>
+<td>27362.982</td>
 </tr>
 <tr>
 <td>Num. obs.</td>
@@ -248,7 +248,7 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <tr>
 <td>Var: ID RU</td>
 <td>&ensp;0.076</td>
-<td>&ensp;0.077</td>
+<td>&ensp;0.076</td>
 <td>&ensp;0.078</td>
 <td>&ensp;0.084</td>
 </tr>
@@ -261,7 +261,7 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 </tr>
 <tr>
 <td>Cov: ID V RU</td>
-<td>&ensp;0.020</td>
+<td>&ensp;0.019</td>
 <td>&ensp;0.020</td>
 <td>&ensp;0.020</td>
 <td>&ensp;0.022</td>
@@ -278,7 +278,7 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td>–0.042</td>
 <td>–0.043</td>
 <td>–0.043</td>
-<td>–0.048</td>
+<td>–0.047</td>
 </tr>
 </tbody>
 </table>
