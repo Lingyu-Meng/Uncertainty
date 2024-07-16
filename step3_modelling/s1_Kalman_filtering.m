@@ -66,7 +66,7 @@ for n = 1:max(data.ID) % individual level
                 alpha(1) = sigma(1)^2 / (sigma(1)^2 + tau_r^2);
                 tau(1)   = tau_r;
             case '**R**'
-                sigma(1) = tau_R; % aviod zero learning rate
+                sigma(1) = tau_0_R;
                 alpha(1) = sigma(1)^2 / (sigma(1)^2 + tau_R^2);
                 tau(1)   = tau_R;
         end

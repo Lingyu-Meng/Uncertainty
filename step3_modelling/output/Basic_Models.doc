@@ -34,7 +34,7 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td>&ensp;0.409<sup>&#42;&#42;&#42;</sup></td>
 <td></td>
 <td>&ensp;0.406<sup>&#42;&#42;&#42;</sup></td>
-<td>–0.132<sup>&#42;&#42;&#42;</sup></td>
+<td>–0.131<sup>&#42;&#42;&#42;</sup></td>
 <td>–0.145<sup>&#42;&#42;&#42;</sup></td>
 </tr>
 <tr>
@@ -50,8 +50,8 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td></td>
 <td>&ensp;0.413<sup>&#42;&#42;&#42;</sup></td>
 <td></td>
-<td>&ensp;0.538<sup>&#42;&#42;&#42;</sup></td>
-<td>&ensp;0.550<sup>&#42;&#42;&#42;</sup></td>
+<td>&ensp;0.537<sup>&#42;&#42;&#42;</sup></td>
+<td>&ensp;0.549<sup>&#42;&#42;&#42;</sup></td>
 </tr>
 <tr>
 <td></td>
@@ -66,7 +66,7 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td></td>
 <td></td>
 <td>–0.592<sup>&#42;&#42;&#42;</sup></td>
-<td>–0.649<sup>&#42;&#42;&#42;</sup></td>
+<td>–0.648<sup>&#42;&#42;&#42;</sup></td>
 <td>–0.649<sup>&#42;&#42;&#42;</sup></td>
 </tr>
 <tr>
@@ -83,7 +83,7 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td></td>
 <td></td>
 <td></td>
-<td>&ensp;0.160<sup>&#42;&#42;&#42;</sup></td>
+<td>&ensp;0.159<sup>&#42;&#42;&#42;</sup></td>
 </tr>
 <tr>
 <td></td>
@@ -99,7 +99,7 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td></td>
 <td></td>
 <td></td>
-<td>–0.050<sup>&#42;</sup></td>
+<td>–0.051<sup>&#42;</sup></td>
 </tr>
 <tr>
 <td></td>
@@ -115,7 +115,7 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td></td>
 <td></td>
 <td></td>
-<td>–0.093<sup>&#42;</sup></td>
+<td>–0.092<sup>&#42;</sup></td>
 </tr>
 <tr>
 <td></td>
@@ -129,9 +129,9 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td>Marginal <i>R</i><sup>2</sup></td>
 <td>&ensp;0.242</td>
 <td>&ensp;0.258</td>
-<td>&ensp;0.398</td>
+<td>&ensp;0.399</td>
 <td>&ensp;0.401</td>
-<td>&ensp;0.405</td>
+<td>&ensp;0.406</td>
 </tr>
 <tr>
 <td>Conditional <i>R</i><sup>2</sup></td>
@@ -139,23 +139,23 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td>&ensp;0.333</td>
 <td>&ensp;0.483</td>
 <td>&ensp;0.499</td>
-<td>&ensp;0.503</td>
+<td>&ensp;0.504</td>
 </tr>
 <tr>
 <td>AIC</td>
-<td>32293.743</td>
-<td>32307.047</td>
-<td>27955.345</td>
-<td>27297.375</td>
-<td>27265.758</td>
+<td>32294.281</td>
+<td>32308.830</td>
+<td>27954.747</td>
+<td>27297.113</td>
+<td>27265.782</td>
 </tr>
 <tr>
 <td>BIC</td>
-<td>32310.158</td>
-<td>32323.462</td>
-<td>27996.382</td>
-<td>27371.242</td>
-<td>27364.248</td>
+<td>32310.696</td>
+<td>32325.245</td>
+<td>27995.784</td>
+<td>27370.980</td>
+<td>27364.271</td>
 </tr>
 <tr>
 <td>Num. obs.</td>
@@ -187,7 +187,7 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td>&ensp;0.049</td>
 <td></td>
 <td>&ensp;0.134</td>
-<td>&ensp;0.137</td>
+<td>&ensp;0.136</td>
 </tr>
 <tr>
 <td>Var: ID RU</td>
