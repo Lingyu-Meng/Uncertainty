@@ -116,6 +116,18 @@ trait_cor <- traits_data %>%
   select(-`Participant Private ID`) %>%
   Corr()
 
+# Scatter plot
+# Open a PNG device, as pairs cannot be save in ggsave way
+png(filename = "step2_descriptive_statistics/output/traits_pairs_plot.png", width = 1000, height = 1000)
+
+# Generate the pairs plot
+trait_scatter <- traits_data %>% 
+  select(-`Participant Private ID`) %>%
+  pairs()
+
+# Close the device
+dev.off()
+
 ## RT distribution
 # Load the RT data
 RT_data <- read_csv("step1_data_wrangling/output/cleaned_data.csv") %>% 
@@ -200,52 +212,49 @@ RT_posthoc <- lsmeans(lmm_RT, pairwise ~ context:arms, adjust = "tukey") # post 
 # only difference is interaction. context x arms is p = 0.065 in log, whereas p = 0.152 in original RT
 
 # Visiualise the HLM results
-# Create a data context for visualization
-vis_data <- expand.grid(context = levels(RT_data$context),
-                        arms = levels(RT_data$arms))
+vis_data_RT <- RT_posthoc$lsmeans %>% 
+  as.data.frame() %>%
+  mutate(RT = lsmean,
+         RT_LCI = asymp.LCL,
+         RT_UCI = asymp.UCL)
 
-vis_data$RT <-  predict(lmm_RT, newdata = vis_data, re.form = NA)
-vis_data$lgRT <-  predict(lmm_lgRT, newdata = vis_data, re.form = NA)
+vis_data_lgRT <- lgRT_posthoc$lsmeans %>% 
+  as.data.frame() %>%
+  mutate(lgRT = lsmean,
+         lgRT_LCI = asymp.LCL,
+         lgRT_UCI = asymp.UCL)
 
 # Plot the interaction
-RT_cond_inter <- vis_data %>% 
+RT_cond_inter <- vis_data_RT %>% 
   ggplot(aes(x = context, y = RT, color = arms, group = arms)) +
   geom_line(linewidth = 1) +
-  geom_point(size = 3) +
+  geom_point(size = 3, position=position_dodge(0.05)) +
+  geom_errorbar(aes(ymin = RT_LCI, ymax = RT_UCI), width = 0.05,
+                position=position_dodge(0.05)) +
   geom_signif(comparisons = list(c("Win", "Lose")),
               annotation = c("***"), tip_length = 0) +
   geom_signif(comparisons = list(c("Win", "Lose")),
               annotation = c("***"), tip_length = 0,
-              y_position = 754,
+              y_position = 792,
               vjust = 2.3, colour = "#00BFC4") +
-  geom_signif(y_position = 710, xmin = 0.99, xmax = 1.01,
-              annotation = c("NS."), tip_length = 0,
-              colour = "black") +
-  geom_signif(y_position = 735, xmin = 1.99, xmax = 2.01,
-              annotation = c("NS."), tip_length = 0,
-              colour = "black", vjust = 2) +
   labs(title = "Interaction Plot for RT Results",
        color = "Arms",
        y = "RT (ms)",
        x = "Context") +
   theme_cowplot()
 
-lgRT_cond_inter <- vis_data %>% 
+lgRT_cond_inter <- vis_data_lgRT %>% 
   ggplot(aes(x = context, y = lgRT, color = arms, group = arms)) +
   geom_line(linewidth = 1) +
-  geom_point(size = 3) +
+  geom_point(size = 3, position=position_dodge(0.05)) +
+  geom_errorbar(aes(ymin = lgRT_LCI, ymax = lgRT_UCI), width = 0.05,
+                position=position_dodge(0.05)) +
   geom_signif(comparisons = list(c("Win", "Lose")),
               annotation = c("***"), tip_length = 0) +
   geom_signif(comparisons = list(c("Win", "Lose")),
               annotation = c("***"), tip_length = 0,
-              y_position = 6.344,
+              y_position = 6.42,
               vjust = 2.3, colour = "#00BFC4") +
-  geom_signif(y_position = 6.25, xmin = 0.99, xmax = 1.01,
-              annotation = c("NS."), tip_length = 0,
-              colour = "black") +
-  geom_signif(y_position = 6.325, xmin = 1.99, xmax = 2.01,
-              annotation = c("NS."), tip_length = 0,
-              colour = "black", vjust = 2) +
   labs(title = "Interaction Plot for RT Results",
        color = "Arms",
        y = "Log RT",
@@ -366,26 +375,29 @@ accuracy_rain <- accuracy_data %>%
 
 # Visiualise the HLM results
 # Create a data context for visualization
-vis_data$performance <-  predict(acc_lmm, newdata = vis_data, re.form = NA)
+vis_data_acc <- acc_posthoc$lsmeans %>% 
+  as.data.frame() %>%
+  mutate(performance = lsmean,
+         performance_LCI = lower.CL,
+         performance_UCI = upper.CL)
 
 # Plot the interaction
-acc_cond_inter <- vis_data %>% 
+acc_cond_inter <- vis_data_acc %>% 
   ggplot(aes(x = context, y = performance, color = arms, group = arms)) +
   geom_line(size = 1) +
-  geom_point(size = 3) +
+  geom_point(size = 3, position=position_dodge(0.05)) +
+  geom_errorbar(aes(ymin = performance_LCI, ymax = performance_UCI), width = 0.05,
+                position=position_dodge(0.05)) +
   geom_signif(comparisons = list(c("Win", "Lose")),
               annotation = c("NS."), tip_length = 0) +
   geom_signif(comparisons = list(c("Win", "Lose")),
               annotation = c("NS."), tip_length = 0,
-              y_position = 0.5, colour = "#00BFC4") +
+              y_position = 0.605, colour = "#00BFC4",
+              vjust = 2.3) +
   geom_segment(aes(x = 0.9, xend = 0.9, y = 0.509, yend = 0.57),
                color = "black") +
-  annotate("text", x = 0.85, y = 0.54, label = "p = 0.0156",
-           vjust = 2.3, size = 5, angle = 90) +
-  geom_segment(aes(x = 2.1, xend = 2.1, y = 0.532, yend = 0.578),
-               color = "black") +
-  annotate("text", x = 2.1, y = 0.56, label = "p = 0.1386",
-           vjust = 2.3, size = 5, angle = 90) +
+  annotate("text", x = 0.85, y = 0.54, label = "*",
+            size = 5, angle = 90) +
   labs(title = "Interaction Plot for Accuracy Results",
        color = "Arms",
        y = "Accuracy",
