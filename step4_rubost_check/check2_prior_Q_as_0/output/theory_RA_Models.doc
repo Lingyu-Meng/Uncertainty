@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title></title>
+<style>
+body {font-size: 10.5pt; font-family: Times New Roman;}
+p {margin: 0px;}
+th, td {height: 19px;}
+table.texreg {margin: 1px auto;border-collapse: collapse;border-spacing: 0px;color: #000000;border-top: 2px solid #000000;}
+table.texreg thead .rule {border-bottom: 1px solid #000000;}
+table.texreg tbody tr.rule td {border-top: 1px solid #000000;}
+table.texreg tbody tr.bottomrule td {border-bottom: 2px solid #000000;}
+table.texreg tfoot td {font-size: 0.8em;}
+table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
+</style>
+</head>
+<body>
+<p><b>Table X. Regression Models.</b></p>
+<table class="texreg">
+<thead>
+<tr>
+<th></th>
+<th>(1) choice</th>
+<th>(2) choice</th>
+<th>(3) choice</th>
+<th>(4) choice</th>
+</tr>
+</thead>
+<tbody>
+<tr class="rule">
+<td>V</td>
+<td>–0.273<sup>&#42;&#42;&#42;</sup></td>
+<td>–0.274<sup>&#42;&#42;&#42;</sup></td>
+<td>&ensp;0.092<sup>&#42;&#42;&#42;</sup></td>
+<td>&ensp;0.088<sup>&#42;&#42;&#42;</sup></td>
+</tr>
+<tr>
+<td></td>
+<td>(0.011)</td>
+<td>(0.011)</td>
+<td>(0.018)</td>
+<td>(0.018)</td>
+</tr>
+<tr>
+<td>RU</td>
+<td>–0.690<sup>&#42;&#42;&#42;</sup></td>
+<td>–0.691<sup>&#42;&#42;&#42;</sup></td>
+<td>–0.116<sup>&#42;&#42;&#42;</sup></td>
+<td>–0.120<sup>&#42;&#42;&#42;</sup></td>
+</tr>
+<tr>
+<td></td>
+<td>(0.028)</td>
+<td>(0.028)</td>
+<td>(0.023)</td>
+<td>(0.023)</td>
+</tr>
+<tr>
+<td>VTU</td>
+<td>&ensp;0.520<sup>&#42;&#42;&#42;</sup></td>
+<td>&ensp;0.522<sup>&#42;&#42;&#42;</sup></td>
+<td>&ensp;0.289<sup>&#42;&#42;&#42;</sup></td>
+<td>&ensp;0.292<sup>&#42;&#42;&#42;</sup></td>
+</tr>
+<tr>
+<td></td>
+<td>(0.018)</td>
+<td>(0.018)</td>
+<td>(0.021)</td>
+<td>(0.021)</td>
+</tr>
+<tr>
+<td>V:RA</td>
+<td>–0.032<sup>&#42;&#42;</sup></td>
+<td>–0.049<sup>&#42;&#42;&#42;</sup></td>
+<td>&ensp;0.020</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>(0.011)</td>
+<td>(0.013)</td>
+<td>(0.019)</td>
+<td></td>
+</tr>
+<tr>
+<td>RU:RA</td>
+<td>–0.081<sup>&#42;&#42;</sup></td>
+<td>–0.070<sup>&#42;</sup></td>
+<td>–0.010</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>(0.028)</td>
+<td>(0.030)</td>
+<td>(0.023)</td>
+<td></td>
+</tr>
+<tr>
+<td>VTU:RA</td>
+<td>&ensp;0.065<sup>&#42;&#42;&#42;</sup></td>
+<td>&ensp;0.076<sup>&#42;&#42;&#42;</sup></td>
+<td>&ensp;0.013</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>(0.018)</td>
+<td>(0.018)</td>
+<td>(0.021)</td>
+<td></td>
+</tr>
+<tr>
+<td>V:RA:context</td>
+<td></td>
+<td>&ensp;0.021</td>
+<td>–0.111<sup>&#42;&#42;</sup></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>(0.027)</td>
+<td>(0.038)</td>
+<td></td>
+</tr>
+<tr>
+<td>RU:RA:context</td>
+<td></td>
+<td>&ensp;0.068<sup>&#42;</sup></td>
+<td>–0.029</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>(0.032)</td>
+<td>(0.034)</td>
+<td></td>
+</tr>
+<tr>
+<td>VTU:RA:context</td>
+<td></td>
+<td>–0.051</td>
+<td>&ensp;0.082<sup>&#42;</sup></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>(0.027)</td>
+<td>(0.035)</td>
+<td></td>
+</tr>
+<tr>
+<td>V:context</td>
+<td></td>
+<td></td>
+<td>–1.787<sup>&#42;&#42;&#42;</sup></td>
+<td>–1.781<sup>&#42;&#42;&#42;</sup></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>(0.037)</td>
+<td>(0.037)</td>
+</tr>
+<tr>
+<td>RU:context</td>
+<td></td>
+<td></td>
+<td>–1.333<sup>&#42;&#42;&#42;</sup></td>
+<td>–1.328<sup>&#42;&#42;&#42;</sup></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>(0.034)</td>
+<td>(0.034)</td>
+</tr>
+<tr>
+<td>VTU:context</td>
+<td></td>
+<td></td>
+<td>&ensp;1.568<sup>&#42;&#42;&#42;</sup></td>
+<td>&ensp;1.564<sup>&#42;&#42;&#42;</sup></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>(0.034)</td>
+<td>(0.034)</td>
+</tr>
+<tr class="rule">
+<td>Marginal <i>R</i><sup>2</sup></td>
+<td>&ensp;0.360</td>
+<td>&ensp;0.361</td>
+<td>&ensp;0.587</td>
+<td>&ensp;0.580</td>
+</tr>
+<tr>
+<td>Conditional <i>R</i><sup>2</sup></td>
+<td>&ensp;0.433</td>
+<td>&ensp;0.434</td>
+<td>&ensp;0.618</td>
+<td>&ensp;0.613</td>
+</tr>
+<tr>
+<td>AIC</td>
+<td>28747.111</td>
+<td>28741.840</td>
+<td>24522.949</td>
+<td>24531.143</td>
+</tr>
+<tr>
+<td>BIC</td>
+<td>28820.978</td>
+<td>28840.329</td>
+<td>24646.060</td>
+<td>24605.010</td>
+</tr>
+<tr>
+<td>Num. obs.</td>
+<td>27104</td>
+<td>27104</td>
+<td>27104</td>
+<td>27104</td>
+</tr>
+<tr>
+<td>Num. groups: ID</td>
+<td>115</td>
+<td>115</td>
+<td>115</td>
+<td>115</td>
+</tr>
+<tr>
+<td>Var: ID RU</td>
+<td>&ensp;0.075</td>
+<td>&ensp;0.075</td>
+<td>&ensp;0.027</td>
+<td>&ensp;0.029</td>
+</tr>
+<tr>
+<td>Var: ID VTU</td>
+<td>&ensp;0.015</td>
+<td>&ensp;0.015</td>
+<td>&ensp;0.014</td>
+<td>&ensp;0.015</td>
+</tr>
+<tr class="bottomrule">
+<td>Cov: ID RU VTU</td>
+<td>–0.019</td>
+<td>–0.019</td>
+<td>–0.002</td>
+<td>–0.003</td>
+</tr>
+</tbody>
+</table>
+<p><i>Note</i>. Unstandardized regression coefficients are displayed, with standard errors in parentheses.</p><p>* <i>p</i> < .05. ** <i>p</i> < .01. *** <i>p</i> < .001.</p></body>
+</html>
