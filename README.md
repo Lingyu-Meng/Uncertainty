@@ -42,6 +42,8 @@ In sum, the RT and accuracy are respectively affected by frame and arms.
 
 ![](step2_descriptive_statistics/output/trait_corr.png)
 
+![](step2_descriptive_statistics/output/traits_pairs_plot.png)
+
 -   Higher levels of IU significantly predict lower accuracy and quick decision of the participants.
 -   Higher levels of IM significantly predict higher accuracy.
 -   Higher levels of Anx significantly predict higher accuracy.
