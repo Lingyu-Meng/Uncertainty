@@ -32,11 +32,14 @@ context_model <- glmer(
 )
 
 # all traits model
-full_model <- glmer(
+traits_full_model <- glmer(
   choice ~ -1 + V + RU + VTU + (V + RU + VTU):context +
-           V  :(IU + IM + Anx + RA):(1+context) +
-           RU :(IU + IM + Anx + RA):(1+context) +
-           VTU:(IU + IM + Anx + RA):(1+context) +
+           V  :(IU + IM + Anx + RA) +
+           RU :(IU + IM + Anx + RA) +
+           VTU:(IU + IM + Anx + RA) +
+           V  :(IU + IM + Anx + RA):context +
+           RU :(IU + IM + Anx + RA):context +
+           VTU:(IU + IM + Anx + RA):context +
            (-1 + V + RU + VTU|ID),
   data = data,
   family = binomial,
@@ -68,14 +71,14 @@ only_context_interaction <- glmer(
 )
 
 model_summary(list(
-  context_model,
-  full_model,
+  traits_full_model,
   no_context_interaction,
-  only_context_interaction
+  only_context_interaction,
+  context_model
   ),
 file = "All_Traits.doc")
 
-save(full_model,
+save(traits_full_model,
      no_context_interaction,
      only_context_interaction,
      file = "All_Traits.RData")
