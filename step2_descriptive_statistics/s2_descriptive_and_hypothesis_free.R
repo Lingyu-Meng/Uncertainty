@@ -368,7 +368,7 @@ accuracy_rain <- accuracy_data %>%
               y_position = 0.775, colour = "#00BFC4",
               vjust = 2.3) +
   geom_signif(y_position = 0.8, xmin = 0.85, xmax = 0.95,
-              annotation = c("**"), tip_length = 0,
+              annotation = c("*"), tip_length = 0,
               colour = "black") +
   geom_signif(y_position = 0.8, xmin = 2.05, xmax = 2.15,
               annotation = c("NS."), tip_length = 0,
