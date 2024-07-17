@@ -74,6 +74,8 @@ gender_bar <- demo %>%
 age_gender_rain <- demo %>% 
   ggplot(aes(x = gender, y = age, fill = gender)) +
   geom_rain(rain.side = 'l') +
+  geom_signif(comparisons = list(c("Female", "Male")),
+              annotations = "NS.") +
   theme_cowplot()
 
 # male famel age test
