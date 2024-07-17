@@ -226,7 +226,7 @@ RT_cond_inter <- vis_data %>%
               colour = "black", vjust = 2) +
   labs(title = "Interaction Plot for RT Results",
        color = "Arms",
-       y = "Log RT",
+       y = "RT (ms)",
        x = "Context") +
   theme_cowplot()
 
