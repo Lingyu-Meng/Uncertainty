@@ -117,7 +117,7 @@ traits_data <- traits_data %>%
 # correlation matrix
 trait_cor <- traits_data %>% 
   select(-`Participant Private ID`) %>%
-  Corr()
+  Corr(p.adjust = "bonferroni")
 
 # Scatter plot
 # Open a PNG device, as pairs cannot be save in ggsave way
@@ -314,7 +314,7 @@ response_rate_chi <- response_rate_grade %>%
 
 ## Accuracy
 # Load the accuracy data
-accuracy_data <- read_csv("step1_data_wrangling/output/cleaned_data.csv") %>% 
+correct_data <- read_csv("step1_data_wrangling/output/cleaned_data.csv") %>% # trial level
   mutate(
     context = case_when(
       grepl("Win", `Spreadsheet: Condition`) ~ "Win",
@@ -325,17 +325,19 @@ accuracy_data <- read_csv("step1_data_wrangling/output/cleaned_data.csv") %>%
       grepl("r", `Spreadsheet: Condition`) ~ "rR",
     )
   ) %>% 
-  group_by(`Participant Private ID`, `Spreadsheet: block_flag`) %>%
   transmute(`Participant Private ID`, context, arms,
-            performance = max(`Store: round_correct`, na.rm = T)/12) %>%
-  unique() %>%
+            correct = `Store: trial_correct`)
+
+accuracy_data <- correct_data%>% # condition level
+  group_by(`Participant Private ID`, context, arms) %>%
+  summarise(Performance = mean(correct)) %>%
   left_join(demo, by = "Participant Private ID") %>% 
   mutate(context = factor(context, levels = c("Win", "Lose")),
          arms = factor(arms, levels = c("SR", "rR")))
 
 acc_hist <- accuracy_data %>% 
   group_by(`Participant Private ID`) %>%
-  summarise(performance = mean(performance)) %>%
+  summarise(performance = mean(Performance)) %>%
   ggplot(aes(x = performance)) +
   geom_histogram(binwidth = 0.02, fill = "skyblue", color = "black") +
   labs(title = "Accuracy Distribution",
@@ -344,45 +346,44 @@ acc_hist <- accuracy_data %>%
   theme_cowplot()
 
 # accuracy ~ context x arms
-acc_aov <- accuracy_data %>%
-  aov(performance ~ context*arms + Error(`Participant Private ID`), data = .)
-summary(acc_aov)
-
-acc_glmm <- accuracy_data %>% 
-  glmer(performance ~ context*arms + (1|`Participant Private ID`), data = ., family = "binomial")
-summary(acc_glmm) # Lose rR as baseline
+acc_glmm <- glmer(correct ~ context*arms + (1|`Participant Private ID`),
+                  data = correct_data, family = "binomial") # as GLMM is singular
+HLM_summary(acc_glmm) # Lose rR as baseline
 acc_posthoc <- lsmeans(acc_glmm, pairwise ~ context*arms, adjust = "tukey") # post hoc test
 
 accuracy_rain <- accuracy_data %>% 
-  group_by(`Participant Private ID`, context, arms) %>%
-  summarise(performance = mean(performance)) %>%
   mutate(`Participant Private ID` = ifelse(
     arms == "SR", `Participant Private ID` * 10,
     `Participant Private ID`) # to separate the two conditions
   ) %>%
-  ggplot(aes(x = context, y = performance, fill = arms, colour = arms)) +
+  ggplot(aes(x = context, y = Performance, fill = arms, colour = arms)) +
   geom_rain(rain.side = 'f2x2', id.long.var = "Participant Private ID", alpha = 0.5) +
   geom_signif(comparisons = list(c("Win", "Lose")),
               annotation = c("NS."), tip_length = 0) +
   geom_signif(comparisons = list(c("Win", "Lose")),
-              annotation = c("NS."), tip_length = 0,
-              y_position = 0.775, colour = "#00BFC4",
-              vjust = 2.3) +
-  geom_signif(y_position = 0.8, xmin = 0.85, xmax = 0.95,
               annotation = c("*"), tip_length = 0,
+              y_position = 0.785, colour = "#00BFC4",
+              vjust = 2.3) +
+  geom_signif(y_position = 0.81, xmin = 0.85, xmax = 0.95,
+              annotation = c("***"), tip_length = 0,
               colour = "black") +
-  geom_signif(y_position = 0.8, xmin = 2.05, xmax = 2.15,
-              annotation = c("NS."), tip_length = 0,
+  geom_signif(y_position = 0.81, xmin = 2.05, xmax = 2.15,
+              annotation = c("***"), tip_length = 0,
               colour = "black") +
   theme_cowplot()
 
 # Visiualise the HLM results
 # Create a data context for visualization
+relogit <- function(x) {
+  exp(x)/(1+exp(x)) # reverse logit
+}
 vis_data_acc <- acc_posthoc$lsmeans %>% 
   as.data.frame() %>%
-  mutate(performance = lsmean,
-         performance_LCI = asymp.LCL,
-         performance_UCI = asymp.UCL)
+  mutate(performance = relogit(lsmean),
+         performance_LCI = relogit(asymp.LCL),
+         performance_UCI = relogit(asymp.UCL)) %>% 
+  mutate(context = factor(context, levels = c("Win", "Lose")), # reorder the levels
+         arms = factor(arms, levels = c("SR", "rR")))
 
 # Plot the interaction
 acc_cond_inter <- vis_data_acc %>% 
@@ -394,29 +395,26 @@ acc_cond_inter <- vis_data_acc %>%
   geom_signif(comparisons = list(c("Win", "Lose")),
               annotation = c("NS."), tip_length = 0) +
   geom_signif(comparisons = list(c("Win", "Lose")),
-              annotation = c("NS."), tip_length = 0,
-              y_position = 0.605, colour = "#00BFC4",
+              annotation = c("*"), tip_length = 0,
+              y_position = 0.603, colour = "#00BFC4",
               vjust = 2.3) +
-  geom_segment(aes(x = 0.9, xend = 0.9, y = 0.509, yend = 0.57),
-               color = "black") +
-  annotate("text", x = 0.85, y = 0.54, label = "*",
-            size = 5, angle = 90) +
   labs(title = "Interaction Plot for Accuracy Results",
        color = "Arms",
        y = "Accuracy",
-       x = "Context") +
+       x = "Context",
+       caption = "Error bars represent 95% CI") +
   theme_cowplot()
 
 ## RT x Accuracy by context x arms
 vis_data <- vis_data_acc %>% 
   transmute(context = context, arms = arms,
-            performance = lsmean,
+            Performance = performance,
             performance_LCI = performance_LCI,
             performance_UCI = performance_UCI) %>%
   left_join(vis_data_RT, by = c("context", "arms"))
 
 RT_acc <- vis_data %>% 
-  ggplot(aes(x = RT, y = performance, color = arms,
+  ggplot(aes(x = RT, y = Performance, color = arms,
              shape = context, group = arms)) +
   geom_line(size = 1) +
   geom_point(size = 4) +
@@ -428,29 +426,29 @@ RT_acc <- vis_data %>%
 ## trait x accuracy
 accuracy_trait <- accuracy_data %>% 
   group_by(`Participant Private ID`) %>%
-  summarise(performance = mean(performance)) %>%
+  summarise(Performance = mean(Performance)) %>% # individual level
   left_join(traits_data, by = "Participant Private ID")
 
 acc_IU <- accuracy_trait %>% 
-  ggplot(aes(x = IU, y = performance)) +
+  ggplot(aes(x = IU, y = Performance)) +
   geom_point() +
   geom_smooth(method = "lm") +
   theme_cowplot()
 
 acc_IM <- accuracy_trait %>% 
-  ggplot(aes(x = IM, y = performance)) +
+  ggplot(aes(x = IM, y = Performance)) +
   geom_point() +
   geom_smooth(method = "lm") +
   theme_cowplot()
 
 acc_anx <- accuracy_trait %>% 
-  ggplot(aes(x = Anxi, y = performance)) +
+  ggplot(aes(x = Anxi, y = Performance)) +
   geom_point() +
   geom_smooth(method = "lm") +
   theme_cowplot()
 
 acc_risk <- accuracy_trait %>% 
-  ggplot(aes(x = RA, y = performance)) +
+  ggplot(aes(x = RA, y = Performance)) +
   geom_point() +
   geom_smooth(method = "lm") +
   theme_cowplot()
@@ -461,9 +459,9 @@ acc_trait_plot <- plot_grid(acc_IU, acc_IM, acc_anx, acc_risk,
 
 acc_trait_glm <- accuracy_trait %>% 
   select(-`Participant Private ID`) %>% 
-  mutate(across(-performance, scale)) %>% # for standardised coefficients
+  mutate(across(-Performance, scale)) %>% # for standardised coefficients
   as.data.frame() %>%
-  glm(performance ~ IU + IM + Anxi + RA, data = ., family = "binomial")
+  glm(Performance ~ IU + IM + Anxi + RA, data = ., family = "binomial")
 summary(acc_trait_glm)
 
 ## trait x RT
