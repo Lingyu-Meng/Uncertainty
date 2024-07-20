@@ -108,7 +108,8 @@ traits_data <- read_csv("step1_data_wrangling/output/questionnaire_score.csv") %
 # load risk aversion
 risk_aversion <- read_csv("step2_descriptive_statistics/output/risk_aversion.csv") %>% 
   transmute(`Participant Private ID` = ParticipantPrivateID,
-            RA = gamma) # Risk Aversion
+            RA = gamma) %>%  # Risk Aversion
+  unique()
 
 traits_data <- traits_data %>% 
   left_join(risk_aversion, by = "Participant Private ID")
@@ -347,10 +348,10 @@ acc_aov <- accuracy_data %>%
   aov(performance ~ context*arms + Error(`Participant Private ID`), data = .)
 summary(acc_aov)
 
-acc_lmm <- accuracy_data %>% 
-  lmer(performance ~ context*arms + (1|`Participant Private ID`), data = .)
-HLM_summary(acc_lmm) # Lose rR as baseline
-acc_posthoc <- lsmeans(acc_lmm, pairwise ~ context*arms, adjust = "tukey") # post hoc test
+acc_glmm <- accuracy_data %>% 
+  glmer(performance ~ context*arms + (1|`Participant Private ID`), data = ., family = "binomial")
+summary(acc_glmm) # Lose rR as baseline
+acc_posthoc <- lsmeans(acc_glmm, pairwise ~ context*arms, adjust = "tukey") # post hoc test
 
 accuracy_rain <- accuracy_data %>% 
   group_by(`Participant Private ID`, context, arms) %>%
@@ -380,8 +381,8 @@ accuracy_rain <- accuracy_data %>%
 vis_data_acc <- acc_posthoc$lsmeans %>% 
   as.data.frame() %>%
   mutate(performance = lsmean,
-         performance_LCI = lower.CL,
-         performance_UCI = upper.CL)
+         performance_LCI = asymp.LCL,
+         performance_UCI = asymp.UCL)
 
 # Plot the interaction
 acc_cond_inter <- vis_data_acc %>% 
@@ -407,6 +408,13 @@ acc_cond_inter <- vis_data_acc %>%
   theme_cowplot()
 
 ## RT x Accuracy by context x arms
+vis_data <- vis_data_acc %>% 
+  transmute(context = context, arms = arms,
+            performance = lsmean,
+            performance_LCI = performance_LCI,
+            performance_UCI = performance_UCI) %>%
+  left_join(vis_data_RT, by = c("context", "arms"))
+
 RT_acc <- vis_data %>% 
   ggplot(aes(x = RT, y = performance, color = arms,
              shape = context, group = arms)) +
@@ -447,11 +455,16 @@ acc_risk <- accuracy_trait %>%
   geom_smooth(method = "lm") +
   theme_cowplot()
 
-acc_trait_plot <- plot_grid(acc_IU, acc_IM, acc_anx, acc_risk, ncol = 4)
+acc_trait_plot <- plot_grid(acc_IU, acc_IM, acc_anx, acc_risk,
+                            labels = c('A', 'B', 'C', 'D'),
+                            ncol = 4)
 
-acc_trait_lm <- accuracy_trait %>% 
-  lm(performance ~ IU + IM + Anxi + RA, data = .)
-model_summary(acc_trait_lm)
+acc_trait_glm <- accuracy_trait %>% 
+  select(-`Participant Private ID`) %>% 
+  mutate(across(-performance, scale)) %>% # for standardised coefficients
+  as.data.frame() %>%
+  glm(performance ~ IU + IM + Anxi + RA, data = ., family = "binomial")
+summary(acc_trait_glm)
 
 ## trait x RT
 RT_trait <- RT_data %>% 
@@ -484,18 +497,83 @@ RT_risk <- RT_trait %>%
   geom_smooth(method = "lm") +
   theme_cowplot()
 
-RT_trait_plot <- plot_grid(RT_IU, RT_IM, RT_anx, RT_risk, ncol = 4)
+RT_trait_plot <- plot_grid(RT_IU, RT_IM, RT_anx, RT_risk,
+                           labels = c('E', 'F', 'G', 'H'),
+                           ncol = 4)
+
+lgRT_IU <- RT_trait %>%
+  filter(`Mean lgRT` > 5) %>% # remove outliers
+  ggplot(aes(x = IU, y = `Mean lgRT`)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  theme_cowplot()
+
+lgRT_IM <- RT_trait %>%
+  filter(`Mean lgRT` > 5) %>% # remove outliers
+  ggplot(aes(x = IM, y = `Mean lgRT`)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  theme_cowplot()
+
+lgRT_anx <- RT_trait %>%
+  filter(`Mean lgRT` > 5) %>% # remove outliers
+  ggplot(aes(x = Anxi, y = `Mean lgRT`)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  theme_cowplot()
+
+lgRT_risk <- RT_trait %>%
+  filter(`Mean lgRT` > 5) %>% # remove outliers
+  ggplot(aes(x = RA, y = `Mean lgRT`)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  theme_cowplot()
+
+lgRT_trait_plot <- plot_grid(lgRT_IU, lgRT_IM, lgRT_anx, lgRT_risk,
+                             labels = c('E', 'F', 'G', 'H'),
+                             ncol = 4)
 
 RT_trait_lm <- RT_trait %>% 
   lm(`Mean RT` ~ IU + IM + Anxi + RA, data = .)
 model_summary(RT_trait_lm)
 # original RT is marginal significant in IU (p = 0.095) and IM (p = 0.098) (without RA)
 lgRT_trait_lm <- RT_trait %>% 
+  filter(`Mean lgRT` > 5) %>% # remove outliers
   lm(`Mean lgRT` ~ IU + IM + Anxi + RA, data = .)
 model_summary(lgRT_trait_lm)
-# log RT is not significant in IU, IM, and Anxi
+# log RT is not significant in IM and Anxi
 
 acc_trait_RT_plot <- plot_grid(acc_trait_plot, RT_trait_plot, ncol = 1)
+acc_trait_lgRT_plot <- plot_grid(acc_trait_plot, lgRT_trait_plot, ncol = 1)
+
+# with outlier
+lgRT_trait_IU_outlier <- RT_trait %>% 
+  ggplot(aes(x = IU, y = `Mean lgRT`)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  theme_cowplot()
+
+lgRT_trait_IM_outlier <- RT_trait %>%
+  ggplot(aes(x = IM, y = `Mean lgRT`)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  theme_cowplot()
+
+lgRT_trait_anx_outlier <- RT_trait %>%
+  ggplot(aes(x = Anxi, y = `Mean lgRT`)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  theme_cowplot()
+
+lgRT_trait_risk_outlier <- RT_trait %>%
+  ggplot(aes(x = RA, y = `Mean lgRT`)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  theme_cowplot()
+
+lgRT_trait_plot_outlier <- plot_grid(lgRT_trait_IU_outlier, lgRT_trait_IM_outlier, lgRT_trait_anx_outlier, lgRT_trait_risk_outlier,
+                                     labels = c('A', 'B', 'C', 'D'),
+                                     ncol = 4)
 
 ## Save the plots
 ggsave("step2_descriptive_statistics/output/age_hist.png", age_hist, width = 8, height = 6)
@@ -515,6 +593,9 @@ ggsave("step2_descriptive_statistics/output/accuracy_rain.png", accuracy_rain, w
 ggsave("step2_descriptive_statistics/output/accuracy_condition_interaction.png", acc_cond_inter, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/RT_accuracy.png", RT_acc, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/trait_accuracy_RT_plot.png", acc_trait_RT_plot, width = 12, height = 6)
+ggsave("step2_descriptive_statistics/output/trait_accuracy_lgRT_plot.png", acc_trait_lgRT_plot, width = 12, height = 6)
+ggsave("step2_descriptive_statistics/output/lgRT_trait_plot_outlier.png", lgRT_trait_plot_outlier, width = 12, height = 3)
+ggsave("step2_descriptive_statistics/output/lgRT_trait_plot_nooutlier.png", lgRT_trait_plot, width = 12, height = 3)
 
 # Save the models
 save(acc_trait_lm, lgRT_trait_lm, file = "step2_descriptive_statistics/output/acc_trait_RT_lm.RData")
