@@ -19,7 +19,10 @@ data <- read_csv("step3_modelling/output/data.csv") %>%
     context = case_when(
       grepl("Win", context) ~ -0.5,
       grepl("Lose", context) ~ 0.5,
-    )
+    ),
+    V = scale(V),    # standardize V, RU, VTU to have beta for every predictor
+    RU = scale(RU),
+    VTU = scale(VTU)
   )
 setwd("step3_modelling/output/")
 

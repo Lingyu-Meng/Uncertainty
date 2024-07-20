@@ -21,7 +21,10 @@ data <- read_csv("step4_rubost_check/check2_prior_Q_as_0/output/data.csv") %>%
     context = case_when(
       grepl("Win", context) ~ -0.5,
       grepl("Lose", context) ~ 0.5,
-    )
+    ),
+    V = scale(V),    # standardize V, RU, VTU to have beta for every predictor
+    RU = scale(RU),
+    VTU = scale(VTU)
   )
 setwd("step4_rubost_check/check2_prior_Q_as_0/output/")
 

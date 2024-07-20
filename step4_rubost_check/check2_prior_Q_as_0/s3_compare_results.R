@@ -59,7 +59,7 @@ model_summary(list(Anx_prior_0, Anx_prior_4),
 model_summary(list(RA_prior_0, RA_prior_4),
               modify.head = c("Prior 0", "Prior 4"))
 
-## We will using t-test to test the difference between the coefficients 
+## We will using z-test to test the difference between the coefficients 
 # Context
 coef_context_1 <- coef(summary(context_prior_0)) %>% 
   as.data.frame() %>% 
@@ -68,8 +68,8 @@ coef_context_4 <- coef(summary(context_prior_4)) %>%
   as.data.frame() %>%
   transmute(beta_p4 = Estimate, SE_p4 = `Std. Error`)
 coef_context <- merge(coef_context_1, coef_context_4, by = "row.names") %>% 
-  mutate(t_stat = (beta_p0 - beta_p4) / sqrt(SE_p0^2 + SE_p4^2), # Calculate the t-statistic
-         p = 2 * pnorm(-abs(t_stat)), # Calculate the p value by assuming a two-tailed test and using the normal distribution
+  mutate(z_stat = (beta_p0 - beta_p4) / sqrt(SE_p0^2 + SE_p4^2), # Calculate the t-statistic
+         p = 2 * pnorm(-abs(z_stat)), # Calculate the p value by assuming a two-tailed test and using the normal distribution
          sig = ifelse(p < 0.05, TRUE, FALSE)) # Add a significance indicator (Ture) if the p value is less than 0.05
 
 # IM
@@ -80,8 +80,8 @@ coef_IM_4 <- coef(summary(IM_prior_4)) %>%
   as.data.frame() %>%
   transmute(beta_p4 = Estimate, SE_p4 = `Std. Error`)
 coef_IM <- merge(coef_IM_1, coef_IM_4, by = "row.names") %>%
-  mutate(t_stat = (beta_p0 - beta_p4) / sqrt(SE_p0^2 + SE_p4^2), # Calculate the t-statistic
-         p = 2 * pnorm(-abs(t_stat)), # Calculate the p value by assuming a two-tailed test and using the normal distribution
+  mutate(z_stat = (beta_p0 - beta_p4) / sqrt(SE_p0^2 + SE_p4^2), # Calculate the t-statistic
+         p = 2 * pnorm(-abs(z_stat)), # Calculate the p value by assuming a two-tailed test and using the normal distribution
          sig = ifelse(p < 0.05, TRUE, FALSE)) # Add a significance indicator (Ture) if the p value is less than 0.05
 # Anx
 coef_Anx_1 <- coef(summary(Anx_prior_0)) %>% 
@@ -91,8 +91,8 @@ coef_Anx_4 <- coef(summary(Anx_prior_4)) %>%
   as.data.frame() %>%
   transmute(beta_p4 = Estimate, SE_p4 = `Std. Error`)
 coef_Anx <- merge(coef_Anx_1, coef_Anx_4, by = "row.names") %>%
-  mutate(t_stat = (beta_p0 - beta_p4) / sqrt(SE_p0^2 + SE_p4^2), # Calculate the t-statistic
-         p = 2 * pnorm(-abs(t_stat)), # Calculate the p value by assuming a two-tailed test and using the normal distribution
+  mutate(z_stat = (beta_p0 - beta_p4) / sqrt(SE_p0^2 + SE_p4^2), # Calculate the t-statistic
+         p = 2 * pnorm(-abs(z_stat)), # Calculate the p value by assuming a two-tailed test and using the normal distribution
          sig = ifelse(p < 0.05, TRUE, FALSE)) # Add a significance indicator (Ture) if the p value is less than 0.05
 # RA
 coef_RA_1 <- coef(summary(RA_prior_0)) %>% 
@@ -102,8 +102,8 @@ coef_RA_4 <- coef(summary(RA_prior_4)) %>%
   as.data.frame() %>%
   transmute(beta_p4 = Estimate, SE_p4 = `Std. Error`)
 coef_RA <- merge(coef_RA_1, coef_RA_4, by = "row.names") %>%
-  mutate(t_stat = (beta_p0 - beta_p4) / sqrt(SE_p0^2 + SE_p4^2), # Calculate the t-statistic
-         p = 2 * pnorm(-abs(t_stat)), # Calculate the p value by assuming a two-tailed test and using the normal distribution
+  mutate(z_stat = (beta_p0 - beta_p4) / sqrt(SE_p0^2 + SE_p4^2), # Calculate the t-statistic
+         p = 2 * pnorm(-abs(z_stat)), # Calculate the p value by assuming a two-tailed test and using the normal distribution
          sig = ifelse(p < 0.05, TRUE, FALSE)) # Add a significance indicator (Ture) if the p value is less than 0.05
 
 # Visualize the results
@@ -120,7 +120,6 @@ f1 <- coef_context %>%
   theme_minimal() +
   theme(axis.text.y = element_text(size = 8)) +
   labs(x = "Predictors", y = "coefficients", title = "Context") +
-  scale_linetype_manual(values=2) + # as there only have ture
   geom_segment(data = coef_context,
              aes(x = Row.names, xend = Row.names,
                  y = beta_p0,   yend = beta_p4,
@@ -197,5 +196,77 @@ legend <- get_legend(
 # add the legend
 FIG <- plot_grid(Fig, legend, rel_widths = c(3, .4))
 
+# remove regressor which is irrelevant with traits
+f5 <- coef_IM %>%
+  pivot_longer(
+    cols = c("beta_p0", "SE_p0", "beta_p4", "SE_p4"),        # Specify the columns to pivot
+    names_to = c(".value", "condition"), # Split the column names into .value and condition
+    names_sep = "_"             # Specify the separator that splits the names
+  ) %>% 
+  filter(Row.names == "VTU:IM" | Row.names == "VTU:IM:context") %>%
+  ggplot(aes(x = reorder(Row.names, beta), y = beta, colour = condition)) +
+  geom_point(stat = "identity", size = 3) +
+  geom_errorbar(aes(ymin = beta - 1.96 * SE, ymax = beta + 1.96 * SE), width = 0.2) +
+  coord_flip() +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = 8)) +
+  labs(x = "Predictors", y = "coefficients", title = "IM") +
+  geom_segment(data = coef_IM,
+               aes(x = Row.names, xend = Row.names,
+                   y = beta_p0,   yend = beta_p4,
+                   linetype = sig),
+               colour = "black", linewidth = 1) +
+  ylim(-0.15, 0.15)
+
+f6 <- coef_Anx %>%
+  pivot_longer(
+    cols = c("beta_p0", "SE_p0", "beta_p4", "SE_p4"),        # Specify the columns to pivot
+    names_to = c(".value", "condition"), # Split the column names into .value and condition
+    names_sep = "_"             # Specify the separator that splits the names
+  ) %>% 
+  filter(Row.names == "RU:Anx" | Row.names == "RU:Anx:context") %>%
+  ggplot(aes(x = reorder(Row.names, beta), y = beta, colour = condition)) +
+  geom_point(stat = "identity", size = 3) +
+  geom_errorbar(aes(ymin = beta - 1.96 * SE, ymax = beta + 1.96 * SE), width = 0.2) +
+  coord_flip() +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = 8)) +
+  labs(x = "Predictors", y = "coefficients", title = "Anx") +
+  geom_segment(data = coef_Anx,
+               aes(x = Row.names, xend = Row.names,
+                   y = beta_p0,   yend = beta_p4,
+                   linetype = sig),
+               colour = "black", linewidth = 1) +
+  ylim(-0.15, 0.15)
+
+f7 <- coef_RA %>%
+  pivot_longer(
+    cols = c("beta_p0", "SE_p0", "beta_p4", "SE_p4"),        # Specify the columns to pivot
+    names_to = c(".value", "condition"), # Split the column names into .value and condition
+    names_sep = "_"             # Specify the separator that splits the names
+  ) %>% 
+  filter(Row.names == "RU:RA" | Row.names == "RU:RA:context" |
+         Row.names == "V:RA"  | Row.names == "V:RA:context"  |
+         Row.names == "VTU:RA" | Row.names == "VTU:RA:context" ) %>%
+  ggplot(aes(x = reorder(Row.names, beta), y = beta, colour = condition)) +
+  geom_point(stat = "identity", size = 3) +
+  geom_errorbar(aes(ymin = beta - 1.96 * SE, ymax = beta + 1.96 * SE), width = 0.2) +
+  coord_flip() +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = 8)) +
+  labs(x = "Predictors", y = "coefficients", title = "RA") +
+  geom_segment(data = coef_RA,
+               aes(x = Row.names, xend = Row.names,
+                   y = beta_p0,   yend = beta_p4,
+                   linetype = sig),
+               colour = "black", linewidth = 1) +
+  ylim(-0.4, 0.3)
+
+Fig2 <- plot_grid(f5 + theme(legend.position="none"),
+                  f6 + theme(legend.position="none"),
+                  f7 + theme(legend.position="none"),
+                  ncol = 1)
+FIG2 <- plot_grid(Fig2, legend, rel_widths = c(3, .4))
 # save the plot
 ggsave("step4_rubost_check/check2_prior_Q_as_0/output/compare_coef.png", FIG, width = 10, height = 10, units = "in", dpi = 300)
+ggsave("step4_rubost_check/check2_prior_Q_as_0/output/compare_coef_reduced.png", FIG2, width = 4, height = 12, units = "in", dpi = 300)
