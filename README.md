@@ -59,6 +59,10 @@ Individual level risky arm selection rate by context and traits
 
 ![](step2_descriptive_statistics/output/traits_risky_context.png)
 
+Regression Risky arm \~ (IU + IM + Anx + RA) \* (context + arms)
+
+![](step2_descriptive_statistics/output/risky_glm_fig.png)
+
 # Robust check
 
 ![](step4_rubost_check/check2_prior_Q_as_0/output/compare_coef.png)
