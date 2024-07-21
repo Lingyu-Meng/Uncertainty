@@ -8,7 +8,8 @@ required_packages <- c("tidyverse",
                        "cowplot", # theme_cowplot
                        "ggsignif", # geom_signif
                        "bruceR", # HLM_summary
-                       "lme4") # lmer
+                       "lme4",   # lmer
+                       "sjPlot") # plot_model
 
 # Check and install missing packages
 install_and_Load <- function(packages) {
@@ -165,7 +166,7 @@ lgRT_hist <- RT_data %>%
        x = "Log RT",
        y = "Frequency") +
   theme_cowplot()
-RT_dist <- plot_grid(RT_hist, lgRT_hist, ncol = 1)
+RT_dist <- cowplot::plot_grid(RT_hist, lgRT_hist, ncol = 1)
 
 # RT x Condition
 # calculate the mean RT in same condition per participants
@@ -196,23 +197,18 @@ rain_meanRT_context_arms <- mean_RT %>%
               color = "black") +
   theme_cowplot()
 
-# RT Linear Mixed Model (RT ~ context:arms + (1|Participant Private ID)
-lmm_lgRT <- RT_data %>% 
-  lmer(lgRT ~ context*arms + (1|`Participant Private ID`), data = .)
-HLM_summary(lmm_lgRT) # WIN SR as baseline
-lgRT_posthoc <- lsmeans(lmm_lgRT, pairwise ~ context:arms, adjust = "tukey") # post hoc test
+# RT Generalised Linear Mixed Model (RT ~ context:arms + (1|Participant Private ID)
+glmm_RT <- RT_data %>% 
+  glmer(`Reaction Time` ~ context*arms + (1|`Participant Private ID`),
+        data = ., family = Gamma(link = "log")) # Gamma distribution
+summary(glmm_RT) # WIN SR as baseline
+lgRT_posthoc <- lsmeans(glmm_RT, pairwise ~ context:arms, adjust = "tukey") # post hoc test
 # Only Win SR - Win rR and Lose SR - Lose rR is not significant
 # Or conduct ANOVA, which may has less power, but the results are the same
 # RT_aov <- RT_data %>%
 #   aov(`Reaction Time` ~ context*arms + Error(`Participant Private ID`), data = .)
 # summary(RT_aov) # main effect of context only
 
-# This result is consistent with the analysis without log trans
-lmm_RT <- RT_data %>% 
-  lmer(`Reaction Time` ~ context*arms + (1|`Participant Private ID`), data = .)
-HLM_summary(lmm_RT) # WIN SR as baseline
-RT_posthoc <- lsmeans(lmm_RT, pairwise ~ context:arms, adjust = "tukey") # post hoc test
-# only difference is interaction. context x arms is p = 0.065 in log, whereas p = 0.152 in original RT
 
 # Visiualise the HLM results
 vis_data_RT <- RT_posthoc$lsmeans %>% 
@@ -256,14 +252,14 @@ lgRT_cond_inter <- vis_data_lgRT %>%
               annotation = c("***"), tip_length = 0) +
   geom_signif(comparisons = list(c("Win", "Lose")),
               annotation = c("***"), tip_length = 0,
-              y_position = 6.42,
+              y_position = 6.645,
               vjust = 2.3, colour = "#00BFC4") +
   labs(color = "Arms",
        y = "Log RT",
        x = "Context") +
   theme_cowplot()
 
-RTs_inter_plot <- plot_grid(RT_cond_inter, lgRT_cond_inter, ncol = 1)
+RTs_inter_plot <- cowplot::plot_grid(RT_cond_inter, lgRT_cond_inter, ncol = 1)
 
 ## Response rate
 response_rate <- RT_data %>% 
@@ -426,12 +422,12 @@ legend <- get_legend(
   # create some space to the left of the legend
   acc_cond_inter + theme(legend.box.margin = margin(0, 0, 0, 12))
 )
-acc_RT_x_condition <- plot_grid(acc_cond_inter + theme(legend.position = "none"),
+acc_RT_x_condition <- cowplot::plot_grid(acc_cond_inter + theme(legend.position = "none"),
                                 lgRT_cond_inter + theme(legend.position = "none"),
                                 labels = c('A', 'B'),
                                 ncol = 2)
 
-acc_RT_condition <- plot_grid(acc_RT_x_condition, legend, rel_widths = c(2, .2))
+acc_RT_condition <- cowplot::plot_grid(acc_RT_x_condition, legend, rel_widths = c(2, .2))
 
 ## trait x accuracy
 accuracy_trait <- accuracy_data %>% 
@@ -463,7 +459,7 @@ acc_risk <- accuracy_trait %>%
   geom_smooth(method = "lm") +
   theme_cowplot()
 
-acc_trait_plot <- plot_grid(acc_IU, acc_IM, acc_anx, acc_risk,
+acc_trait_plot <- cowplot::plot_grid(acc_IU, acc_IM, acc_anx, acc_risk,
                             labels = c('A', 'B', 'C', 'D'),
                             ncol = 4)
 
@@ -474,6 +470,48 @@ acc_trait_glm <- accuracy_trait %>%
   glm(Performance ~ IU + IM + Anxi + RA, data = ., family = "binomial")
 print_table(acc_trait_glm,
             file = "step2_descriptive_statistics/output/acc_trait_glm.doc")
+
+# by context
+traits_acc_context <- accuracy_data %>%
+  left_join(traits_data, by = "Participant Private ID") %>%
+  gather(key = "trait", value = "value", IU:RA) %>%
+  ggplot(aes(x = value, y = Performance, color = trait, shape = context)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  theme_bw() +
+  facet_grid(context~trait, scales = "free_x") +
+  labs(
+    x = "Trait",
+    y = "Correct Arm Selection Rate"
+  )
+
+# trials level
+correct_trait_glmm <- correct_data %>% 
+  left_join(traits_data, by = "Participant Private ID") %>% 
+  mutate(across(IU:RA, scale), # for standardised coefficients
+         context = case_when(
+           grepl("Win", context) ~ -0.5,
+           grepl("Lose", context) ~ 0.5,
+         ),
+         arms = case_when(
+           grepl("r", arms) ~ -0.5,
+           grepl("S", arms) ~ 0.5
+         )) %>% 
+  glmer(correct ~ (IU + IM + Anxi + RA) * (context + arms) + (1|`Participant Private ID`),
+      data = ., family = "binomial")
+summary(correct_trait_glmm)
+correct_trait_fig <- plot_model(correct_trait_glmm,
+                                title = "Choosing the Correct Arm",
+                                show.values = TRUE,
+                                value.offset = 0.4,
+                                sort.est = TRUE) +
+  theme_bw() +
+  ylim(0.8, 1.35)
+
+correct_trait_Fig <- cowplot::plot_grid(correct_trait_fig,
+                                        traits_acc_context,
+                                        rel_widths = c(1, 3),
+                                        labels = c('A', 'B'))
 
 ## trait x RT
 RT_trait <- RT_data %>% 
@@ -506,7 +544,7 @@ RT_risk <- RT_trait %>%
   geom_smooth(method = "lm") +
   theme_cowplot()
 
-RT_trait_plot <- plot_grid(RT_IU, RT_IM, RT_anx, RT_risk,
+RT_trait_plot <- cowplot::plot_grid(RT_IU, RT_IM, RT_anx, RT_risk,
                            labels = c('E', 'F', 'G', 'H'),
                            ncol = 4)
 
@@ -538,13 +576,14 @@ lgRT_risk <- RT_trait %>%
   geom_smooth(method = "lm") +
   theme_cowplot()
 
-lgRT_trait_plot <- plot_grid(lgRT_IU, lgRT_IM, lgRT_anx, lgRT_risk,
+lgRT_trait_plot <- cowplot::plot_grid(lgRT_IU, lgRT_IM, lgRT_anx, lgRT_risk,
                              labels = c('E', 'F', 'G', 'H'),
                              ncol = 4)
 
-RT_trait_lm <- RT_trait %>% 
-  lm(`Mean RT` ~ IU + IM + Anxi + RA, data = .)
-model_summary(RT_trait_lm)
+RT_trait_glm <- RT_trait %>% 
+  glm(`Mean RT` ~ IU + IM + Anxi + RA,
+      data = ., family = Gamma(link = "log")) # Gamma distribution
+GLM_summary(RT_trait_glm)
 # original RT is marginal significant in IU (p = 0.095) and IM (p = 0.098) (without RA)
 lgRT_trait_lm <- RT_trait %>% 
   filter(`Mean lgRT` > 5) %>% # remove outliers
@@ -553,8 +592,8 @@ print_table(lgRT_trait_lm,
             file = "step2_descriptive_statistics/output/lgRT_trait_lm.doc")
 # log RT is not significant in IM and Anxi
 
-acc_trait_RT_plot <- plot_grid(acc_trait_plot, RT_trait_plot, ncol = 1)
-acc_trait_lgRT_plot <- plot_grid(acc_trait_plot, lgRT_trait_plot, ncol = 1)
+acc_trait_RT_plot <- cowplot::plot_grid(acc_trait_plot, RT_trait_plot, ncol = 1)
+acc_trait_lgRT_plot <- cowplot::plot_grid(acc_trait_plot, lgRT_trait_plot, ncol = 1)
 
 # with outlier
 lgRT_trait_IU_outlier <- RT_trait %>% 
@@ -581,9 +620,58 @@ lgRT_trait_risk_outlier <- RT_trait %>%
   geom_smooth(method = "lm") +
   theme_cowplot()
 
-lgRT_trait_plot_outlier <- plot_grid(lgRT_trait_IU_outlier, lgRT_trait_IM_outlier, lgRT_trait_anx_outlier, lgRT_trait_risk_outlier,
+lgRT_trait_plot_outlier <- cowplot::plot_grid(lgRT_trait_IU_outlier, lgRT_trait_IM_outlier, lgRT_trait_anx_outlier, lgRT_trait_risk_outlier,
                                      labels = c('A', 'B', 'C', 'D'),
                                      ncol = 4)
+# by context
+traits_lgRT_context <- RT_data %>%
+  group_by(`Participant Private ID`, context, arms) %>%
+  summarise(`Mean lgRT` = mean(lgRT)) %>%
+  left_join(traits_data, by = "Participant Private ID") %>%
+  gather(key = "trait", value = "value", IU:RA) %>%
+  filter(`Mean lgRT` > 4.5) %>% # remove outliers
+  ggplot(aes(x = value, y = `Mean lgRT`, color = trait, shape = context)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  theme_bw() +
+  facet_grid(context~trait, scales = "free_x") +
+  labs(
+    x = "Trait",
+    y = "Mean Log RT"
+  )
+
+# trials level
+lgRT_trait_glmm <- RT_data %>% 
+  left_join(traits_data, by = "Participant Private ID") %>% 
+  mutate(across(lgRT:RA, scale), # for standardised coefficients
+         context = case_when(    # do not standardise indicator variables
+           grepl("Win", context) ~ -0.5,
+           grepl("Lose", context) ~ 0.5,
+         ),
+         arms = case_when(
+           grepl("r", arms) ~ -0.5,
+           grepl("S", arms) ~ 0.5
+         )
+        ) %>% 
+  glmer(`Reaction Time` ~ (IU + IM + Anxi + RA) * (context + arms) +
+          (1|`Participant Private ID`),
+        data = ., family = Gamma(link = "log")) # Gamma distribution
+summary(lgRT_trait_glmm)
+
+lgRT_trait_fig <- plot_model(lgRT_trait_glmm,
+                             type = "est",
+                             title = "Log RT by Trait",
+                             show.values = TRUE,
+                             value.offset = 0.4,
+                             sort.est = TRUE,
+                             axis.title = "Ratio") +
+  theme_bw() +
+  ylim(0.89, 1.11)
+
+lgRT_trait_Fig <- cowplot::plot_grid(lgRT_trait_fig,
+                                    traits_lgRT_context,
+                                    rel_widths = c(1, 3),
+                                    labels = c('A', 'B'))
 
 ## Save the plots
 ggsave("step2_descriptive_statistics/output/age_hist.png", age_hist, width = 8, height = 6)
@@ -607,6 +695,12 @@ ggsave("step2_descriptive_statistics/output/trait_accuracy_lgRT_plot.png", acc_t
 ggsave("step2_descriptive_statistics/output/lgRT_trait_plot_outlier.png", lgRT_trait_plot_outlier, width = 12, height = 3)
 ggsave("step2_descriptive_statistics/output/lgRT_trait_plot_nooutlier.png", lgRT_trait_plot, width = 12, height = 3)
 ggsave("step2_descriptive_statistics/output/acc_RT_condition.png", acc_RT_condition, width = 13, height = 6)
+ggsave("step2_descriptive_statistics/output/traits_acc_context.png", traits_acc_context, width = 18, height = 6)
+ggsave("step2_descriptive_statistics/output/correct_trait_Fig.png", correct_trait_Fig, width = 18, height = 6)
+ggsave("step2_descriptive_statistics/output/correct_trait_fig.png", correct_trait_fig, width = 6, height = 6)
+ggsave("step2_descriptive_statistics/output/lgRT_trait_Fig.png", lgRT_trait_Fig, width = 18, height = 6)
+ggsave("step2_descriptive_statistics/output/lgRT_trait_fig.png", lgRT_trait_fig, width = 6, height = 6)
+ggsave("step2_descriptive_statistics/output/traits_lgRT_context.png", traits_lgRT_context, width = 18, height = 6)
 
 # Save the models
 save(acc_trait_glm, lgRT_trait_lm, file = "step2_descriptive_statistics/output/acc_trait_RT_lm.RData")
