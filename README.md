@@ -40,6 +40,8 @@ In sum, the RT and accuracy are respectively affected by frame and arms.
 
 # Trait
 
+## Accuracy and RT
+
 ![](step2_descriptive_statistics/output/trait_corr.png)
 
 ![](step2_descriptive_statistics/output/traits_pairs_plot.png)
@@ -50,6 +52,12 @@ In sum, the RT and accuracy are respectively affected by frame and arms.
 -   Higher levels of RA significantly predict slower decision of the participants.
 
 ![](step2_descriptive_statistics/output/trait_accuracy_RT_plot.png)
+
+## Risky arm selection rate
+
+Individual level risky arm selection rate by context and traits
+
+![](step2_descriptive_statistics/output/traits_risky_context.png)
 
 # Robust check
 

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset='utf-8'>
+<title></title>
+<style>
+body, pre {font-size: 10.5pt; font-family: Times New Roman;}
+p {margin: 0px;}
+table {border-collapse: collapse; border-spacing: 0px; color: #000000;
+       border-top: 2px solid #000000; border-bottom: 2px solid #000000;}
+table thead th {border-bottom: 1px solid #000000;}
+table th, table td {padding-left: 5px; padding-right: 5px; height: 19px;}
+</style>
+</head>
+
+<body>
+<p></p>
+<table>
+<thead>
+<tr> <th align='left'></th> <th align='right'>Estimate</th> <th align='right'>S.E.</th> <th align='right'>z</th> <th align='right'>p</th> <th align='right'> </th> </tr>
+</thead>
+<tbody>
+<tr> <td align='left'>(Intercept)</td> <td align='right'>0.215</td> <td align='right'>(0.021)</td> <td align='right'>10.106</td> <td align='right'>< .001</td> <td align='right'>***</td> </tr>
+<tr> <td align='left'>IU</td> <td align='right'>0.142</td> <td align='right'>(0.028)</td> <td align='right'>5.003</td> <td align='right'>< .001</td> <td align='right'>***</td> </tr>
+<tr> <td align='left'>IM</td> <td align='right'>0.046</td> <td align='right'>(0.024)</td> <td align='right'>1.940</td> <td align='right'>.052</td> <td align='right'>.</td> </tr>
+<tr> <td align='left'>Anx</td> <td align='right'>–0.093</td> <td align='right'>(0.028)</td> <td align='right'>–3.368</td> <td align='right'>< .001</td> <td align='right'>***</td> </tr>
+<tr> <td align='left'>RA</td> <td align='right'>–0.097</td> <td align='right'>(0.022)</td> <td align='right'>–4.467</td> <td align='right'>< .001</td> <td align='right'>***</td> </tr>
+<tr> <td align='left'>contextLose</td> <td align='right'>–0.480</td> <td align='right'>(0.025)</td> <td align='right'>–19.528</td> <td align='right'>< .001</td> <td align='right'>***</td> </tr>
+<tr> <td align='left'>armsSR</td> <td align='right'>0.046</td> <td align='right'>(0.025)</td> <td align='right'>1.888</td> <td align='right'>.059</td> <td align='right'>.</td> </tr>
+<tr> <td align='left'>IU:contextLose</td> <td align='right'>–0.147</td> <td align='right'>(0.033)</td> <td align='right'>–4.490</td> <td align='right'>< .001</td> <td align='right'>***</td> </tr>
+<tr> <td align='left'>IU:armsSR</td> <td align='right'>0.014</td> <td align='right'>(0.033)</td> <td align='right'>0.431</td> <td align='right'>.666</td> <td align='right'></td> </tr>
+<tr> <td align='left'>IM:contextLose</td> <td align='right'>–0.035</td> <td align='right'>(0.028)</td> <td align='right'>–1.259</td> <td align='right'>.208</td> <td align='right'></td> </tr>
+<tr> <td align='left'>IM:armsSR</td> <td align='right'>–0.045</td> <td align='right'>(0.028)</td> <td align='right'>–1.638</td> <td align='right'>.101</td> <td align='right'></td> </tr>
+<tr> <td align='left'>Anx:contextLose</td> <td align='right'>0.095</td> <td align='right'>(0.032)</td> <td align='right'>2.969</td> <td align='right'>.003</td> <td align='right'>**</td> </tr>
+<tr> <td align='left'>Anx:armsSR</td> <td align='right'>–0.006</td> <td align='right'>(0.032)</td> <td align='right'>–0.188</td> <td align='right'>.851</td> <td align='right'></td> </tr>
+<tr> <td align='left'>RA:contextLose</td> <td align='right'>–0.004</td> <td align='right'>(0.025)</td> <td align='right'>–0.145</td> <td align='right'>.885</td> <td align='right'></td> </tr>
+<tr> <td align='left'>RA:armsSR</td> <td align='right'>0.046</td> <td align='right'>(0.025)</td> <td align='right'>1.852</td> <td align='right'>.064</td> <td align='right'>.</td> </tr>
+</tbody>
+</table>
+<p></p>
+</body>
+
+</html>
