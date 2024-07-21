@@ -1,6 +1,6 @@
 # Model free analysis on the risky arm task
 
-required_packages <- c("tidyverse", "cowplot")
+required_packages <- c("tidyverse", "cowplot", "sjPlot")
 
 # Check and install missing packages
 install_and_Load <- function(packages) {
@@ -14,7 +14,7 @@ install_and_Load <- function(packages) {
 
 install_and_Load(required_packages)
 
-## Risk aversion and risky arm
+## Load data
 risky_arm <- read_csv("step2_descriptive_statistics/output/kalman_data.csv") %>% 
   mutate(
     selection = if_else(response == "Left", left, right),
@@ -27,14 +27,29 @@ risky_arm <- read_csv("step2_descriptive_statistics/output/kalman_data.csv") %>%
     context = factor(context, levels = c("Win", "Lose"))
   )
 
-# glm model
-RA_risky_lm <- glm(risky ~ (context + arms) * RA, data = risky_arm, family = binomial(link = "logit"))
-GLM_summary(RA_risky_lm)
-
 ## All traits
-risky_glm <- glm(risky ~ (IU + IM + Anx + RA) * (context + arms),
-                data = risky_arm, family = binomial(link = "logit"))
+risky_glm <- risky_arm %>% 
+  mutate(
+    context = case_when(
+      grepl("Win", context) ~ -0.5,
+      grepl("Lose", context) ~ 0.5,
+    ),
+    arms = case_when(
+      grepl("r", arms) ~ -0.5,
+      grepl("S", arms) ~ 0.5,
+    )
+  ) %>%
+  glm(risky ~ (IU + IM + Anx + RA) * (context + arms),
+      data = ., family = binomial(link = "logit"))
 GLM_summary(risky_glm)
+risky_glm_fig <- plot_model(risky_glm,
+                            title = "Choosing the Risky Arm",
+                            show.values = TRUE,
+                            value.offset = 0.4,
+                            sort.est = TRUE) +
+  theme_bw() +
+  ylim(0.5, 1.5)
+
 print_table(risky_glm, file = "step2_descriptive_statistics/output/risky_glm_summary.doc")
 # scatter plot
 # If facet_wrap is bad, use the commented code below
@@ -140,3 +155,4 @@ traits_risky_context <- risky_arm %>%
 
 # save plots
 ggsave("step2_descriptive_statistics/output/traits_risky_context.png", traits_risky_context, width = 10, height = 5)
+ggsave("step2_descriptive_statistics/output/risky_glm_fig.png", risky_glm_fig, width = 7, height = 7)
