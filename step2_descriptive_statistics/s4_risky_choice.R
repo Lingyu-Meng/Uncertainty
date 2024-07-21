@@ -28,7 +28,7 @@ risky_arm <- read_csv("step2_descriptive_statistics/output/kalman_data.csv") %>%
   )
 
 ## All traits
-risky_glm <- risky_arm %>% 
+risky_glmm <- risky_arm %>% 
   mutate(
     context = case_when(
       grepl("Win", context) ~ -0.5,
@@ -39,10 +39,11 @@ risky_glm <- risky_arm %>%
       grepl("S", arms) ~ 0.5,
     )
   ) %>%
-  glm(risky ~ (IU + IM + Anx + RA) * (context + arms),
+  glmer(risky ~ (IU + IM + Anx + RA) * (context + arms) +
+          (1 | ID),
       data = ., family = binomial(link = "logit"))
-GLM_summary(risky_glm)
-risky_glm_fig <- plot_model(risky_glm,
+summary(risky_glmm)
+risky_glmm_fig <- plot_model(risky_glmm,
                             title = "Choosing the Risky Arm",
                             show.values = TRUE,
                             value.offset = 0.4,
@@ -50,7 +51,7 @@ risky_glm_fig <- plot_model(risky_glm,
   theme_bw() +
   ylim(0.5, 1.5)
 
-print_table(risky_glm, file = "step2_descriptive_statistics/output/risky_glm_summary.doc")
+print_table(risky_glmm, file = "step2_descriptive_statistics/output/risky_glmm_summary.doc")
 # scatter plot
 # If facet_wrap is bad, use the commented code below
 # IU_risky <- risky_arm %>% 
@@ -161,5 +162,5 @@ risky_arm_fig <- cowplot::plot_grid( # sjPlot has plot_grid as well
 
 # save plots
 ggsave("step2_descriptive_statistics/output/traits_risky_context.png", traits_risky_context, width = 10, height = 5)
-ggsave("step2_descriptive_statistics/output/risky_glm_fig.png", risky_glm_fig, width = 7, height = 7)
+ggsave("step2_descriptive_statistics/output/risky_glmm_fig.png", risky_glmm_fig, width = 7, height = 7)
 ggsave("step2_descriptive_statistics/output/risky_arm_fig.png", risky_arm_fig, width = 18, height = 6)
