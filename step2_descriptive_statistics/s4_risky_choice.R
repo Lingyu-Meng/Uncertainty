@@ -153,6 +153,13 @@ traits_risky_context <- risky_arm %>%
     y = "Risky Arm Selection Rate"
   )
 
+risky_arm_fig <- cowplot::plot_grid( # sjPlot has plot_grid as well
+  risky_glm_fig,
+  traits_risky_context,
+  rel_widths = c(1, 2),
+  labels = c('A', 'B'))
+
 # save plots
 ggsave("step2_descriptive_statistics/output/traits_risky_context.png", traits_risky_context, width = 10, height = 5)
 ggsave("step2_descriptive_statistics/output/risky_glm_fig.png", risky_glm_fig, width = 7, height = 7)
+ggsave("step2_descriptive_statistics/output/risky_arm_fig.png", risky_arm_fig, width = 18, height = 6)
