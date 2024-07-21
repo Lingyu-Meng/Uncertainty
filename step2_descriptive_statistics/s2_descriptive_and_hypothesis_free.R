@@ -699,7 +699,7 @@ ggsave("step2_descriptive_statistics/output/traits_acc_context.png", traits_acc_
 ggsave("step2_descriptive_statistics/output/correct_trait_Fig.png", correct_trait_Fig, width = 18, height = 6)
 ggsave("step2_descriptive_statistics/output/correct_trait_fig.png", correct_trait_fig, width = 6, height = 6)
 ggsave("step2_descriptive_statistics/output/lgRT_trait_Fig.png", lgRT_trait_Fig, width = 18, height = 6)
-ggsave("step2_descriptive_statistics/output/lgRT_trait_fig.png", lgRT_trait_fig, width = 6, height = 6)
+ggsave("step2_descriptive_statistics/output/lgRT_trait_ffig.png", lgRT_trait_fig, width = 6, height = 6) # why _fig will replace _Fig????
 ggsave("step2_descriptive_statistics/output/traits_lgRT_context.png", traits_lgRT_context, width = 18, height = 6)
 
 # Save the models
