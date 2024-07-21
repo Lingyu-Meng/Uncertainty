@@ -258,8 +258,7 @@ lgRT_cond_inter <- vis_data_lgRT %>%
               annotation = c("***"), tip_length = 0,
               y_position = 6.42,
               vjust = 2.3, colour = "#00BFC4") +
-  labs(title = "Interaction Plot for RT Results",
-       color = "Arms",
+  labs(color = "Arms",
        y = "Log RT",
        x = "Context") +
   theme_cowplot()
@@ -398,11 +397,10 @@ acc_cond_inter <- vis_data_acc %>%
               annotation = c("*"), tip_length = 0,
               y_position = 0.603, colour = "#00BFC4",
               vjust = 2.3) +
-  labs(title = "Interaction Plot for Accuracy Results",
-       color = "Arms",
+  labs(color = "Arms",
        y = "Accuracy",
-       x = "Context",
-       caption = "Error bars represent 95% CI") +
+       x = "Context"
+       ) +
   theme_cowplot()
 
 ## RT x Accuracy by context x arms
@@ -422,6 +420,18 @@ RT_acc <- vis_data %>%
        x = "RT (ms)",
        y = "Accuracy") +
   theme_cowplot()
+
+# extract the legend from one of the plots
+legend <- get_legend(
+  # create some space to the left of the legend
+  acc_cond_inter + theme(legend.box.margin = margin(0, 0, 0, 12))
+)
+acc_RT_x_condition <- plot_grid(acc_cond_inter + theme(legend.position = "none"),
+                                lgRT_cond_inter + theme(legend.position = "none"),
+                                labels = c('A', 'B'),
+                                ncol = 2)
+
+acc_RT_condition <- plot_grid(acc_RT_x_condition, legend, rel_widths = c(2, .2))
 
 ## trait x accuracy
 accuracy_trait <- accuracy_data %>% 
@@ -462,7 +472,8 @@ acc_trait_glm <- accuracy_trait %>%
   mutate(across(-Performance, scale)) %>% # for standardised coefficients
   as.data.frame() %>%
   glm(Performance ~ IU + IM + Anxi + RA, data = ., family = "binomial")
-summary(acc_trait_glm)
+print_table(acc_trait_glm,
+            file = "step2_descriptive_statistics/output/acc_trait_glm.doc")
 
 ## trait x RT
 RT_trait <- RT_data %>% 
@@ -538,7 +549,8 @@ model_summary(RT_trait_lm)
 lgRT_trait_lm <- RT_trait %>% 
   filter(`Mean lgRT` > 5) %>% # remove outliers
   lm(`Mean lgRT` ~ IU + IM + Anxi + RA, data = .)
-model_summary(lgRT_trait_lm)
+print_table(lgRT_trait_lm,
+            file = "step2_descriptive_statistics/output/lgRT_trait_lm.doc")
 # log RT is not significant in IM and Anxi
 
 acc_trait_RT_plot <- plot_grid(acc_trait_plot, RT_trait_plot, ncol = 1)
@@ -594,6 +606,7 @@ ggsave("step2_descriptive_statistics/output/trait_accuracy_RT_plot.png", acc_tra
 ggsave("step2_descriptive_statistics/output/trait_accuracy_lgRT_plot.png", acc_trait_lgRT_plot, width = 12, height = 6)
 ggsave("step2_descriptive_statistics/output/lgRT_trait_plot_outlier.png", lgRT_trait_plot_outlier, width = 12, height = 3)
 ggsave("step2_descriptive_statistics/output/lgRT_trait_plot_nooutlier.png", lgRT_trait_plot, width = 12, height = 3)
+ggsave("step2_descriptive_statistics/output/acc_RT_condition.png", acc_RT_condition, width = 13, height = 6)
 
 # Save the models
-save(acc_trait_lm, lgRT_trait_lm, file = "step2_descriptive_statistics/output/acc_trait_RT_lm.RData")
+save(acc_trait_glm, lgRT_trait_lm, file = "step2_descriptive_statistics/output/acc_trait_RT_lm.RData")
