@@ -53,6 +53,18 @@ In sum, the RT and accuracy are respectively affected by frame and arms.
 
 ![](step2_descriptive_statistics/output/trait_accuracy_RT_plot.png)
 
+## Accuracy by context
+
+![](step2_descriptive_statistics/output/traits_acc_context.png)
+
+![](step2_descriptive_statistics/output/correct_trait_fig.png)
+
+## RT by context
+
+![](step2_descriptive_statistics/output/traits_lgRT_context.png)
+
+![](step2_descriptive_statistics/output/lgRT_trait_ffig.png)
+
 ## Risky arm selection rate
 
 Individual level risky arm selection rate by context and traits
