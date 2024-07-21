@@ -21,11 +21,11 @@ table th, table td {padding-left: 5px; padding-right: 5px; height: 19px;}
 <tr> <th align='left'></th> <th align='right'>Estimate</th> <th align='right'>S.E.</th> <th align='right'>z</th> <th align='right'>p</th> <th align='right'> </th> </tr>
 </thead>
 <tbody>
-<tr> <td align='left'>(Intercept)</td> <td align='right'>0.222</td> <td align='right'>(0.188)</td> <td align='right'>1.181</td> <td align='right'>.237</td> <td align='right'></td> </tr>
-<tr> <td align='left'>IU</td> <td align='right'>–0.076</td> <td align='right'>(0.248)</td> <td align='right'>–0.307</td> <td align='right'>.759</td> <td align='right'></td> </tr>
-<tr> <td align='left'>IM</td> <td align='right'>0.040</td> <td align='right'>(0.195)</td> <td align='right'>0.206</td> <td align='right'>.837</td> <td align='right'></td> </tr>
-<tr> <td align='left'>Anxi</td> <td align='right'>0.063</td> <td align='right'>(0.244)</td> <td align='right'>0.258</td> <td align='right'>.796</td> <td align='right'></td> </tr>
-<tr> <td align='left'>RA</td> <td align='right'>0.015</td> <td align='right'>(0.192)</td> <td align='right'>0.077</td> <td align='right'>.939</td> <td align='right'></td> </tr>
+<tr> <td align='left'>(Intercept)</td> <td align='right'>0.166</td> <td align='right'>(0.188)</td> <td align='right'>0.880</td> <td align='right'>.379</td> <td align='right'></td> </tr>
+<tr> <td align='left'>IU</td> <td align='right'>–0.021</td> <td align='right'>(0.249)</td> <td align='right'>–0.083</td> <td align='right'>.934</td> <td align='right'></td> </tr>
+<tr> <td align='left'>IM</td> <td align='right'>0.041</td> <td align='right'>(0.195)</td> <td align='right'>0.210</td> <td align='right'>.834</td> <td align='right'></td> </tr>
+<tr> <td align='left'>Anxi</td> <td align='right'>0.033</td> <td align='right'>(0.244)</td> <td align='right'>0.135</td> <td align='right'>.892</td> <td align='right'></td> </tr>
+<tr> <td align='left'>RA</td> <td align='right'>0.039</td> <td align='right'>(0.192)</td> <td align='right'>0.205</td> <td align='right'>.837</td> <td align='right'></td> </tr>
 </tbody>
 </table>
 <p></p>

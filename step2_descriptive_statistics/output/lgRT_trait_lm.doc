@@ -21,11 +21,11 @@ table th, table td {padding-left: 5px; padding-right: 5px; height: 19px;}
 <tr> <th align='left'></th> <th align='right'>Estimate</th> <th align='right'>S.E.</th> <th align='right'>t</th> <th align='right'>p</th> <th align='right'> </th> </tr>
 </thead>
 <tbody>
-<tr> <td align='left'>(Intercept)</td> <td align='right'>6.283</td> <td align='right'>(0.342)</td> <td align='right'>18.394</td> <td align='right'>< .001</td> <td align='right'>***</td> </tr>
-<tr> <td align='left'>IU</td> <td align='right'>–0.003</td> <td align='right'>(0.002)</td> <td align='right'>–1.582</td> <td align='right'>.116</td> <td align='right'></td> </tr>
-<tr> <td align='left'>IM</td> <td align='right'>0.003</td> <td align='right'>(0.005)</td> <td align='right'>0.552</td> <td align='right'>.582</td> <td align='right'></td> </tr>
-<tr> <td align='left'>Anxi</td> <td align='right'>0.004</td> <td align='right'>(0.008)</td> <td align='right'>0.498</td> <td align='right'>.619</td> <td align='right'></td> </tr>
-<tr> <td align='left'>RA</td> <td align='right'>0.003</td> <td align='right'>(0.010)</td> <td align='right'>0.293</td> <td align='right'>.770</td> <td align='right'></td> </tr>
+<tr> <td align='left'>(Intercept)</td> <td align='right'>6.353</td> <td align='right'>(0.342)</td> <td align='right'>18.579</td> <td align='right'>< .001</td> <td align='right'>***</td> </tr>
+<tr> <td align='left'>IU</td> <td align='right'>–0.004</td> <td align='right'>(0.002)</td> <td align='right'>–1.806</td> <td align='right'>.074</td> <td align='right'>.</td> </tr>
+<tr> <td align='left'>IM</td> <td align='right'>0.002</td> <td align='right'>(0.005)</td> <td align='right'>0.304</td> <td align='right'>.762</td> <td align='right'></td> </tr>
+<tr> <td align='left'>Anxi</td> <td align='right'>0.006</td> <td align='right'>(0.008)</td> <td align='right'>0.701</td> <td align='right'>.485</td> <td align='right'></td> </tr>
+<tr> <td align='left'>RA</td> <td align='right'>0.003</td> <td align='right'>(0.010)</td> <td align='right'>0.249</td> <td align='right'>.804</td> <td align='right'></td> </tr>
 </tbody>
 </table>
 <p></p>

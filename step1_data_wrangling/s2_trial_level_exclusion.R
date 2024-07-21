@@ -48,10 +48,12 @@ excluded_participants <- read_csv("step1_data_wrangling/output/inclusion.csv") %
 
 cleaned_data <- main_data %>%
   group_by(`Participant Private ID`, `Spreadsheet: block_flag`) %>%
-  mutate(block_omit = sum(Response == "No Response")) %>% # count omission trials
+  mutate(block_omit = sum(Response == "No Response"), # count omission trials
+         block_sele = sum(Response == "greenBox.png")) %>% # count single arm selection
   ungroup(`Participant Private ID`, `Spreadsheet: block_flag`) %>% 
   filter(block_omit < 5) %>% # remove block with less than 8 valid response trials
   filter(Response != "No Response") %>%  # remove omission trials
+  filter(block_sele != 0 & block_sele != 12 - block_omit) %>% # remove blocks with selected one arm only
   anti_join(excluded_participants, by = join_by(`Participant Private ID`)) # remove excluded participants
 
 # save cleaned data

@@ -51,8 +51,14 @@ full_model <- glmer(
   family = binomial(link = "probit")
 )
 
+full_model <- glmer(
+  choice ~ -1 + V + RU + VTU + (-1 + RU + VTU|ID),
+  data = data,
+  family = binomial(link = "probit")
+)
+
 context_model <- glmer(
-  choice ~ -1 + V + RU + VTU + (V + RU + VTU):context + (-1 + V + RU + VTU|ID),
+  choice ~ -1 + V + RU + VTU + (V + RU + VTU):context + (-1 + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -72,7 +78,7 @@ file = "Basic_Models.doc"
 # H1: IIU, PIU affect RU
 model_IU2_1 <- glmer(
   choice ~ -1 + V + RU + VTU +
-           RU:(IIU + PIU) + (-1 + V + RU + VTU|ID),
+           RU:(IIU + PIU) + (-1 + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -83,7 +89,7 @@ model_IU2_2 <- glmer(
            V:(IIU + PIU) +
            RU:(IIU + PIU) +
            VTU:(IIU + PIU) +
-           (-1 + V + RU + VTU|ID),
+           (-1 + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -93,7 +99,7 @@ model_IU2_3 <- glmer(
   choice ~ -1 + V + RU + VTU +
            RU:(IIU + PIU) + RU:IIU:context +
           (V + RU + VTU):context +
-          (-1 + V + RU + VTU|ID),
+          (-1 + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -108,7 +114,7 @@ model_IU2_4 <- glmer(
            RU:(IIU + PIU):context + 
            VTU:(IIU + PIU):context +
           (V + RU + VTU):context +
-          (-1 + V + RU + VTU|ID),
+          (-1 + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -128,7 +134,7 @@ file = "theory_IU2_Models.doc"
 # H1b: IU affect RU
 model_IU_1 <- glmer(
   choice ~ -1 + V + RU + VTU +
-           RU:IU + (-1 + V + RU + VTU|ID),
+           RU:IU + (-1 + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -139,7 +145,7 @@ model_IU_2 <- glmer(
            V:IU +
            RU:IU +
            VTU:IU +
-           (-1 + V + RU + VTU|ID),
+           (-1 + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -149,7 +155,7 @@ model_IU_3 <- glmer(
   choice ~ -1 + V + RU + VTU +
            RU:IU + RU:IU:context +
           (V + RU + VTU):context +
-          (-1 + V + RU + VTU|ID),
+          (-1 + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -164,7 +170,7 @@ model_IU_4 <- glmer(
            RU:IU:context +
            VTU:IU:context +
           (V + RU + VTU):context +
-          (-1 + V + RU + VTU|ID),
+          (-1 + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -184,7 +190,7 @@ file = "theory_IU_Models.doc"
 # H2: IM affect V/TU
 model_IM_1 <- glmer(
   choice ~ -1 + V + RU + VTU +
-           VTU:IM + (-1 + V + RU + VTU|ID),
+           VTU:IM + (-1 + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -195,7 +201,7 @@ model_IM_2 <- glmer(
            V:IM +
            RU:IM +
            VTU:IM +
-           (-1 + V + RU + VTU|ID),
+           (-1 + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -205,7 +211,7 @@ model_IM_3 <- glmer(
   choice ~ -1 + V + RU + VTU +
            VTU:IM + VTU:IM:context +
           (V + RU + VTU):context +
-          (-1 + V + RU + VTU|ID),
+          (-1 + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -220,7 +226,7 @@ model_IM_4 <- glmer(
            RU:IM:context +
            VTU:IM:context +
           (V + RU + VTU):context +
-          (-1 + V + RU + VTU|ID),
+          (-1 + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -241,7 +247,7 @@ file = "theory_IM_Models.doc"
 # Anx affect RU
 model_Anx_1 <- glmer(
   choice ~ -1 + V + RU + VTU +
-           RU:Anx + (-1 + V + RU + VTU|ID),
+           RU:Anx + (-1 + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -252,7 +258,7 @@ model_Anx_2 <- glmer(
            V:Anx +
            RU:Anx +
            VTU:Anx +
-           (-1 + V + RU + VTU|ID),
+           (-1 + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -262,7 +268,7 @@ model_Anx_3 <- glmer(
   choice ~ -1 + V + RU + VTU +
            RU:Anx + RU:Anx:context +
           (V + RU + VTU):context +
-          (-1 + V + RU + VTU|ID),
+          (-1 + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -277,7 +283,7 @@ model_Anx_4 <- glmer(
            RU:Anx:context +
            VTU:Anx:context +
           (V + RU + VTU):context +
-          (-1 + V + RU + VTU|ID),
+          (-1 + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -300,7 +306,7 @@ model_RA_1 <- glmer(
            V:RA +
            RU:RA +
            VTU:RA +
-           (-1 + V + RU + VTU|ID),
+           (-1 + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -315,7 +321,7 @@ model_RA_2 <- glmer(
            RU:RA:context +
            VTU:RA:context +
           (V + RU + VTU):context +
-          (-1 + V + RU + VTU|ID),
+          (-1 + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")

@@ -21,21 +21,21 @@ table th, table td {padding-left: 5px; padding-right: 5px; height: 19px;}
 <tr> <th align='left'></th> <th align='right'>Estimate</th> <th align='right'>S.E.</th> <th align='right'>z</th> <th align='right'>p</th> <th align='right'> </th> </tr>
 </thead>
 <tbody>
-<tr> <td align='left'>(Intercept)</td> <td align='right'>–0.008</td> <td align='right'>(0.048)</td> <td align='right'>–0.157</td> <td align='right'>.875</td> <td align='right'></td> </tr>
-<tr> <td align='left'>IU</td> <td align='right'>0.078</td> <td align='right'>(0.064)</td> <td align='right'>1.221</td> <td align='right'>.222</td> <td align='right'></td> </tr>
-<tr> <td align='left'>IM</td> <td align='right'>–0.001</td> <td align='right'>(0.054)</td> <td align='right'>–0.011</td> <td align='right'>.991</td> <td align='right'></td> </tr>
-<tr> <td align='left'>Anx</td> <td align='right'>–0.048</td> <td align='right'>(0.062)</td> <td align='right'>–0.775</td> <td align='right'>.439</td> <td align='right'></td> </tr>
-<tr> <td align='left'>RA</td> <td align='right'>–0.094</td> <td align='right'>(0.049)</td> <td align='right'>–1.913</td> <td align='right'>.056</td> <td align='right'>.</td> </tr>
-<tr> <td align='left'>context</td> <td align='right'>–0.502</td> <td align='right'>(0.025)</td> <td align='right'>–19.970</td> <td align='right'>< .001</td> <td align='right'>***</td> </tr>
-<tr> <td align='left'>arms</td> <td align='right'>0.049</td> <td align='right'>(0.025)</td> <td align='right'>1.940</td> <td align='right'>.052</td> <td align='right'>.</td> </tr>
-<tr> <td align='left'>IU:context</td> <td align='right'>–0.153</td> <td align='right'>(0.033)</td> <td align='right'>–4.610</td> <td align='right'>< .001</td> <td align='right'>***</td> </tr>
-<tr> <td align='left'>IU:arms</td> <td align='right'>0.013</td> <td align='right'>(0.033)</td> <td align='right'>0.391</td> <td align='right'>.696</td> <td align='right'></td> </tr>
-<tr> <td align='left'>IM:context</td> <td align='right'>–0.044</td> <td align='right'>(0.028)</td> <td align='right'>–1.564</td> <td align='right'>.118</td> <td align='right'></td> </tr>
-<tr> <td align='left'>IM:arms</td> <td align='right'>–0.046</td> <td align='right'>(0.028)</td> <td align='right'>–1.631</td> <td align='right'>.103</td> <td align='right'></td> </tr>
-<tr> <td align='left'>Anx:context</td> <td align='right'>0.100</td> <td align='right'>(0.032)</td> <td align='right'>3.066</td> <td align='right'>.002</td> <td align='right'>**</td> </tr>
-<tr> <td align='left'>Anx:arms</td> <td align='right'>–0.005</td> <td align='right'>(0.032)</td> <td align='right'>–0.152</td> <td align='right'>.879</td> <td align='right'></td> </tr>
-<tr> <td align='left'>RA:context</td> <td align='right'>–0.008</td> <td align='right'>(0.026)</td> <td align='right'>–0.327</td> <td align='right'>.744</td> <td align='right'></td> </tr>
-<tr> <td align='left'>RA:arms</td> <td align='right'>0.048</td> <td align='right'>(0.026)</td> <td align='right'>1.886</td> <td align='right'>.059</td> <td align='right'>.</td> </tr>
+<tr> <td align='left'>(Intercept)</td> <td align='right'>0.154</td> <td align='right'>(0.034)</td> <td align='right'>4.592</td> <td align='right'>< .001</td> <td align='right'>***</td> </tr>
+<tr> <td align='left'>IU</td> <td align='right'>0.043</td> <td align='right'>(0.044)</td> <td align='right'>0.964</td> <td align='right'>.335</td> <td align='right'></td> </tr>
+<tr> <td align='left'>IM</td> <td align='right'>0.008</td> <td align='right'>(0.038)</td> <td align='right'>0.200</td> <td align='right'>.842</td> <td align='right'></td> </tr>
+<tr> <td align='left'>Anx</td> <td align='right'>–0.045</td> <td align='right'>(0.043)</td> <td align='right'>–1.053</td> <td align='right'>.292</td> <td align='right'></td> </tr>
+<tr> <td align='left'>RA</td> <td align='right'>–0.034</td> <td align='right'>(0.035)</td> <td align='right'>–0.998</td> <td align='right'>.319</td> <td align='right'></td> </tr>
+<tr> <td align='left'>context</td> <td align='right'>–0.303</td> <td align='right'>(0.027)</td> <td align='right'>–11.195</td> <td align='right'>< .001</td> <td align='right'>***</td> </tr>
+<tr> <td align='left'>arms</td> <td align='right'>0.033</td> <td align='right'>(0.027)</td> <td align='right'>1.212</td> <td align='right'>.225</td> <td align='right'></td> </tr>
+<tr> <td align='left'>IU:context</td> <td align='right'>–0.051</td> <td align='right'>(0.035)</td> <td align='right'>–1.444</td> <td align='right'>.149</td> <td align='right'></td> </tr>
+<tr> <td align='left'>IU:arms</td> <td align='right'>0.003</td> <td align='right'>(0.035)</td> <td align='right'>0.093</td> <td align='right'>.926</td> <td align='right'></td> </tr>
+<tr> <td align='left'>IM:context</td> <td align='right'>0.013</td> <td align='right'>(0.032)</td> <td align='right'>0.398</td> <td align='right'>.691</td> <td align='right'></td> </tr>
+<tr> <td align='left'>IM:arms</td> <td align='right'>0.021</td> <td align='right'>(0.032)</td> <td align='right'>0.661</td> <td align='right'>.508</td> <td align='right'></td> </tr>
+<tr> <td align='left'>Anx:context</td> <td align='right'>0.031</td> <td align='right'>(0.034)</td> <td align='right'>0.902</td> <td align='right'>.367</td> <td align='right'></td> </tr>
+<tr> <td align='left'>Anx:arms</td> <td align='right'>–0.027</td> <td align='right'>(0.034)</td> <td align='right'>–0.793</td> <td align='right'>.428</td> <td align='right'></td> </tr>
+<tr> <td align='left'>RA:context</td> <td align='right'>0.062</td> <td align='right'>(0.028)</td> <td align='right'>2.192</td> <td align='right'>.028</td> <td align='right'>*</td> </tr>
+<tr> <td align='left'>RA:arms</td> <td align='right'>–0.005</td> <td align='right'>(0.028)</td> <td align='right'>–0.190</td> <td align='right'>.849</td> <td align='right'></td> </tr>
 </tbody>
 </table>
 <p></p>
