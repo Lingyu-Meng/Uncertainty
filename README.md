@@ -82,7 +82,7 @@ Regression Risky arm \~ (IU + IM + Anx + RA) \* (context + arms)
 
 ## Random effect
 
-Four models has similar random effect distribution
+Four models have similar random effect distribution
 
 ![](step3_modelling/output/IU_random_effects.png)
 
