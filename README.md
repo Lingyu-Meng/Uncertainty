@@ -73,7 +73,25 @@ Individual level risky arm selection rate by context and traits
 
 Regression Risky arm \~ (IU + IM + Anx + RA) \* (context + arms)
 
-![](step2_descriptive_statistics/output/risky_glm_fig.png)
+![](step2_descriptive_statistics/output/risky_glmm_fig.png)
+
+# Modelling
+
+## Fixed effect
+
+![](step3_modelling/output/fixed_effects.png)
+
+## Random effect
+
+Four models has similar random effect distribution
+
+![](step3_modelling/output/IU_random_effects.png)
+
+![](step3_modelling/output/IM_random_effects.png)
+
+![](step3_modelling/output/Anx_random_effects.png)
+
+![](step3_modelling/output/RA_random_effects.png)
 
 # Robust check
 
