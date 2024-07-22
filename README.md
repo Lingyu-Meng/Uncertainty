@@ -44,12 +44,11 @@ In sum, the RT and accuracy are respectively affected by frame and arms.
 
 ![](step2_descriptive_statistics/output/trait_corr.png)
 
+The significant level of upper triangle are Bonferroni corrected.
+
 ![](step2_descriptive_statistics/output/traits_pairs_plot.png)
 
--   Higher levels of IU significantly predict lower accuracy and quick decision of the participants.
--   Higher levels of IM significantly predict higher accuracy.
--   Higher levels of Anx significantly predict higher accuracy.
--   Higher levels of RA significantly predict slower decision of the participants.
+None of traits can predict the accuracy and RT in individual level.
 
 ![](step2_descriptive_statistics/output/trait_accuracy_RT_plot.png)
 
