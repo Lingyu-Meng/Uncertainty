@@ -31,6 +31,7 @@ IU_fixed_effects <- plot_model(model_IU_3,
                                show.p = TRUE,
                                sort.est = TRUE,
                                axis.title = "Odds ratio",
+                               value.offset = 0.2,
                                title = "Fixed Effects of IU Model") +
   theme_bw() +
   ylim(0.5, 2.7)
@@ -54,6 +55,7 @@ IM_fixed_effects <- plot_model(model_IM_3,
                                show.p = TRUE,
                                sort.est = TRUE,
                                axis.title = "Odds ratio",
+                               value.offset = 0.2,
                                title = "Fixed Effects of IM Model") +
   theme_bw() +
   ylim(0.5, 2.7)
@@ -77,6 +79,7 @@ Anx_fixed_effects <- plot_model(model_Anx_3,
                                 show.p = TRUE,
                                 sort.est = TRUE,
                                 axis.title = "Odds ratio",
+                                value.offset = 0.2,
                                 title = "Fixed Effects of Anx Model") +
   theme_bw() +
   ylim(0.5, 2.7)
@@ -100,6 +103,7 @@ RA_fixed_effects <- plot_model(model_RA_2,
                                show.p = TRUE,
                                sort.est = TRUE,
                                axis.title = "Odds ratio",
+                               value.offset = 0.3,
                                title = "Fixed Effects of RA Model") +
   theme_bw() +
   ylim(0.5, 2.7)
