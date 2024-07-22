@@ -252,7 +252,7 @@ lgRT_cond_inter <- vis_data_lgRT %>%
               annotation = c("***"), tip_length = 0) +
   geom_signif(comparisons = list(c("Win", "Lose")),
               annotation = c("***"), tip_length = 0,
-              y_position = 6.645,
+              y_position = 6.635,
               vjust = 2.3, colour = "#00BFC4") +
   labs(color = "Arms",
        y = "Log RT",
@@ -271,6 +271,7 @@ response_rate <- RT_data %>%
     `Response Rate` > 0.9 ~ ">90%",
     `Response Rate` > 0.8 ~ ">80%",
     `Response Rate` > 0.6 ~ ">60%",
+    `Response Rate` <= 0.6 ~ "≤60%",
     TRUE ~ as.character(`Response Rate`)
   ))
 
@@ -278,7 +279,9 @@ response_rate_grade <- response_rate %>%
   group_by(context, arms, Grade) %>%
   summarise(Count = n()) %>%
   group_by(context, arms) %>%
-  mutate(Proportion = Count / sum(Count)) %>%
+  mutate(Proportion = Count / sum(Count),
+         Grade = factor(Grade, levels = c("100%", ">90%", ">80%", ">60%", "≤60%"))
+         ) %>%
   ungroup() %>% 
   unite("Condition", c("context", "arms"), sep = "_")
 
@@ -305,7 +308,7 @@ response_rate_stack <- response_rate_grade %>%
 response_rate_chi <- response_rate_grade %>% 
   xtabs(Count ~ Condition + Grade, data = .) %>%
   chisq.test()
-# X-squared = 9.2843, df = 9, p-value = 0.4115
+# X-squared = 13.047, df = 12, p-value = 0.3657
 
 ## Accuracy
 # Load the accuracy data
@@ -356,13 +359,13 @@ accuracy_rain <- accuracy_data %>%
   geom_signif(comparisons = list(c("Win", "Lose")),
               annotation = c("NS."), tip_length = 0) +
   geom_signif(comparisons = list(c("Win", "Lose")),
-              annotation = c("*"), tip_length = 0,
-              y_position = 0.785, colour = "#00BFC4",
+              annotation = c("NS."), tip_length = 0,
+              y_position = 0.91, colour = "#00BFC4",
               vjust = 2.3) +
-  geom_signif(y_position = 0.81, xmin = 0.85, xmax = 0.95,
+  geom_signif(y_position = 0.93, xmin = 0.85, xmax = 0.95,
               annotation = c("***"), tip_length = 0,
               colour = "black") +
-  geom_signif(y_position = 0.81, xmin = 2.05, xmax = 2.15,
+  geom_signif(y_position = 0.93, xmin = 2.05, xmax = 2.15,
               annotation = c("***"), tip_length = 0,
               colour = "black") +
   theme_cowplot()
@@ -391,7 +394,7 @@ acc_cond_inter <- vis_data_acc %>%
               annotation = c("NS."), tip_length = 0) +
   geom_signif(comparisons = list(c("Win", "Lose")),
               annotation = c("*"), tip_length = 0,
-              y_position = 0.603, colour = "#00BFC4",
+              y_position = 0.586, colour = "#00BFC4",
               vjust = 2.3) +
   labs(color = "Arms",
        y = "Accuracy",
