@@ -28,7 +28,7 @@ risky_arm <- read_csv("step2_descriptive_statistics/output/kalman_data.csv") %>%
   )
 
 ## All traits
-risky_glmm <- risky_arm %>% 
+risky_glmm_data <- risky_arm %>% 
   mutate(
     context = case_when(
       grepl("Win", context) ~ -0.5,
@@ -38,11 +38,11 @@ risky_glmm <- risky_arm %>%
       grepl("r", arms) ~ -0.5,
       grepl("S", arms) ~ 0.5,
     )
-  ) %>%
-  glmer(risky ~ (IU + IM + Anx + RA) * (context + arms) +
+  )
+risky_glmm <-  glmer(risky ~ (IU + IM + Anx + RA) * (context + arms) +
           (1 | ID),
-      data = ., family = binomial(link = "logit"))
-summary(risky_glmm)
+      data = risky_glmm_data, family = binomial(link = "logit"))
+HLM_summary(risky_glmm)
 risky_glmm_fig <- plot_model(risky_glmm,
                             title = "Choosing the Risky Arm",
                             show.values = TRUE,
@@ -155,7 +155,7 @@ traits_risky_context <- risky_arm %>%
   )
 
 risky_arm_fig <- cowplot::plot_grid( # sjPlot has plot_grid as well
-  risky_glm_fig,
+  risky_glmm_fig,
   traits_risky_context,
   rel_widths = c(1, 2),
   labels = c('A', 'B'))
