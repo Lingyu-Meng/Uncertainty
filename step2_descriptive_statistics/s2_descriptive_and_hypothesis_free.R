@@ -182,8 +182,20 @@ rain_meanlnRT_context_arms <- mean_RT %>%
     arms == "SR", `Participant Private ID` * 10,
     `Participant Private ID`) # to separate the two conditions
   ) %>%
-  ggplot(aes(x = context, y = `Mean lnRT`, fill = arms)) +
+  ggplot(aes(x = context, y = `Mean lnRT`, fill = arms, color = arms)) +
   geom_rain(rain.side = 'f2x2', id.long.var = "Participant Private ID", alpha = 0.5) +
+  geom_signif(comparisons = list(c("Win", "Lose")),
+              annotation = c("***"), tip_length = 0) +
+  geom_signif(comparisons = list(c("Win", "Lose")),
+              annotation = c("***"), tip_length = 0,
+              y_position = 7,
+              vjust = 2.3, colour = "#00BFC4") +
+  geom_signif(y_position = 7.06, xmin = 0.85, xmax = 0.95,
+              annotation = c("NS."), tip_length = 0,
+              colour = "black") +
+  geom_signif(y_position = 7.06, xmin = 2.05, xmax = 2.15,
+              annotation = c("NS."), tip_length = 0,
+              colour = "black") +
   theme_cowplot()
 
 rain_meanRT_context_arms <- mean_RT %>% 
@@ -194,8 +206,17 @@ rain_meanRT_context_arms <- mean_RT %>%
   ggplot(aes(x = context, y = `Mean RT`, fill = arms, color = arms)) +
   geom_rain(rain.side = 'f2x2', id.long.var = "Participant Private ID", alpha = 0.5) +
   geom_signif(comparisons = list(c("Win", "Lose")),
+              annotation = c("***"), tip_length = 0) +
+  geom_signif(comparisons = list(c("Win", "Lose")),
               annotation = c("***"), tip_length = 0,
-              color = "black") +
+              y_position = 1350,
+              vjust = 2.3, colour = "#00BFC4") +
+  geom_signif(y_position = 1390, xmin = 0.85, xmax = 0.95,
+              annotation = c("NS."), tip_length = 0,
+              colour = "black") +
+  geom_signif(y_position = 1390, xmin = 2.05, xmax = 2.15,
+              annotation = c("NS."), tip_length = 0,
+              colour = "black") +
   theme_cowplot()
 
 # RT Generalised Linear Mixed Model (RT ~ context:arms + (1|Participant Private ID)
@@ -226,11 +247,18 @@ lnRT_cond_inter <- vis_data_lnRT %>%
   geom_errorbar(aes(ymin = lnRT_LCI, ymax = lnRT_UCI), width = 0.05,
                 position=position_dodge(0.05)) +
   geom_signif(comparisons = list(c("Win", "Lose")),
+              y_position = 6.655,
               annotation = c("***"), tip_length = 0) +
   geom_signif(comparisons = list(c("Win", "Lose")),
               annotation = c("***"), tip_length = 0,
-              y_position = 6.645,
+              y_position = 6.653,
               vjust = 2.3, colour = "#00BFC4") +
+  geom_signif(y_position = 6.65, xmin = 0.95, xmax = 1.05,
+              annotation = c("NS."), tip_length = 0,
+              colour = "black") +
+  geom_signif(y_position = 6.65, xmin = 1.95, xmax = 2.05,
+              annotation = c("NS."), tip_length = 0,
+              colour = "black") +
   labs(color = "Arms",
        y = "Log RT",
        x = "Context") +
@@ -296,14 +324,14 @@ correct_data <- read_csv("step1_data_wrangling/output/cleaned_data.csv") %>% # t
     )
   ) %>% 
   transmute(`Participant Private ID`, context, arms,
-            correct = `Store: trial_correct`)
+            correct = `Store: trial_correct`) %>% 
+  mutate(context = factor(context, levels = c("Win", "Lose")),
+         arms = factor(arms, levels = c("SR", "rR")))
 
 accuracy_data <- correct_data%>% # condition level
   group_by(`Participant Private ID`, context, arms) %>%
   summarise(Performance = mean(correct)) %>%
-  left_join(demo, by = "Participant Private ID") %>% 
-  mutate(context = factor(context, levels = c("Win", "Lose")),
-         arms = factor(arms, levels = c("SR", "rR")))
+  left_join(demo, by = "Participant Private ID")
 
 acc_hist <- accuracy_data %>% 
   group_by(`Participant Private ID`) %>%
@@ -351,9 +379,7 @@ vis_data_acc <- acc_posthoc$lsmeans %>%
   as.data.frame() %>%
   mutate(performance = relogit(lsmean),
          performance_LCI = relogit(asymp.LCL),
-         performance_UCI = relogit(asymp.UCL)) %>% 
-  mutate(context = factor(context, levels = c("Win", "Lose")), # reorder the levels
-         arms = factor(arms, levels = c("SR", "rR")))
+         performance_UCI = relogit(asymp.UCL)) 
 
 # Plot the interaction
 acc_cond_inter <- vis_data_acc %>% 
@@ -363,11 +389,18 @@ acc_cond_inter <- vis_data_acc %>%
   geom_errorbar(aes(ymin = performance_LCI, ymax = performance_UCI), width = 0.05,
                 position=position_dodge(0.05)) +
   geom_signif(comparisons = list(c("Win", "Lose")),
-              annotation = c("NS."), tip_length = 0) +
+              annotation = c("NS."), tip_length = 0,
+              y_position = 0.61) +
   geom_signif(comparisons = list(c("Win", "Lose")),
               annotation = c("*"), tip_length = 0,
-              y_position = 0.603, colour = "#00BFC4",
+              y_position = 0.608, colour = "#00BFC4",
               vjust = 2.3) +
+  geom_signif(y_position = 0.607, xmin = 0.95, xmax = 1.05, 
+              annotation = c("***"), tip_length = 0, 
+              colour = "black") +
+  geom_signif(y_position = 0.607, xmin = 1.95, xmax = 2.05, 
+              annotation = c("***"), tip_length = 0, 
+              colour = "black") +
   labs(color = "Arms",
        y = "Accuracy",
        x = "Context"
@@ -665,6 +698,7 @@ ggsave("step2_descriptive_statistics/output/lnRT_hist.png", lnRT_hist, width = 8
 ggsave("step2_descriptive_statistics/output/RT_dist.png", RT_dist, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/trait_corr.png", trait_cor$plot, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/rain_meanRT_context_arms.png", rain_meanRT_context_arms, width = 8, height = 6)
+ggsave("step2_descriptive_statistics/output/rain_meanlnRT_context_arms.png", rain_meanlnRT_context_arms, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/response_rate_stack.png", response_rate_stack, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/accuracy_hist.png", acc_hist, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/accuracy_rain.png", accuracy_rain, width = 8, height = 6)
