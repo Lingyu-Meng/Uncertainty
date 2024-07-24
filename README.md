@@ -38,9 +38,7 @@ In sum, the RT and accuracy are respectively affected by frame and arms.
 
 ![](step2_descriptive_statistics/output/RT_accuracy.png)
 
-# Trait
-
-## Accuracy and RT
+# Traits
 
 ![](step2_descriptive_statistics/output/trait_corr.png)
 
@@ -56,11 +54,15 @@ None of traits can predict the accuracy and RT in individual level.
 
 ![](step2_descriptive_statistics/output/traits_acc_context.png)
 
-![](step2_descriptive_statistics/output/correct_trait_fig.png)
+Regression: Correct arm \~ (IU + IM + Anx + RA) \* (context + arms) + (1\|subjectID)
+
+![](step2_descriptive_statistics/output/correct_trait_ffig.png)
 
 ## RT by context
 
 ![](step2_descriptive_statistics/output/traits_lgRT_context.png)
+
+Regression: RT \~ (IU + IM + Anx + RA) \* (context + arms) + (1\|subjectID)
 
 ![](step2_descriptive_statistics/output/lgRT_trait_ffig.png)
 
@@ -70,7 +72,7 @@ Individual level risky arm selection rate by context and traits
 
 ![](step2_descriptive_statistics/output/traits_risky_context.png)
 
-Regression Risky arm \~ (IU + IM + Anx + RA) \* (context + arms)
+Regression: Risky arm \~ (IU + IM + Anx + RA) \* (context + arms) + (1\|subjectID)
 
 ![](step2_descriptive_statistics/output/risky_glmm_fig.png)
 
