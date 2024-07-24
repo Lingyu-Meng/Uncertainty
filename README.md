@@ -16,11 +16,9 @@ Checked whether there is any condition perticularly hard for the participants to
 
 # RT
 
-![](step2_descriptive_statistics/output/RT_hist.png)
+![](step2_descriptive_statistics/output/RT_dist.png)
 
 ![](step2_descriptive_statistics/output/rain_meanRT_context_arms.png)
-
-![](step2_descriptive_statistics/output/RT_condition_interaction.png)
 
 # Accuracy
 
@@ -32,9 +30,9 @@ This distribution is calculated by averaging the accuracy of each participant.
 
 ![](step2_descriptive_statistics/output/accuracy_rain.png)
 
-![](step2_descriptive_statistics/output/accuracy_condition_interaction.png)
-
 In sum, the RT and accuracy are respectively affected by frame and arms.
+
+![](step2_descriptive_statistics/output/acc_RT_condition.png)
 
 ![](step2_descriptive_statistics/output/RT_accuracy.png)
 
