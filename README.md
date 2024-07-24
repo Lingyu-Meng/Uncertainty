@@ -20,6 +20,8 @@ Checked whether there is any condition perticularly hard for the participants to
 
 ![](step2_descriptive_statistics/output/rain_meanRT_context_arms.png)
 
+![](step2_descriptive_statistics/output/rain_meanlnRT_context_arms.png)
+
 # Accuracy
 
 The accuracy is calculated by the number of correct choices (high expected value) divided by the total number of choices.
