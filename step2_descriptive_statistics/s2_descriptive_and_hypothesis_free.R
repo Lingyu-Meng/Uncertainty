@@ -149,7 +149,7 @@ RT_data <- read_csv("step1_data_wrangling/output/cleaned_data.csv") %>%
   left_join(demo, by = "Participant Private ID") %>% 
   mutate(context = factor(context, levels = c("Win", "Lose")),
          arms = factor(arms, levels = c("SR", "rR")),
-         lgRT = log(`Reaction Time`))
+         lnRT = log(`Reaction Time`))
 
 # RT
 RT_hist <- RT_data %>% 
@@ -159,29 +159,30 @@ RT_hist <- RT_data %>%
        x = "RT (ms)",
        y = "Frequency") +
   theme_cowplot()
-lgRT_hist <- RT_data %>% 
-  ggplot(aes(x = lgRT)) +
+lnRT_hist <- RT_data %>% 
+  ggplot(aes(x = lnRT)) +
   geom_histogram(binwidth = 0.1, fill = "skyblue", color = "black") +
   labs(title = "Log RT Distribution",
        x = "Log RT",
        y = "Frequency") +
   theme_cowplot()
-RT_dist <- cowplot::plot_grid(RT_hist, lgRT_hist, ncol = 1)
+RT_dist <- cowplot::plot_grid(RT_hist, lnRT_hist, ncol = 1)
 
+## Model-free analysis without traits
 # RT x Condition
 # calculate the mean RT in same condition per participants
 mean_RT <- RT_data %>% 
   group_by(`Participant Private ID`, context, arms) %>%
   summarise(`Mean RT` = mean(`Reaction Time`),
-            `Mean lgRT` = mean(lgRT)) %>%
+            `Mean lnRT` = mean(lnRT)) %>%
   ungroup(`Participant Private ID`, context, arms)
 
-rain_meanlgRT_context_arms <- mean_RT %>% 
+rain_meanlnRT_context_arms <- mean_RT %>% 
   mutate(`Participant Private ID` = ifelse(
     arms == "SR", `Participant Private ID` * 10,
     `Participant Private ID`) # to separate the two conditions
   ) %>%
-  ggplot(aes(x = context, y = `Mean lgRT`, fill = arms)) +
+  ggplot(aes(x = context, y = `Mean lnRT`, fill = arms)) +
   geom_rain(rain.side = 'f2x2', id.long.var = "Participant Private ID", alpha = 0.5) +
   theme_cowplot()
 
@@ -202,7 +203,7 @@ glmm_RT <- RT_data %>%
   glmer(`Reaction Time` ~ context*arms + (1|`Participant Private ID`),
         data = ., family = Gamma(link = "log")) # Gamma distribution
 summary(glmm_RT) # WIN SR as baseline
-lgRT_posthoc <- lsmeans(glmm_RT, pairwise ~ context:arms, adjust = "tukey") # post hoc test
+lnRT_posthoc <- lsmeans(glmm_RT, pairwise ~ context:arms, adjust = "tukey") # post hoc test
 # Only Win SR - Win rR and Lose SR - Lose rR is not significant
 # Or conduct ANOVA, which may has less power, but the results are the same
 # RT_aov <- RT_data %>%
@@ -211,42 +212,18 @@ lgRT_posthoc <- lsmeans(glmm_RT, pairwise ~ context:arms, adjust = "tukey") # po
 
 
 # Visiualise the HLM results
-vis_data_RT <- RT_posthoc$lsmeans %>% 
+vis_data_lnRT <- lnRT_posthoc$lsmeans %>% 
   as.data.frame() %>%
-  mutate(RT = lsmean,
-         RT_LCI = asymp.LCL,
-         RT_UCI = asymp.UCL)
-
-vis_data_lgRT <- lgRT_posthoc$lsmeans %>% 
-  as.data.frame() %>%
-  mutate(lgRT = lsmean,
-         lgRT_LCI = asymp.LCL,
-         lgRT_UCI = asymp.UCL)
+  mutate(lnRT = lsmean,
+         lnRT_LCI = asymp.LCL,
+         lnRT_UCI = asymp.UCL)
 
 # Plot the interaction
-RT_cond_inter <- vis_data_RT %>% 
-  ggplot(aes(x = context, y = RT, color = arms, group = arms)) +
+lnRT_cond_inter <- vis_data_lnRT %>% 
+  ggplot(aes(x = context, y = lnRT, color = arms, group = arms)) +
   geom_line(linewidth = 1) +
   geom_point(size = 3, position=position_dodge(0.05)) +
-  geom_errorbar(aes(ymin = RT_LCI, ymax = RT_UCI), width = 0.05,
-                position=position_dodge(0.05)) +
-  geom_signif(comparisons = list(c("Win", "Lose")),
-              annotation = c("***"), tip_length = 0) +
-  geom_signif(comparisons = list(c("Win", "Lose")),
-              annotation = c("***"), tip_length = 0,
-              y_position = 792,
-              vjust = 2.3, colour = "#00BFC4") +
-  labs(title = "Interaction Plot for RT Results",
-       color = "Arms",
-       y = "RT (ms)",
-       x = "Context") +
-  theme_cowplot()
-
-lgRT_cond_inter <- vis_data_lgRT %>% 
-  ggplot(aes(x = context, y = lgRT, color = arms, group = arms)) +
-  geom_line(linewidth = 1) +
-  geom_point(size = 3, position=position_dodge(0.05)) +
-  geom_errorbar(aes(ymin = lgRT_LCI, ymax = lgRT_UCI), width = 0.05,
+  geom_errorbar(aes(ymin = lnRT_LCI, ymax = lnRT_UCI), width = 0.05,
                 position=position_dodge(0.05)) +
   geom_signif(comparisons = list(c("Win", "Lose")),
               annotation = c("***"), tip_length = 0) +
@@ -258,8 +235,6 @@ lgRT_cond_inter <- vis_data_lgRT %>%
        y = "Log RT",
        x = "Context") +
   theme_cowplot()
-
-RTs_inter_plot <- cowplot::plot_grid(RT_cond_inter, lgRT_cond_inter, ncol = 1)
 
 ## Response rate
 response_rate <- RT_data %>% 
@@ -405,7 +380,10 @@ vis_data <- vis_data_acc %>%
             Performance = performance,
             performance_LCI = performance_LCI,
             performance_UCI = performance_UCI) %>%
-  left_join(vis_data_RT, by = c("context", "arms"))
+  left_join(vis_data_lnRT, by = c("context", "arms")) %>% 
+  mutate(RT     = exp(lnRT),
+         RT_LCI = exp(lnRT_LCI),
+         RT_UCI = exp(lnRT_UCI))
 
 RT_acc <- vis_data %>% 
   ggplot(aes(x = RT, y = Performance, color = arms,
@@ -423,16 +401,18 @@ legend <- get_legend(
   acc_cond_inter + theme(legend.box.margin = margin(0, 0, 0, 12))
 )
 acc_RT_x_condition <- cowplot::plot_grid(acc_cond_inter + theme(legend.position = "none"),
-                                lgRT_cond_inter + theme(legend.position = "none"),
+                                lnRT_cond_inter + theme(legend.position = "none"),
                                 labels = c('A', 'B'),
                                 ncol = 2)
 
 acc_RT_condition <- cowplot::plot_grid(acc_RT_x_condition, legend, rel_widths = c(2, .2))
 
+## Model-free analysis with traits
 ## trait x accuracy
+# individual level plot
 accuracy_trait <- accuracy_data %>% 
   group_by(`Participant Private ID`) %>%
-  summarise(Performance = mean(Performance)) %>% # individual level
+  summarise(Performance = mean(Performance)) %>%
   left_join(traits_data, by = "Participant Private ID")
 
 acc_IU <- accuracy_trait %>% 
@@ -485,7 +465,7 @@ traits_acc_context <- accuracy_data %>%
     y = "Correct Arm Selection Rate"
   )
 
-# trials level
+# trials level analysis
 correct_trait_glmm <- correct_data %>% 
   left_join(traits_data, by = "Participant Private ID") %>% 
   mutate(across(IU:RA, scale), # for standardised coefficients
@@ -513,11 +493,12 @@ correct_trait_Fig <- cowplot::plot_grid(correct_trait_fig,
                                         rel_widths = c(1, 3),
                                         labels = c('A', 'B'))
 
-## trait x RT
+## traits x RT
+# individual level plot
 RT_trait <- RT_data %>% 
   group_by(`Participant Private ID`) %>%
   summarise(`Mean RT` = mean(`Reaction Time`),
-            `Mean lgRT` = mean(lgRT)) %>%
+            `Mean lnRT` = mean(lnRT)) %>%
   left_join(traits_data, by = "Participant Private ID")
 
 RT_IU <- RT_trait %>%
@@ -548,35 +529,35 @@ RT_trait_plot <- cowplot::plot_grid(RT_IU, RT_IM, RT_anx, RT_risk,
                            labels = c('E', 'F', 'G', 'H'),
                            ncol = 4)
 
-lgRT_IU <- RT_trait %>%
-  filter(`Mean lgRT` > 5) %>% # remove outliers
-  ggplot(aes(x = IU, y = `Mean lgRT`)) +
+lnRT_IU <- RT_trait %>%
+  filter(`Mean lnRT` > 5) %>% # remove outliers
+  ggplot(aes(x = IU, y = `Mean lnRT`)) +
   geom_point() +
   geom_smooth(method = "lm") +
   theme_cowplot()
 
-lgRT_IM <- RT_trait %>%
-  filter(`Mean lgRT` > 5) %>% # remove outliers
-  ggplot(aes(x = IM, y = `Mean lgRT`)) +
+lnRT_IM <- RT_trait %>%
+  filter(`Mean lnRT` > 5) %>% # remove outliers
+  ggplot(aes(x = IM, y = `Mean lnRT`)) +
   geom_point() +
   geom_smooth(method = "lm") +
   theme_cowplot()
 
-lgRT_anx <- RT_trait %>%
-  filter(`Mean lgRT` > 5) %>% # remove outliers
-  ggplot(aes(x = Anxi, y = `Mean lgRT`)) +
+lnRT_anx <- RT_trait %>%
+  filter(`Mean lnRT` > 5) %>% # remove outliers
+  ggplot(aes(x = Anxi, y = `Mean lnRT`)) +
   geom_point() +
   geom_smooth(method = "lm") +
   theme_cowplot()
 
-lgRT_risk <- RT_trait %>%
-  filter(`Mean lgRT` > 5) %>% # remove outliers
-  ggplot(aes(x = RA, y = `Mean lgRT`)) +
+lnRT_risk <- RT_trait %>%
+  filter(`Mean lnRT` > 5) %>% # remove outliers
+  ggplot(aes(x = RA, y = `Mean lnRT`)) +
   geom_point() +
   geom_smooth(method = "lm") +
   theme_cowplot()
 
-lgRT_trait_plot <- cowplot::plot_grid(lgRT_IU, lgRT_IM, lgRT_anx, lgRT_risk,
+lnRT_trait_plot <- cowplot::plot_grid(lnRT_IU, lnRT_IM, lnRT_anx, lnRT_risk,
                              labels = c('E', 'F', 'G', 'H'),
                              ncol = 4)
 
@@ -585,52 +566,52 @@ RT_trait_glm <- RT_trait %>%
       data = ., family = Gamma(link = "log")) # Gamma distribution
 GLM_summary(RT_trait_glm)
 # original RT is marginal significant in IU (p = 0.095) and IM (p = 0.098) (without RA)
-lgRT_trait_lm <- RT_trait %>% 
-  filter(`Mean lgRT` > 5) %>% # remove outliers
-  lm(`Mean lgRT` ~ IU + IM + Anxi + RA, data = .)
-print_table(lgRT_trait_lm,
-            file = "step2_descriptive_statistics/output/lgRT_trait_lm.doc")
+lnRT_trait_lm <- RT_trait %>% 
+  filter(`Mean lnRT` > 5) %>% # remove outliers
+  lm(`Mean lnRT` ~ IU + IM + Anxi + RA, data = .)
+print_table(lnRT_trait_lm,
+            file = "step2_descriptive_statistics/output/lnRT_trait_lm.doc")
 # log RT is not significant in IM and Anxi
 
 acc_trait_RT_plot <- cowplot::plot_grid(acc_trait_plot, RT_trait_plot, ncol = 1)
-acc_trait_lgRT_plot <- cowplot::plot_grid(acc_trait_plot, lgRT_trait_plot, ncol = 1)
+acc_trait_lnRT_plot <- cowplot::plot_grid(acc_trait_plot, lnRT_trait_plot, ncol = 1)
 
 # with outlier
-lgRT_trait_IU_outlier <- RT_trait %>% 
-  ggplot(aes(x = IU, y = `Mean lgRT`)) +
+lnRT_trait_IU_outlier <- RT_trait %>% 
+  ggplot(aes(x = IU, y = `Mean lnRT`)) +
   geom_point() +
   geom_smooth(method = "lm") +
   theme_cowplot()
 
-lgRT_trait_IM_outlier <- RT_trait %>%
-  ggplot(aes(x = IM, y = `Mean lgRT`)) +
+lnRT_trait_IM_outlier <- RT_trait %>%
+  ggplot(aes(x = IM, y = `Mean lnRT`)) +
   geom_point() +
   geom_smooth(method = "lm") +
   theme_cowplot()
 
-lgRT_trait_anx_outlier <- RT_trait %>%
-  ggplot(aes(x = Anxi, y = `Mean lgRT`)) +
+lnRT_trait_anx_outlier <- RT_trait %>%
+  ggplot(aes(x = Anxi, y = `Mean lnRT`)) +
   geom_point() +
   geom_smooth(method = "lm") +
   theme_cowplot()
 
-lgRT_trait_risk_outlier <- RT_trait %>%
-  ggplot(aes(x = RA, y = `Mean lgRT`)) +
+lnRT_trait_risk_outlier <- RT_trait %>%
+  ggplot(aes(x = RA, y = `Mean lnRT`)) +
   geom_point() +
   geom_smooth(method = "lm") +
   theme_cowplot()
 
-lgRT_trait_plot_outlier <- cowplot::plot_grid(lgRT_trait_IU_outlier, lgRT_trait_IM_outlier, lgRT_trait_anx_outlier, lgRT_trait_risk_outlier,
+lnRT_trait_plot_outlier <- cowplot::plot_grid(lnRT_trait_IU_outlier, lnRT_trait_IM_outlier, lnRT_trait_anx_outlier, lnRT_trait_risk_outlier,
                                      labels = c('A', 'B', 'C', 'D'),
                                      ncol = 4)
 # by context
-traits_lgRT_context <- RT_data %>%
+traits_lnRT_context <- RT_data %>%
   group_by(`Participant Private ID`, context, arms) %>%
-  summarise(`Mean lgRT` = mean(lgRT)) %>%
+  summarise(`Mean lnRT` = mean(lnRT)) %>%
   left_join(traits_data, by = "Participant Private ID") %>%
   gather(key = "trait", value = "value", IU:RA) %>%
-  filter(`Mean lgRT` > 4.5) %>% # remove outliers
-  ggplot(aes(x = value, y = `Mean lgRT`, color = trait, shape = context)) +
+  filter(`Mean lnRT` > 5) %>% # remove outliers
+  ggplot(aes(x = value, y = `Mean lnRT`, color = trait, shape = context)) +
   geom_point() +
   geom_smooth(method = "lm") +
   theme_bw() +
@@ -640,10 +621,10 @@ traits_lgRT_context <- RT_data %>%
     y = "Mean Log RT"
   )
 
-# trials level
-lgRT_trait_glmm <- RT_data %>% 
+# trials level analysis
+lnRT_trait_glmm <- RT_data %>% 
   left_join(traits_data, by = "Participant Private ID") %>% 
-  mutate(across(lgRT:RA, scale), # for standardised coefficients
+  mutate(across(lnRT:RA, scale), # for standardised coefficients
          context = case_when(    # do not standardise indicator variables
            grepl("Win", context) ~ -0.5,
            grepl("Lose", context) ~ 0.5,
@@ -653,12 +634,13 @@ lgRT_trait_glmm <- RT_data %>%
            grepl("S", arms) ~ 0.5
          )
         ) %>% 
+  filter(`Reaction Time` > 150) %>% # remove outliers; ln(100) ≈ 5
   glmer(`Reaction Time` ~ (IU + IM + Anxi + RA) * (context + arms) +
           (1|`Participant Private ID`),
         data = ., family = Gamma(link = "log")) # Gamma distribution
-summary(lgRT_trait_glmm)
+summary(lnRT_trait_glmm)
 
-lgRT_trait_fig <- plot_model(lgRT_trait_glmm,
+lnRT_trait_fig <- plot_model(lnRT_trait_glmm,
                              type = "est",
                              title = "Log RT by Trait",
                              show.values = TRUE,
@@ -668,8 +650,8 @@ lgRT_trait_fig <- plot_model(lgRT_trait_glmm,
   theme_bw() +
   ylim(0.89, 1.11)
 
-lgRT_trait_Fig <- cowplot::plot_grid(lgRT_trait_fig,
-                                    traits_lgRT_context,
+lnRT_trait_Fig <- cowplot::plot_grid(lnRT_trait_fig,
+                                    traits_lnRT_context,
                                     rel_widths = c(1, 3),
                                     labels = c('A', 'B'))
 
@@ -679,28 +661,26 @@ ggsave("step2_descriptive_statistics/output/gender_bar.png", gender_bar, width =
 ggsave("step2_descriptive_statistics/output/age_gender_rain.png", age_gender_rain, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/age_2gender_rain.png", age_2gender_rain, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/RT_hist.png", RT_hist, width = 8, height = 6)
-ggsave("step2_descriptive_statistics/output/lgRT_hist.png", lgRT_hist, width = 8, height = 6)
+ggsave("step2_descriptive_statistics/output/lnRT_hist.png", lnRT_hist, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/RT_dist.png", RT_dist, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/trait_corr.png", trait_cor$plot, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/rain_meanRT_context_arms.png", rain_meanRT_context_arms, width = 8, height = 6)
-ggsave("step2_descriptive_statistics/output/RT_condition_interaction.png", RT_cond_inter, width = 8, height = 6)
-ggsave("step2_descriptive_statistics/output/RTs_inter_plot.png", RTs_inter_plot, width = 8, height = 12)
 ggsave("step2_descriptive_statistics/output/response_rate_stack.png", response_rate_stack, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/accuracy_hist.png", acc_hist, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/accuracy_rain.png", accuracy_rain, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/accuracy_condition_interaction.png", acc_cond_inter, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/RT_accuracy.png", RT_acc, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/trait_accuracy_RT_plot.png", acc_trait_RT_plot, width = 12, height = 6)
-ggsave("step2_descriptive_statistics/output/trait_accuracy_lgRT_plot.png", acc_trait_lgRT_plot, width = 12, height = 6)
-ggsave("step2_descriptive_statistics/output/lgRT_trait_plot_outlier.png", lgRT_trait_plot_outlier, width = 12, height = 3)
-ggsave("step2_descriptive_statistics/output/lgRT_trait_plot_nooutlier.png", lgRT_trait_plot, width = 12, height = 3)
+ggsave("step2_descriptive_statistics/output/trait_accuracy_lnRT_plot.png", acc_trait_lnRT_plot, width = 12, height = 6)
+ggsave("step2_descriptive_statistics/output/lnRT_trait_plot_outlier.png", lnRT_trait_plot_outlier, width = 12, height = 3)
+ggsave("step2_descriptive_statistics/output/lnRT_trait_plot_nooutlier.png", lnRT_trait_plot, width = 12, height = 3)
 ggsave("step2_descriptive_statistics/output/acc_RT_condition.png", acc_RT_condition, width = 13, height = 6)
 ggsave("step2_descriptive_statistics/output/traits_acc_context.png", traits_acc_context, width = 18, height = 6)
-ggsave("step2_descriptive_statistics/output/correct_trait_Fig.png", correct_trait_Fig, width = 18, height = 6)
-ggsave("step2_descriptive_statistics/output/correct_trait_fig.png", correct_trait_fig, width = 6, height = 6)
-ggsave("step2_descriptive_statistics/output/lgRT_trait_Fig.png", lgRT_trait_Fig, width = 18, height = 6)
-ggsave("step2_descriptive_statistics/output/lgRT_trait_ffig.png", lgRT_trait_fig, width = 6, height = 6) # why _fig will replace _Fig????
-ggsave("step2_descriptive_statistics/output/traits_lgRT_context.png", traits_lgRT_context, width = 18, height = 6)
+ggsave("step2_descriptive_statistics/output/correct_trait_Fig.png", correct_trait_Fig, width = 20, height = 6)
+ggsave("step2_descriptive_statistics/output/correct_trait_ffig.png", correct_trait_fig, width = 6, height = 6)
+ggsave("step2_descriptive_statistics/output/lnRT_trait_Fig.png", lnRT_trait_Fig, width = 20, height = 6)
+ggsave("step2_descriptive_statistics/output/lnRT_trait_ffig.png", lnRT_trait_fig, width = 6, height = 6) # why _fig will replace _Fig????
+ggsave("step2_descriptive_statistics/output/traits_lnRT_context.png", traits_lnRT_context, width = 18, height = 6)
 
 # Save the models
-save(acc_trait_glm, lgRT_trait_lm, file = "step2_descriptive_statistics/output/acc_trait_RT_lm.RData")
+save(acc_trait_glm, lnRT_trait_lm, file = "step2_descriptive_statistics/output/acc_trait_RT_lm.RData")
