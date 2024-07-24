@@ -146,9 +146,9 @@ for n = 1:max(data.ID) % individual level
 
     % Set up constraints
     % Lower bound for eta, beta 1,2,3
-    lb = [0, -5, -5, -5];  
+    lb = [0, -Inf, -Inf, -Inf];  
     % Upper bound for eta, beta 1,2,3
-    ub = [1, 5, 5, 5];
+    ub = [1, Inf, Inf, Inf];
 
     % Set up options for fmincon with active-set algorithm
     options = optimset('Display','off','MaxIter',100000,'TolFun',1e-10,'TolX',1e-10,...
