@@ -20,7 +20,7 @@ install_and_Load <- function(packages) {
 install_and_Load(required_packages)
 
 # Load the data with initial 0
-load("step4_rubost_check/check2_prior_Q_as_0/output/theory_driven_models.rds")
+load("step4_robust_check/check2_prior_Q_as_0/output/theory_driven_models.rds")
 
 # store the models (as we used the same name)
 context_prior_0 <- context_model
@@ -268,5 +268,5 @@ Fig2 <- plot_grid(f5 + theme(legend.position="none"),
                   ncol = 1)
 FIG2 <- plot_grid(Fig2, legend, rel_widths = c(3, .4))
 # save the plot
-ggsave("step4_rubost_check/check2_prior_Q_as_0/output/compare_coef.png", FIG, width = 10, height = 10, units = "in", dpi = 300)
-ggsave("step4_rubost_check/check2_prior_Q_as_0/output/compare_coef_reduced.png", FIG2, width = 4, height = 12, units = "in", dpi = 300)
+ggsave("step4_robust_check/check2_prior_Q_as_0/output/compare_coef.png", FIG, width = 10, height = 10, units = "in", dpi = 300)
+ggsave("step4_robust_check/check2_prior_Q_as_0/output/compare_coef_reduced.png", FIG2, width = 4, height = 12, units = "in", dpi = 300)

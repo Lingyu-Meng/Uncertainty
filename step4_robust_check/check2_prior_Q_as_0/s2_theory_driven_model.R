@@ -14,7 +14,7 @@ install_and_Load <- function(packages) {
 
 install_and_Load(required_packages)
 
-data <- read_csv("step4_rubost_check/check2_prior_Q_as_0/output/data.csv") %>% 
+data <- read_csv("step4_robust_check/check2_prior_Q_as_0/output/data.csv") %>% 
   mutate(
     ID = as.factor(ID),
     choice = 2 - choice, # V = Q(1) - Q(2); encode arm 1 as 1 and arm 2 as 0, therefore, positive w1 indicate a choice of arm 1
@@ -26,7 +26,7 @@ data <- read_csv("step4_rubost_check/check2_prior_Q_as_0/output/data.csv") %>%
     RU = scale(RU),
     VTU = scale(VTU)
   )
-setwd("step4_rubost_check/check2_prior_Q_as_0/output/")
+setwd("step4_robust_check/check2_prior_Q_as_0/output/")
 
 # trait free
 model_1 <- glmer(

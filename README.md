@@ -96,7 +96,7 @@ Four models have similar random effect distribution
 
 # Robust check
 
-![](step4_rubost_check/check2_prior_Q_as_0/output/compare_coef.png)
+![](step4_robust_check/check2_prior_Q_as_0/output/compare_coef.png)
 
 Setting the prior of Q as 0, the most of the coefficients are consistent with the original result (no significant difference). However, the coefficient of the V, RU, VTU and their interaction with context are significantly different. This might be due to the fact that we removed the random slope V as 3 random slope will lead to singularity. The random slope V can be removed as VTU contains the information of V.
 
