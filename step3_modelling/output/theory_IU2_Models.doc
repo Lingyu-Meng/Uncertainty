@@ -258,7 +258,7 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td></td>
 <td></td>
 <td></td>
-<td>–0.023</td>
+<td>–0.024</td>
 <td></td>
 </tr>
 <tr>
@@ -337,13 +337,13 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <td>AIC</td>
 <td>27236.835</td>
 <td>27243.070</td>
-<td>27230.765</td>
-<td>27244.262</td>
-<td>27226.769</td>
+<td>27230.764</td>
+<td>27244.261</td>
+<td>27226.768</td>
 </tr>
 <tr>
 <td>BIC</td>
-<td>27327.117</td>
+<td>27327.116</td>
 <td>27366.181</td>
 <td>27353.876</td>
 <td>27441.240</td>

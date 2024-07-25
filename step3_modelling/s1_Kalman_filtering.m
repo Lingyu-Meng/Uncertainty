@@ -26,7 +26,7 @@ tau_0_r = tau_0;
 tau_0_R = tau_0;
 
 % set the prior uncertainty at trial level
-tau_S = 0;
+tau_S = 0.0000001; % prevent degeneracy of the Kalman update
 tau_r = sqrt(0.595);
 tau_R = sqrt(2.98);
 

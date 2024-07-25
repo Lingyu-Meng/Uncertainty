@@ -240,17 +240,17 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 <tr>
 <td>AIC</td>
 <td>27232.691</td>
-<td>27235.554</td>
+<td>27235.553</td>
 <td>27225.801</td>
-<td>27226.423</td>
-<td>27226.769</td>
+<td>27226.422</td>
+<td>27226.768</td>
 </tr>
 <tr>
 <td>BIC</td>
 <td>27314.765</td>
 <td>27334.043</td>
 <td>27340.705</td>
-<td>27374.157</td>
+<td>27374.156</td>
 <td>27325.258</td>
 </tr>
 <tr>
@@ -311,7 +311,7 @@ table.texreg th, table.texreg td {padding-left: 5px;padding-right: 5px;}
 </tr>
 <tr class="bottomrule">
 <td>Cov: ID RU VTU</td>
-<td>–0.068</td>
+<td>–0.069</td>
 <td>–0.068</td>
 <td>–0.069</td>
 <td>–0.068</td>
