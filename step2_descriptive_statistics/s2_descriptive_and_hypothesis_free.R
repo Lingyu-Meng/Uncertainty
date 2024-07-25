@@ -710,9 +710,9 @@ ggsave("step2_descriptive_statistics/output/lnRT_trait_plot_outlier.png", lnRT_t
 ggsave("step2_descriptive_statistics/output/lnRT_trait_plot_nooutlier.png", lnRT_trait_plot, width = 12, height = 3)
 ggsave("step2_descriptive_statistics/output/acc_RT_condition.png", acc_RT_condition, width = 13, height = 6)
 ggsave("step2_descriptive_statistics/output/traits_acc_context.png", traits_acc_context, width = 18, height = 6)
-ggsave("step2_descriptive_statistics/output/correct_trait_Fig.png", correct_trait_Fig, width = 20, height = 6)
+ggsave("step2_descriptive_statistics/output/correct_trait_Fig.png", correct_trait_Fig, width = 16, height = 4.8)
 ggsave("step2_descriptive_statistics/output/correct_trait_ffig.png", correct_trait_fig, width = 6, height = 6)
-ggsave("step2_descriptive_statistics/output/lnRT_trait_Fig.png", lnRT_trait_Fig, width = 20, height = 6)
+ggsave("step2_descriptive_statistics/output/lnRT_trait_Fig.png", lnRT_trait_Fig, width = 16, height = 4.8)
 ggsave("step2_descriptive_statistics/output/lnRT_trait_ffig.png", lnRT_trait_fig, width = 6, height = 6) # why _fig will replace _Fig????
 ggsave("step2_descriptive_statistics/output/traits_lnRT_context.png", traits_lnRT_context, width = 18, height = 6)
 
