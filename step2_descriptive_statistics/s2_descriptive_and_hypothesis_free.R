@@ -310,8 +310,8 @@ response_rate_chi <- response_rate_grade %>%
   chisq.test()
 # X-squared = 9.2843, df = 9, p-value = 0.4115
 
-## Accuracy
-# Load the accuracy data
+## Performance 
+# Load the Performance  data
 correct_data <- read_csv("step1_data_wrangling/output/cleaned_data.csv") %>% # trial level
   mutate(
     context = case_when(
@@ -338,8 +338,8 @@ acc_hist <- accuracy_data %>%
   summarise(performance = mean(Performance)) %>%
   ggplot(aes(x = performance)) +
   geom_histogram(binwidth = 0.02, fill = "skyblue", color = "black") +
-  labs(title = "Accuracy Distribution",
-       x = "Accuracy",
+  labs(title = "Performance  Distribution",
+       x = "Performance ",
        y = "Frequency") +
   theme_cowplot()
 
@@ -402,12 +402,12 @@ acc_cond_inter <- vis_data_acc %>%
               annotation = c("***"), tip_length = 0, 
               colour = "black") +
   labs(color = "Arms",
-       y = "Accuracy",
+       y = "Performance ",
        x = "Context"
        ) +
   theme_cowplot()
 
-## RT x Accuracy by context x arms
+## RT x Performance  by context x arms
 vis_data <- vis_data_acc %>% 
   transmute(context = context, arms = arms,
             Performance = performance,
@@ -423,9 +423,9 @@ RT_acc <- vis_data %>%
              shape = context, group = arms)) +
   geom_line(size = 1) +
   geom_point(size = 4) +
-  labs(title = "RT x Accuracy",
+  labs(title = "RT x Performance ",
        x = "RT (ms)",
-       y = "Accuracy") +
+       y = "Performance ") +
   theme_cowplot()
 
 # extract the legend from one of the plots
@@ -441,7 +441,7 @@ acc_RT_x_condition <- cowplot::plot_grid(acc_cond_inter + theme(legend.position 
 acc_RT_condition <- cowplot::plot_grid(acc_RT_x_condition, legend, rel_widths = c(2, .2))
 
 ## Model-free analysis with traits
-## trait x accuracy
+## trait x Performance 
 # individual level plot
 accuracy_trait <- accuracy_data %>% 
   group_by(`Participant Private ID`) %>%
