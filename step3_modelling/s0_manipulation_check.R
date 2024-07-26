@@ -40,12 +40,26 @@ choice_proportion <- data %>%
   group_by(condition) %>%
   summarise(Proportion = mean(choice), context = unique(context)) %>%
   ggplot(aes(x = condition, y = Proportion, fill = context)) +
-  geom_bar(stat = "identity", position = "stack") +
+  geom_bar(stat = "identity") +
   theme_minimal() +
   labs(title = "Proportion of left choices by condition",
        x = "Condition",
        y = "Proportion of left choices") +
   coord_flip()  
+
+real_values <- data %>%
+  group_by(condition) %>%
+  summarise(real_V_L = mean(value_left),
+            real_V_R = mean(value_right),
+            context = unique(context)) %>%
+  mutate(real_V_D = real_V_L - real_V_R) %>%
+  ggplot(aes(x = condition, y = real_V_D, fill = context)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  labs(title = "Real value difference by condition",
+       x = "Condition",
+       y = "Mean value difference(left - right)") +
+  coord_flip()
 
 # Modelling
 condition_model <- glmer(choice ~ -1 + condition + condition:V + (-1 + V|ID),
@@ -81,3 +95,4 @@ ggsave("step3_modelling/output/conditions_risk_ratios.png", risk_ratios, width =
 ggsave("step3_modelling/output/conditions_psychometric_curve.png", Psychometric_curve, width = 5, height = 5)
 ggsave("step3_modelling/output/conditions_dist_V.png", dist_V, width = 5, height = 5)
 ggsave("step3_modelling/output/conditions_choice_proportion.png", choice_proportion, width = 5, height = 5)
+ggsave("step3_modelling/output/conditions_real_values.png", real_values, width = 5, height = 5)
