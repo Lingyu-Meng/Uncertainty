@@ -76,6 +76,23 @@ Regression: Risky arm \~ (IU + IM + Anx + RA) \* (context + arms) + (1\|subjectI
 
 ![](step2_descriptive_statistics/output/risky_glmm_fig.png)
 
+# Manipulation check
+
+## Main effect of conditions
+
+-   Adding total uncertainty (rR vs. SR) led to more random exploration (gentle slope)
+-   Gain-framed condition (win vs, loss) led to more directed exploration (positive intercept)
+
+![](step3_modelling/output/conditions_psychometric_curve.png)
+
+![](step3_modelling/output/conditions_coefficients.png)
+
+## Learning in different conditions
+
+The density of the learned value difference (Kalman filter) have 5 peaks, which indicates that the participants have learned the value of the arms.
+
+![](step3_modelling/output/conditions_dist_V.png)
+
 # Modelling
 
 ## Fixed effect
