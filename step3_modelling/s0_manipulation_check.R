@@ -19,56 +19,46 @@ install_and_Load(required_packages)
 
 # Load the data
 data <- read_csv("step3_modelling/output/data.csv") %>% 
-  mutate(ID = as.factor(ID),
-         condition = paste0(context, gsub("\\**", "", left), gsub("\\**", "", right)), # combine it for convenience
-         condition = factor(condition),
-         choice = 2 - choice) # V = Q(1) - Q(2); encode arm 1 as 1 and arm 2 as 0, therefore, positive w1 indicate a choice of arm 1
+  mutate(selection = if_else(response == "Left", left, right),
+         selection = case_when(
+           grepl("R", selection) ~ "R",
+           grepl("r", selection) ~ "r",
+           grepl("S", selection) ~ "S",
+           ),
+         risky = if_else(selection == "R", 1, 0),
+         condition = paste0(context, arms), # combine it for convenience
+         V = if_else(left == "**R**", V, -V)) # flip the value if the right arm is risky
 
 # condition
 dist_V <- data %>%
-  mutate(ordered_arms = paste0(gsub("\\**", "", left), gsub("\\**", "", right))) %>% 
-  ggplot(aes(x = V, y = ordered_arms, fill = condition)) +
+  ggplot(aes(x = V, y = arms, fill = condition)) +
   geom_density_ridges(alpha = 0.5) +
   theme_minimal() +
   facet_wrap(~context, ncol = 1) +
   labs(title = "Density plot of value difference by condition",
-       x = "Value difference(left - right)",
+       x = "Value difference(risky - other)",
        y = "Density") +
   theme(legend.position = "top")
 
 choice_proportion <- data %>%
   group_by(condition) %>%
-  summarise(Proportion = mean(choice), context = unique(context)) %>%
+  summarise(Proportion = mean(risky), context = unique(context)) %>%
   ggplot(aes(x = condition, y = Proportion, fill = context)) +
   geom_bar(stat = "identity") +
   theme_minimal() +
-  labs(title = "Proportion of left choices by condition",
+  labs(title = "Proportion of risky choices by condition",
        x = "Condition",
-       y = "Proportion of left choices") +
-  coord_flip()  
-
-real_values <- data %>%
-  group_by(condition) %>%
-  summarise(real_V_L = mean(value_left),
-            real_V_R = mean(value_right),
-            context = unique(context)) %>%
-  mutate(real_V_D = real_V_L - real_V_R) %>%
-  ggplot(aes(x = condition, y = real_V_D, fill = context)) +
-  geom_bar(stat = "identity") +
-  theme_minimal() +
-  labs(title = "Real value difference by condition",
-       x = "Condition",
-       y = "Mean value difference(left - right)") +
+       y = "Proportion of risky choices") +
   coord_flip()
 
 # Modelling
-condition_model <- glmer(choice ~ -1 + condition + condition:V + (-1 + V|ID),
+condition_model <- glmer(risky ~ -1 + condition + condition:V + (-1 + V|ID),
                        data = data, family = binomial(link = "probit"),
                        control = glmerControl(optimizer = "bobyqa"))
 
 # Visualisation
 risk_ratios <- plot_model(condition_model) +
-  ylim(0.5, 3) 
+  ylim(0.5, 2) 
 coefficients <- summary(condition_model)$coefficients %>% 
   as.data.frame() %>% 
   rownames_to_column(var = "condition") %>% 
@@ -86,8 +76,8 @@ coefficients <- summary(condition_model)$coefficients %>%
 Psychometric_curve <- plot_model(condition_model, type = "pred", terms=c("V [all]", "condition")) +
   theme_minimal() +
   labs(title = "Psychometric curve for each condition",
-       x = "Value difference(left - right)",
-       y = "P(choose left)")
+       x = "Value difference(risky - other)",
+       y = "P(choose risky arm)")
 
 # Save
 ggsave("step3_modelling/output/conditions_coefficients.png", coefficients, width = 5, height = 5)
