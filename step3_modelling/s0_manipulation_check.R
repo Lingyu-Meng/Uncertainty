@@ -85,4 +85,3 @@ ggsave("step3_modelling/output/conditions_risk_ratios.png", risk_ratios, width =
 ggsave("step3_modelling/output/conditions_psychometric_curve.png", Psychometric_curve, width = 5, height = 5)
 ggsave("step3_modelling/output/conditions_dist_V.png", dist_V, width = 5, height = 5)
 ggsave("step3_modelling/output/conditions_choice_proportion.png", choice_proportion, width = 5, height = 5)
-ggsave("step3_modelling/output/conditions_real_values.png", real_values, width = 5, height = 5)
