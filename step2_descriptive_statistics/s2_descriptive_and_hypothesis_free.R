@@ -419,8 +419,8 @@ vis_data <- vis_data_acc %>%
          RT_UCI = exp(lnRT_UCI))
 
 RT_acc <- vis_data %>% 
-  ggplot(aes(x = RT, y = Performance, color = arms,
-             shape = context, group = arms)) +
+  ggplot(aes(x = RT, y = Performance, color = context,
+             shape = arms, group = context)) +
   geom_line(size = 1) +
   geom_point(size = 4) +
   labs(title = "RT x Performance ",
@@ -484,11 +484,13 @@ acc_trait_glm <- accuracy_trait %>%
 print_table(acc_trait_glm,
             file = "step2_descriptive_statistics/output/acc_trait_glm.doc")
 
-# by context
-traits_acc_context <- accuracy_data %>%
+# by context and arms
+traits_acc_context <- correct_data %>% 
+  group_by(`Participant Private ID`, context, arms) %>%
+  summarise(Performance = mean(correct)) %>%
   left_join(traits_data, by = "Participant Private ID") %>%
   gather(key = "trait", value = "value", IU:RA) %>%
-  ggplot(aes(x = value, y = Performance, color = trait, shape = context)) +
+  ggplot(aes(x = value, y = Performance, color = trait, shape = arms)) +
   geom_point() +
   geom_smooth(method = "lm") +
   theme_bw() +
@@ -499,7 +501,7 @@ traits_acc_context <- accuracy_data %>%
   )
 
 # trials level analysis
-correct_trait_glmm <- correct_data %>% 
+correct_trait_data <- correct_data %>% 
   left_join(traits_data, by = "Participant Private ID") %>% 
   mutate(across(IU:RA, scale), # for standardised coefficients
          context = case_when(
@@ -509,10 +511,16 @@ correct_trait_glmm <- correct_data %>%
          arms = case_when(
            grepl("r", arms) ~ -0.5,
            grepl("S", arms) ~ 0.5
-         )) %>% 
-  glmer(correct ~ (IU + IM + Anxi + RA) * (context + arms) + (1|`Participant Private ID`),
-      data = ., family = "binomial")
-summary(correct_trait_glmm)
+         ))
+
+correct_trait_glmm <- glmer(correct ~ (IU + IM + Anxi + RA) * (context + arms) + (1|`Participant Private ID`),
+                            data = correct_trait_data, family = "binomial")
+HLM_summary(correct_trait_glmm)
+
+correct_trait_glmm2 <- glmer(correct ~ (IUi + IUp + IM + Anxi + RA) * (context + arms) + (1|`Participant Private ID`),
+                             data = correct_trait_data, family = "binomial")
+HLM_summary(correct_trait_glmm2)
+
 correct_trait_fig <- plot_model(correct_trait_glmm,
                                 title = "Choosing the Correct Arm",
                                 show.values = TRUE,
@@ -637,14 +645,14 @@ lnRT_trait_risk_outlier <- RT_trait %>%
 lnRT_trait_plot_outlier <- cowplot::plot_grid(lnRT_trait_IU_outlier, lnRT_trait_IM_outlier, lnRT_trait_anx_outlier, lnRT_trait_risk_outlier,
                                      labels = c('A', 'B', 'C', 'D'),
                                      ncol = 4)
-# by context
+# by context and arms
 traits_lnRT_context <- RT_data %>%
   group_by(`Participant Private ID`, context, arms) %>%
   summarise(`Mean lnRT` = mean(lnRT)) %>%
   left_join(traits_data, by = "Participant Private ID") %>%
   gather(key = "trait", value = "value", IU:RA) %>%
   filter(`Mean lnRT` > 5) %>% # remove outliers
-  ggplot(aes(x = value, y = `Mean lnRT`, color = trait, shape = context)) +
+  ggplot(aes(x = value, y = `Mean lnRT`, color = trait, shape = arms)) +
   geom_point() +
   geom_smooth(method = "lm") +
   theme_bw() +
@@ -688,6 +696,87 @@ lnRT_trait_Fig <- cowplot::plot_grid(lnRT_trait_fig,
                                     rel_widths = c(1, 3),
                                     labels = c('A', 'B'))
 
+## traits and omission
+data_with_omit <- read_csv("step1_data_wrangling/output/cleaned_data_with_omit.csv") %>% 
+  transmute(`Participant Private ID`,
+            omit = ifelse(Response == "No Response", 1, 0)) %>% 
+  group_by(`Participant Private ID`) %>%
+  summarise(omit_rate = mean(omit)) %>%
+  left_join(traits_data, by = "Participant Private ID")
+
+omit_traits_glm <- glm(omit_rate ~ IU + IM + Anxi + RA,
+                       data = data_with_omit, family = "binomial")
+GLM_summary(omit_traits_glm)
+
+omit_traits_glm2 <- glm(omit_rate ~ IUi + IUp + IM + Anxi + RA,
+                        data = data_with_omit, family = "binomial")
+GLM_summary(omit_traits_glm2)
+
+omission_by_traits <- data_with_omit %>% 
+  gather(key = "trait", value = "value", IU:RA) %>%
+  ggplot(aes(x = value, y = omit_rate, color = trait)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  theme_bw() +
+  facet_wrap(~trait, scales = "free_x") +
+  labs(
+    x = "Trait",
+    y = "Omission Rate"
+  )
+
+# by context and arm
+data_with_omit_condi <- read_csv("step1_data_wrangling/output/cleaned_data_with_omit.csv") %>% 
+  mutate(
+    context = case_when(
+      grepl("Win", `Spreadsheet: Condition`) ~ "Win",
+      grepl("Lose", `Spreadsheet: Condition`) ~ "Lose",
+    ),
+    arms = case_when(
+      grepl("S", `Spreadsheet: Condition`) ~ "SR",
+      grepl("r", `Spreadsheet: Condition`) ~ "rR",
+    )
+  ) %>% 
+  transmute(`Participant Private ID`, context, arms,
+            omit = ifelse(Response == "No Response", 1, 0)) %>% 
+  mutate(context = factor(context, levels = c("Win", "Lose")),
+         arms = factor(arms, levels = c("SR", "rR")))
+
+omission_traits_condi <- data_with_omit_condi %>% 
+  group_by(`Participant Private ID`, context, arms) %>%
+  summarise(omit_rate = mean(omit)) %>%
+  left_join(traits_data, by = "Participant Private ID") %>% 
+  gather(key = "trait", value = "value", IU:RA) %>%
+  ggplot(aes(x = value, y = omit_rate, color = trait, shape = arms)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  theme_bw() +
+  facet_grid(context~trait, scales = "free_x") +
+  labs(
+    x = "Trait",
+    y = "Omission Rate"
+  )
+
+# trials level analysis
+# omit_trait_glmm <- data_with_omit_condi %>% 
+#   left_join(traits_data, by = "Participant Private ID") %>%
+#   glmer(omit ~ (IU + IM + Anxi + RA) * (context + arms) +
+#           (1|`Participant Private ID`),
+#         data = ., family = "binomial",
+#         control = glmerControl(optCtrl = list(maxfun = 20000))) # as Model failed to converge with max|grad| = 0.024957
+# summary(omit_trait_glmm)
+# Give up as Model failed to converge again
+
+# individual level analysis
+# summarised_omit_traits_condi <- data_with_omit_condi %>% 
+#   group_by(`Participant Private ID`, context, arms) %>%
+#   summarise(omit_rate = mean(omit)) %>%
+#   left_join(traits_data, by = "Participant Private ID")
+#   
+# omit_traits_glm_condi <- glm(omit_rate ~ (IU + IM + Anxi + RA) * (context + arms),
+#                        data = summarised_omit_traits_condi, family = "binomial")
+# GLM_summary(omit_traits_glm_condi)
+# Give up as VIFs are too large
+
 ## Save the plots
 ggsave("step2_descriptive_statistics/output/age_hist.png", age_hist, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/gender_bar.png", gender_bar, width = 8, height = 6)
@@ -715,6 +804,7 @@ ggsave("step2_descriptive_statistics/output/correct_trait_ffig.png", correct_tra
 ggsave("step2_descriptive_statistics/output/lnRT_trait_Fig.png", lnRT_trait_Fig, width = 16, height = 4.8)
 ggsave("step2_descriptive_statistics/output/lnRT_trait_ffig.png", lnRT_trait_fig, width = 6, height = 6) # why _fig will replace _Fig????
 ggsave("step2_descriptive_statistics/output/traits_lnRT_context.png", traits_lnRT_context, width = 18, height = 6)
+ggsave("step2_descriptive_statistics/output/traits_omit_context.png", omission_traits_condi, width = 18, height = 6)
 
 # Save the models
 save(acc_trait_glm, lnRT_trait_lm, file = "step2_descriptive_statistics/output/acc_trait_RT_lm.RData")

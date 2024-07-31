@@ -54,5 +54,10 @@ cleaned_data <- main_data %>%
   filter(Response != "No Response") %>%  # remove omission trials
   anti_join(excluded_participants, by = join_by(`Participant Private ID`)) # remove excluded participants
 
+# Keep omission for other analysis
+cleaned_data_with_omit <- main_data %>% 
+  anti_join(excluded_participants, by = join_by(`Participant Private ID`)) # remove excluded participants
+
 # save cleaned data
 write_csv(cleaned_data, "step1_data_wrangling/output/cleaned_data.csv")
+write_csv(cleaned_data_with_omit, "step1_data_wrangling/output/cleaned_data_with_omit.csv")
