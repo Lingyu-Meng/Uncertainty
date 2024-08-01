@@ -58,13 +58,29 @@ Regression: Correct arm \~ (IU + IM + Anx + RA) \* (context + arms) + (1\|subjec
 
 ![](step2_descriptive_statistics/output/correct_trait_ffig.png)
 
+### Effect of IU
+
+![](step2_descriptive_statistics/output/correct_trait_glmm_IU_effect.png)
+
+### IU x context
+
+![](step2_descriptive_statistics/output/correct_trait_glmm_IU_inter.png)
+
+### IM x context
+
+![](step2_descriptive_statistics/output/correct_trait_glmm_IM_inter.png)
+
 ## RT by context
 
-![](step2_descriptive_statistics/output/traits_lgRT_context.png)
+![](step2_descriptive_statistics/output/traits_lnRT_context.png)
 
 Regression: RT \~ (IU + IM + Anx + RA) \* (context + arms) + (1\|subjectID)
 
 ![](step2_descriptive_statistics/output/lgRT_trait_ffig.png)
+
+### Ani x context
+
+![](step2_descriptive_statistics/output/RT_traits_glmm_Ani_effect.png)
 
 ## Risky arm selection rate
 
