@@ -9,7 +9,8 @@ required_packages <- c("tidyverse",
                        "ggsignif", # geom_signif
                        "bruceR", # HLM_summary
                        "lme4",   # lmer
-                       "sjPlot") # plot_model
+                       "sjPlot", # plot_model
+                       "ggeffects") # ggpredict
 
 # Check and install missing packages
 install_and_Load <- function(packages) {
@@ -529,6 +530,34 @@ correct_trait_fig <- plot_model(correct_trait_glmm,
   theme_bw() +
   ylim(0.8, 1.35)
 
+test_data = tibble(IU = 0, IM = 0, Anxi = 0, RA = 0, context = 0, arms = 0,`Participant Private ID` = NA)
+
+ggpredict(correct_trait_glmm, terms = "IU [0, 1]")
+ggpredict(correct_trait_glmm, terms = c("IU [0, 1]", "context"))
+ggpredict(correct_trait_glmm, terms = c("IM [0, 1]", "context"))
+
+correct_trait_glmm_IU_effect <- plot_model(correct_trait_glmm,
+           title = "Choosing the Correct Arm",
+           type = "pred",
+           terms = c("IU"),
+           show.values = TRUE,
+           value.offset = 0.4,
+           sort.est = TRUE)
+correct_trait_glmm_IU_inter <- plot_model(correct_trait_glmm,
+           title = "Choosing the Correct Arm",
+           type = "pred",
+           terms = c("IU","context"),
+           show.values = TRUE,
+           value.offset = 0.4,
+           sort.est = TRUE)
+correct_trait_glmm_IM_inter <- plot_model(correct_trait_glmm,
+           title = "Choosing the Correct Arm",
+           type = "pred",
+           terms = c("IM","context"),
+           show.values = TRUE,
+           value.offset = 0.4,
+           sort.est = TRUE)
+
 correct_trait_Fig <- cowplot::plot_grid(correct_trait_fig,
                                         traits_acc_context,
                                         rel_widths = c(1, 3),
@@ -681,6 +710,16 @@ lnRT_trait_glmm <- RT_data %>%
         data = ., family = Gamma(link = "log")) # Gamma distribution
 summary(lnRT_trait_glmm)
 
+ggpredict(lnRT_trait_glmm, terms = c("Anxi [0, 1]", "context"))
+
+RT_traits_glmm_Ani_effect <- plot_model(lnRT_trait_glmm,
+           title = "Choosing the Correct Arm",
+           type = "pred",
+           terms = c("Anxi", "context"),
+           show.values = TRUE,
+           value.offset = 0.4,
+           sort.est = TRUE)
+
 lnRT_trait_fig <- plot_model(lnRT_trait_glmm,
                              type = "est",
                              title = "Log RT by Trait",
@@ -805,6 +844,10 @@ ggsave("step2_descriptive_statistics/output/lnRT_trait_Fig.png", lnRT_trait_Fig,
 ggsave("step2_descriptive_statistics/output/lnRT_trait_ffig.png", lnRT_trait_fig, width = 6, height = 6) # why _fig will replace _Fig????
 ggsave("step2_descriptive_statistics/output/traits_lnRT_context.png", traits_lnRT_context, width = 18, height = 6)
 ggsave("step2_descriptive_statistics/output/traits_omit_context.png", omission_traits_condi, width = 18, height = 6)
+ggsave("step2_descriptive_statistics/output/correct_trait_glmm_IU_effect.png", correct_trait_glmm_IU_effect, width = 8, height = 6)
+ggsave("step2_descriptive_statistics/output/correct_trait_glmm_IU_inter.png", correct_trait_glmm_IU_inter, width = 8, height = 6)
+ggsave("step2_descriptive_statistics/output/correct_trait_glmm_IM_inter.png", correct_trait_glmm_IM_inter, width = 8, height = 6)
+ggsave("step2_descriptive_statistics/output/RT_traits_glmm_Ani_effect.png", RT_traits_glmm_Ani_effect, width = 8, height = 6)
 
 # Save the models
 save(acc_trait_glm, lnRT_trait_lm, file = "step2_descriptive_statistics/output/acc_trait_RT_lm.RData")
