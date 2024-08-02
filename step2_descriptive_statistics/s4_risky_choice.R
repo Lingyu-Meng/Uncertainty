@@ -52,6 +52,17 @@ risky_glmm_fig <- plot_model(risky_glmm,
   ylim(0.5, 1.5)
 
 print_table(risky_glmm, file = "step2_descriptive_statistics/output/risky_glmm_summary.doc")
+
+ggpredict(risky_glmm, terms = c("Anx [0, 1]", "context"))
+
+Risky_traits_glmm_Ani_effect <- plot_model(risky_glmm,
+                                        title = "Interaction between anxiety and context on Risky selection",
+                                        type = "pred",
+                                        terms = c("Anx", "context"),
+                                        show.values = TRUE,
+                                        value.offset = 0.4,
+                                        sort.est = TRUE) + 
+  scale_color_discrete(name = "Context", labels = c("Win", "Loss"))
 # scatter plot
 # If facet_wrap is bad, use the commented code below
 # IU_risky <- risky_arm %>% 
@@ -160,7 +171,14 @@ risky_arm_fig <- cowplot::plot_grid( # sjPlot has plot_grid as well
   rel_widths = c(1, 2),
   labels = c('A', 'B'))
 
+Results_Risky <- cowplot::plot_grid(
+  risky_glmm_fig,
+  Risky_traits_glmm_Ani_effect,
+  rel_widths = c(1, 1),
+  labels = c('A', 'B'))
+
 # save plots
 ggsave("step2_descriptive_statistics/output/traits_risky_context.png", traits_risky_context, width = 10, height = 5)
 ggsave("step2_descriptive_statistics/output/risky_glmm_fig.png", risky_glmm_fig, width = 7, height = 7)
 ggsave("step2_descriptive_statistics/output/risky_arm_fig.png", risky_arm_fig, width = 14.4, height = 4.8)
+ggsave("step2_descriptive_statistics/output/Results_Risky.png", Results_Risky, width = 14, height = 7)

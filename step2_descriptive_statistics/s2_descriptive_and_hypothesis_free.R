@@ -729,7 +729,7 @@ lnRT_trait_glmm <- RT_data %>%
   glmer(`Reaction Time` ~ (IU + IM + Anxi + RA) * (context + arms) +
           (1|`Participant Private ID`),
         data = ., family = Gamma(link = "log")) # Gamma distribution
-summary(lnRT_trait_glmm)
+HLM_summary(lnRT_trait_glmm)
 
 ggpredict(lnRT_trait_glmm, terms = c("Anxi [0, 1]", "context"))
 
