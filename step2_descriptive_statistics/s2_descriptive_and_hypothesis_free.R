@@ -542,26 +542,47 @@ correct_trait_glmm_IU_effect <- plot_model(correct_trait_glmm,
            terms = c("IU"),
            show.values = TRUE,
            value.offset = 0.4,
-           sort.est = TRUE)
+           sort.est = TRUE,
+           colors = "black") # as colour is repersenting the context
 correct_trait_glmm_IU_inter <- plot_model(correct_trait_glmm,
            title = "Choosing the Correct Arm",
            type = "pred",
            terms = c("IU","context"),
            show.values = TRUE,
            value.offset = 0.4,
-           sort.est = TRUE)
+           sort.est = TRUE)+ 
+  scale_color_discrete(name = "Context", labels = c("Win", "Loss"))
+
 correct_trait_glmm_IM_inter <- plot_model(correct_trait_glmm,
            title = "Choosing the Correct Arm",
            type = "pred",
            terms = c("IM","context"),
            show.values = TRUE,
            value.offset = 0.4,
-           sort.est = TRUE)
+           sort.est = TRUE) + 
+  scale_color_discrete(name = "Context", labels = c("Win", "Loss"))
 
 correct_trait_Fig <- cowplot::plot_grid(correct_trait_fig,
                                         traits_acc_context,
                                         rel_widths = c(1, 3),
                                         labels = c('A', 'B'))
+
+# extract a legend that is laid out horizontally
+legend <- get_legend(
+  correct_trait_glmm_IM_inter
+)
+
+results_Correct <- cowplot::plot_grid(correct_trait_fig,
+                                      correct_trait_glmm_IU_effect,
+                                      correct_trait_glmm_IU_inter + theme(legend.position="none"),
+                                      correct_trait_glmm_IM_inter + theme(legend.position="none"),
+                                      ncol = 2,
+                                      labels = c('A', 'B', 'C', 'D')
+                                      )
+Results_Correct <- cowplot::plot_grid(results_Correct,
+                                      legend, ncol = 2,
+                                      rel_widths = c(1, .1)
+                                      )
 
 ## traits x RT
 # individual level plot
@@ -713,12 +734,13 @@ summary(lnRT_trait_glmm)
 ggpredict(lnRT_trait_glmm, terms = c("Anxi [0, 1]", "context"))
 
 RT_traits_glmm_Ani_effect <- plot_model(lnRT_trait_glmm,
-           title = "Choosing the Correct Arm",
+           title = "Interaction between anxiety and context on RT",
            type = "pred",
            terms = c("Anxi", "context"),
            show.values = TRUE,
            value.offset = 0.4,
-           sort.est = TRUE)
+           sort.est = TRUE) + 
+  scale_color_discrete(name = "Context", labels = c("Win", "Loss"))
 
 lnRT_trait_fig <- plot_model(lnRT_trait_glmm,
                              type = "est",
@@ -734,6 +756,10 @@ lnRT_trait_Fig <- cowplot::plot_grid(lnRT_trait_fig,
                                     traits_lnRT_context,
                                     rel_widths = c(1, 3),
                                     labels = c('A', 'B'))
+
+Results_RT <- cowplot::plot_grid(lnRT_trait_fig,
+                                 RT_traits_glmm_Ani_effect,
+                                 labels = c('A', 'B'))
 
 ## traits and omission
 data_with_omit <- read_csv("step1_data_wrangling/output/cleaned_data_with_omit.csv") %>% 
@@ -848,6 +874,8 @@ ggsave("step2_descriptive_statistics/output/correct_trait_glmm_IU_effect.png", c
 ggsave("step2_descriptive_statistics/output/correct_trait_glmm_IU_inter.png", correct_trait_glmm_IU_inter, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/correct_trait_glmm_IM_inter.png", correct_trait_glmm_IM_inter, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/RT_traits_glmm_Ani_effect.png", RT_traits_glmm_Ani_effect, width = 8, height = 6)
+ggsave("step2_descriptive_statistics/output/Results_RT.png", Results_RT, width = 12.6, height = 6)
+ggsave("step2_descriptive_statistics/output/Results_Correct.png", Results_Correct, width = 9.9, height = 9)
 
 # Save the models
 save(acc_trait_glm, lnRT_trait_lm, file = "step2_descriptive_statistics/output/acc_trait_RT_lm.RData")
