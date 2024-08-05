@@ -58,7 +58,7 @@ condition_model <- glmer(risky ~ -1 + condition + condition:V + (-1 + V|ID),
 summary(condition_model)
 
 # Compare the intercepts for different conditions
-post_hoc_inter <- lsmeans(condition_model, pairwise ~ condition | V, adjust = "tukey")
+post_hoc_inter <- lsmeans(condition_model, pairwise ~ condition | V, adjust = "none")
 
 # Compare the slopes for different conditions
 slope_comparison_1 <- linearHypothesis(
