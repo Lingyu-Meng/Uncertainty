@@ -62,7 +62,27 @@ Risky_traits_glmm_Ani_effect <- plot_model(risky_glmm,
                                         show.values = TRUE,
                                         value.offset = 0.4,
                                         sort.est = TRUE) + 
-  scale_color_discrete(name = "Context", labels = c("Win", "Loss"))
+  scale_color_discrete(name = "Context", labels = c("Win", "Loss")) +
+  coord_cartesian(ylim = c(0.3, 0.75))
+
+ggpredict(risky_glmm, terms = c("IU [0, 1]", "context"))
+
+Risky_traits_glmm_IU_effect <- plot_model(risky_glmm,
+                                        title = "Interaction between IU and context on Risky selection",
+                                        type = "pred",
+                                        terms = c("IU", "context"),
+                                        show.values = TRUE,
+                                        value.offset = 0.4,
+                                        sort.est = TRUE) + 
+  scale_color_discrete(name = "Context", labels = c("Win", "Loss")) +
+  coord_cartesian(ylim = c(0.3, 0.75))
+
+legend <- get_legend(Risky_traits_glmm_IU_effect)
+
+effects <- cowplot::plot_grid(Risky_traits_glmm_Ani_effect + theme(legend.position="none"),
+                              Risky_traits_glmm_IU_effect  + theme(legend.position="none"),
+                              legend, rel_widths = c(1, 1, 0.15), nrow = 1,
+                              labels = c('B', 'C', ''))
 # scatter plot
 # If facet_wrap is bad, use the commented code below
 # IU_risky <- risky_arm %>% 
@@ -171,14 +191,18 @@ risky_arm_fig <- cowplot::plot_grid( # sjPlot has plot_grid as well
   rel_widths = c(1, 2),
   labels = c('A', 'B'))
 
-Results_Risky <- cowplot::plot_grid(
+risky_glmm_fig_adjusted <- cowplot::plot_grid('',
   risky_glmm_fig,
-  Risky_traits_glmm_Ani_effect,
-  rel_widths = c(1, 1),
-  labels = c('A', 'B'))
+  ncol = 3, rel_widths = c(1,3,1),
+  labels = c('', 'A', ''))
+  
+Results_Risky <- cowplot::plot_grid(
+  risky_glmm_fig_adjusted,
+  effects,
+  ncol = 1)
 
 # save plots
 ggsave("step2_descriptive_statistics/output/traits_risky_context.png", traits_risky_context, width = 10, height = 5)
 ggsave("step2_descriptive_statistics/output/risky_glmm_fig.png", risky_glmm_fig, width = 7, height = 7)
 ggsave("step2_descriptive_statistics/output/risky_arm_fig.png", risky_arm_fig, width = 14.4, height = 4.8)
-ggsave("step2_descriptive_statistics/output/Results_Risky.png", Results_Risky, width = 14, height = 7)
+ggsave("step2_descriptive_statistics/output/Results_Risky.png", Results_Risky, width = 12, height = 12)
