@@ -198,8 +198,19 @@ fixed_effects_p <- cowplot::plot_grid(
   align = "h",
   ncol = 2, labels = c("A", "B", "C", "D"))
 
-### Point line plot by terms
+### distribution of three strategies
+strategies <- coef(full_model)$ID %>% # Get the real slope for everyone
+  as.data.frame() %>%
+  gather(key = "Strategy", value = "value") 
 
+strategies_den <- strategies %>%
+  ggplot(aes(x = value, fill = Strategy)) +
+  geom_density(alpha = 0.5) +
+  theme_cowplot() +
+  facet_wrap(~Strategy, scales = "free") +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  labs(x = "Slope",
+       y = "Density")
 
 ## Save
 ggsave("step3_modelling/output/fixed_effects.png", fixed_effects, width = 12, height = 12)
@@ -208,3 +219,4 @@ ggsave("step3_modelling/output/IM_random_effects.png", IM_random_effects, width 
 ggsave("step3_modelling/output/Anx_random_effects.png", Anx_random_effects, width = 15, height = 15)
 ggsave("step3_modelling/output/RA_random_effects.png", RA_random_effects, width = 15, height = 15)
 ggsave("step3_modelling/output/fixed_effects_p.png", fixed_effects_p, width = 10, height = 12)
+ggsave("step3_modelling/output/strategies_den.png", strategies_den, width = 17, height = 5)
