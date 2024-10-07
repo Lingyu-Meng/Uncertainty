@@ -143,7 +143,8 @@ IU_fixed_effects_p <- summary(model_IU_3)$coefficients %>%
   geom_pointrange() +
   theme_cowplot() +
   labs(x = "",
-    y = "Fixed-effect coefficient")
+    y = "Fixed-effect coefficient") +
+  ylim(-0.075, 0.15)
 
 ## IM
 IM_fixed_effects_p <- summary(model_IM_3)$coefficients %>%
@@ -155,10 +156,11 @@ IM_fixed_effects_p <- summary(model_IM_3)$coefficients %>%
              ymax = Estimate + `Std. Error` * 1.96)) +
   geom_pointrange() +
   theme_cowplot() +
-  annotate(geom = "text", x = 1, y = 0.13, label = "*",  size = 5) +
-  annotate(geom = "text", x = 2, y = 0.13, label = "**", size = 5) +
+  annotate(geom = "text", x = 1, y = 0.135, label = "*",  size = 5) +
+  annotate(geom = "text", x = 2, y = 0.135, label = "**", size = 5) +
   labs(x = "",
-    y = "Fixed-effect coefficient")
+    y = "Fixed-effect coefficient") +
+  ylim(-0.075, 0.15)
 
 ## Anx
 Anx_fixed_effects_p <- summary(model_Anx_3)$coefficients %>%
