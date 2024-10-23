@@ -6,7 +6,8 @@ required_packages <- c("tidyverse",
                        "cowplot", # theme_cowplot
                        "ggsignif", # geom_signif
                        "lattice", # dotplot
-                       "lme4") # lmer
+                       "lme4", # lmer
+                       "png")
 
 # Check and install missing packages
 install_and_Load <- function(packages) {
@@ -200,6 +201,14 @@ fixed_effects_p <- cowplot::plot_grid(
   align = "h",
   ncol = 2, labels = c("A", "B", "C", "D"))
 
+fixed_effects_h <- cowplot::plot_grid(
+  IU_fixed_effects_p,
+  IM_fixed_effects_p,
+  Anx_fixed_effects_p,
+  RA_fixed_effects_p,
+  align = "h",
+  ncol = 4, labels = c("A", "B", "C", "D"))
+
 ### distribution of three strategies
 strategies <- coef(full_model)$ID %>% # Get the real slope for everyone
   as.data.frame() %>%
@@ -214,6 +223,39 @@ strategies_den <- strategies %>%
   labs(x = "Slope",
        y = "Density")
 
+### visualise trait free model
+contexts_coeff <- t(coef(summary(context_model))) %>%
+  as.data.frame() %>%
+  slice(1) %>% 
+  transmute(`Value-dependent random exploration in Loss` = V + 0.5 * `V:context`,
+         `Value-dependent random exploration in Win`  = V - 0.5 * `V:context`,
+         `Directed exploration in Loss` = RU + 0.5 * `RU:context`,
+         `Directed exploration in Win`  = RU - 0.5 * `RU:context`,
+         `Uncertainty-dependent random exploration in Loss` = VTU + 0.5 * `VTU:context`,
+         `Uncertainty-dependent random exploration in Win`  = VTU - 0.5 * `VTU:context`
+         ) %>%
+  gather("Term", "Estimate") %>%
+  separate(Term, c("Strategy", "Context"), sep = " in ") %>%
+  ggplot(aes(x = Strategy, y = Estimate, fill = Context)) +
+  geom_bar(position="dodge",stat="identity") +
+  geom_segment(y = -0.65, yend = -0.65, x = 0.7, xend = 1.3) +
+  geom_segment(y = 0.98, yend = 0.98, x = 1.7, xend = 2.3) +
+  geom_segment(y = -0.36, yend = -0.36, x = 2.7, xend = 3.3) +
+  annotate(geom = "text", x = 1, y = -0.7, label = "N.S.") +
+  annotate(geom = "text", x = 2, y = 1, label = "**") +
+  annotate(geom = "text", x = 3, y = -0.41, label = "**") +
+  theme_cowplot() +
+  theme(axis.text.x = element_text(size = 10))
+
+psychometric_cur <- readPNG("step3_modelling/output/conditions_psychometric_curve.png")
+psychometric_cur_gg <- ggdraw() + draw_image(psychometric_cur, x = 0, y = 0, width = 1, height = 1)
+
+conext_results <- cowplot::plot_grid(
+  contexts_coeff,
+  psychometric_cur_gg,
+  rel_widths = c(1, 0.5),
+  ncol = 2, labels = c("A", "B"))
+
 ## Save
 ggsave("step3_modelling/output/fixed_effects.png", fixed_effects, width = 12, height = 12)
 ggsave("step3_modelling/output/IU_random_effects.png", IU_random_effects, width = 15, height = 15)
@@ -222,3 +264,6 @@ ggsave("step3_modelling/output/Anx_random_effects.png", Anx_random_effects, widt
 ggsave("step3_modelling/output/RA_random_effects.png", RA_random_effects, width = 15, height = 15)
 ggsave("step3_modelling/output/fixed_effects_p.png", fixed_effects_p, width = 10, height = 12)
 ggsave("step3_modelling/output/strategies_den.png", strategies_den, width = 17, height = 5)
+ggsave("step3_modelling/output/fixed_effects_h.png", fixed_effects_h, width = 16, height = 4)
+ggsave("step3_modelling/output/contexts_coeff.png", contexts_coeff, width = 10, height = 4)
+ggsave("step3_modelling/output/contexts_results.png", conext_results, width = 16, height = 4)
