@@ -183,21 +183,26 @@ rain_meanlnRT_context_arms <- mean_RT %>%
     arms == "SR", `Participant Private ID` * 10,
     `Participant Private ID`) # to separate the two conditions
   ) %>%
-  ggplot(aes(x = context, y = `Mean lnRT`, fill = arms, color = arms)) +
+  ggplot(aes(x = context, y = `Mean RT`, fill = arms, color = arms)) +
   geom_rain(rain.side = 'f2x2', id.long.var = "Participant Private ID", alpha = 0.5) +
   geom_signif(comparisons = list(c("Win", "Lose")),
               annotation = c("***"), tip_length = 0) +
   geom_signif(comparisons = list(c("Win", "Lose")),
               annotation = c("***"), tip_length = 0,
-              y_position = 7,
+              y_position = 3.1,
               vjust = 2.3, colour = "#00BFC4") +
-  geom_signif(y_position = 7.06, xmin = 0.85, xmax = 0.95,
+  geom_signif(y_position = 3.16, xmin = 0.85, xmax = 0.95,
               annotation = c("NS."), tip_length = 0,
               colour = "black") +
-  geom_signif(y_position = 7.06, xmin = 2.05, xmax = 2.15,
+  geom_signif(y_position = 3.16, xmin = 2.05, xmax = 2.15,
               annotation = c("NS."), tip_length = 0,
               colour = "black") +
-  theme_cowplot()
+  xlab("Context") +
+# legend title
+  labs(color = "Arms",
+       fill  = "Arms") +
+  theme_cowplot() +
+  scale_y_log10(breaks = c(200, 300, 500, 1000, 1500))
 
 rain_meanRT_context_arms <- mean_RT %>% 
   mutate(`Participant Private ID` = ifelse(
