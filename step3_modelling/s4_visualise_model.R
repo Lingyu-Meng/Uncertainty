@@ -188,7 +188,7 @@ RA_fixed_effects_p <- summary(model_RA_2)$coefficients %>%
   theme_cowplot() +
   annotate(geom = "text", x = 1, y = 0, label = "*",  size = 5) +
   annotate(geom = "text", x = 2, y = 0.13, label = "**", size = 5) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 25, hjust = 1)) +
   labs(x = "",
     y = "Fixed-effect coefficient")
 
@@ -200,14 +200,6 @@ fixed_effects_p <- cowplot::plot_grid(
   RA_fixed_effects_p,
   align = "h",
   ncol = 2, labels = c("A", "B", "C", "D"))
-
-fixed_effects_h <- cowplot::plot_grid(
-  IU_fixed_effects_p,
-  IM_fixed_effects_p,
-  Anx_fixed_effects_p,
-  RA_fixed_effects_p,
-  align = "h",
-  ncol = 4, labels = c("A", "B", "C", "D"))
 
 ### distribution of three strategies
 strategies <- coef(full_model)$ID %>% # Get the real slope for everyone
@@ -264,6 +256,5 @@ ggsave("step3_modelling/output/Anx_random_effects.png", Anx_random_effects, widt
 ggsave("step3_modelling/output/RA_random_effects.png", RA_random_effects, width = 15, height = 15)
 ggsave("step3_modelling/output/fixed_effects_p.png", fixed_effects_p, width = 10, height = 12)
 ggsave("step3_modelling/output/strategies_den.png", strategies_den, width = 17, height = 5)
-ggsave("step3_modelling/output/fixed_effects_h.png", fixed_effects_h, width = 16, height = 4)
 ggsave("step3_modelling/output/contexts_coeff.png", contexts_coeff, width = 10, height = 4)
 ggsave("step3_modelling/output/contexts_results.png", conext_results, width = 16, height = 4)
