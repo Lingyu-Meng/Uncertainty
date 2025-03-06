@@ -7,6 +7,7 @@ required_packages <- c("tidyverse",
                        "ggsignif", # geom_signif
                        "lattice", # dotplot
                        "lme4", # lmer
+                       "ggrain", # geom_rain
                        "png")
 
 # Check and install missing packages
@@ -248,6 +249,31 @@ conext_results <- cowplot::plot_grid(
   rel_widths = c(1, 0.5),
   ncol = 2, labels = c("A", "B"))
 
+#### context model with data points (random effects)
+contexts_raincloud <- coef(context_model)$ID %>% # Get the real slope for everyone
+  as.data.frame() %>%
+  transmute(`Uncertainty-independent random exploration in Loss` = V + 0.5 * `V:context`,
+            `Uncertainty-independent random exploration in Win`  = V - 0.5 * `V:context`,
+            `Directed exploration in Loss` = RU + 0.5 * `RU:context`,
+            `Directed exploration in Win`  = RU - 0.5 * `RU:context`,
+            `Uncertainty-dependent random exploration in Loss` = VTU + 0.5 * `VTU:context`,
+            `Uncertainty-dependent random exploration in Win`  = VTU - 0.5 * `VTU:context`
+  ) %>%
+  gather(key = "Strategy", value = "Coefficient") %>%
+  mutate(Context = ifelse(str_detect(Strategy, "Loss"), "Loss", "Win"),
+         Strategy = str_remove(Strategy, " in Loss| in Win")) %>%
+  ggplot(aes(x = Strategy, y = Coefficient, fill = Context)) +
+  # drow raincloud and aviod overlap boxplot
+  geom_rain(alpha = 0.5, point.args = list(alpha = .2)) +
+  theme_cowplot() +
+  geom_segment(y = 0, yend = 0, x = 0.9, xend = 1.3) +
+  geom_segment(y = 2.5, yend = 2.5, x = 1.9, xend = 2.3) +
+  geom_segment(y = 0.6, yend = 0.6, x = 2.9, xend = 3.3) +
+  annotate(geom = "text", x = 1.1, y = 0.1, label = "N.S.") +
+  annotate(geom = "text", x = 2.1, y = 2.6, label = "**") +
+  annotate(geom = "text", x = 3.1, y = 0.7, label = "**") +
+  theme(axis.text.x = element_text(size = 10))
+
 ## Save
 ggsave("step3_modelling/output/fixed_effects.png", fixed_effects, width = 12, height = 12)
 ggsave("step3_modelling/output/IU_random_effects.png", IU_random_effects, width = 15, height = 15)
@@ -258,3 +284,4 @@ ggsave("step3_modelling/output/fixed_effects_p.png", fixed_effects_p, width = 10
 ggsave("step3_modelling/output/strategies_den.png", strategies_den, width = 17, height = 5)
 ggsave("step3_modelling/output/contexts_coeff.png", contexts_coeff, width = 10, height = 4)
 ggsave("step3_modelling/output/contexts_results.png", conext_results, width = 16, height = 4)
+ggsave("fig/fig2_panelA.png", contexts_raincloud, width = 11, height = 6)
