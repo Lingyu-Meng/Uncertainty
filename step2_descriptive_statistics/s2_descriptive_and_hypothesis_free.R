@@ -545,27 +545,69 @@ correct_trait_glmm_IU_effect <- plot_model(correct_trait_glmm,
            title = "Choosing the Correct Arm",
            type = "pred",
            terms = c("IU"),
-           show.values = TRUE,
-           value.offset = 0.4,
-           sort.est = TRUE,
-           colors = "black") # as colour is repersenting the context
+           colors = "black") + # as colour is repersenting the context
+  ylim(0.4, 0.8) +
+  xlim(-3, 3) +
+  ylab("Probability of Correct Arm Selection")
 correct_trait_glmm_IU_inter <- plot_model(correct_trait_glmm,
            title = "Choosing the Correct Arm",
            type = "pred",
-           terms = c("IU","context"),
-           show.values = TRUE,
-           value.offset = 0.4,
-           sort.est = TRUE)+ 
-  scale_color_discrete(name = "Context", labels = c("Win", "Loss"))
+           terms = c("IU","context"))+ 
+  scale_color_discrete(name = "Context", labels = c("Win", "Loss")) +
+  ylim(0.4, 0.8) +
+  xlim(-3, 3) +
+  ylab("Probability of Correct Arm Selection")
 
+correct_trait_glmm_IM_effect <- plot_model(correct_trait_glmm,
+           title = "Choosing the Correct Arm",
+           type = "pred",
+           terms = c("IM"),
+           colors = "black") +
+  ylim(0.4, 0.8) +
+  xlim(-3, 3) +
+  ylab("Probability of Correct Arm Selection")
 correct_trait_glmm_IM_inter <- plot_model(correct_trait_glmm,
            title = "Choosing the Correct Arm",
            type = "pred",
-           terms = c("IM","context"),
-           show.values = TRUE,
-           value.offset = 0.4,
-           sort.est = TRUE) + 
-  scale_color_discrete(name = "Context", labels = c("Win", "Loss"))
+           terms = c("IM","context")) + 
+  scale_color_discrete(name = "Context", labels = c("Win", "Loss")) +
+  ylim(0.4, 0.8) +
+  xlim(-3, 3) +
+  ylab("Probability of Correct Arm Selection")
+
+correct_trait_glmm_Anx_effect <- plot_model(correct_trait_glmm,
+           title = "Choosing the Correct Arm",
+           type = "pred",
+           terms = c("Anxi"),
+           colors = "black") +
+  ylim(0.4, 0.8) +
+  xlim(-3, 3) +
+  ylab("Probability of Correct Arm Selection")
+correct_trait_glmm_Anx_inter <- plot_model(correct_trait_glmm,
+           title = "Choosing the Correct Arm",
+           type = "pred",
+           terms = c("Anxi","context")) + 
+  scale_color_discrete(name = "Context", labels = c("Win", "Loss")) +
+  ylim(0.4, 0.8) +
+  xlim(-3, 3) +
+  ylab("Probability of Correct Arm Selection")
+
+correct_trait_glmm_RA_effect <- plot_model(correct_trait_glmm,
+           title = "Choosing the Correct Arm",
+           type = "pred",
+           terms = c("RA"),
+           colors = "black") +
+  ylim(0.4, 0.8) +
+  xlim(-3, 3) +
+  ylab("Probability of Correct Arm Selection")
+correct_trait_glmm_RA_inter <- plot_model(correct_trait_glmm,
+           title = "Choosing the Correct Arm",
+           type = "pred",
+           terms = c("RA","context")) + 
+  scale_color_discrete(name = "Context", labels = c("Win", "Loss")) +
+  ylim(0.4, 0.8) +
+  xlim(-3, 3) +
+  ylab("Probability of Correct Arm Selection")
 
 correct_trait_Fig <- cowplot::plot_grid(correct_trait_fig,
                                         traits_acc_context,
@@ -884,4 +926,12 @@ ggsave("step2_descriptive_statistics/output/Results_Correct.png", Results_Correc
 
 # Save the models
 save(acc_trait_glm, lnRT_trait_lm, file = "step2_descriptive_statistics/output/acc_trait_RT_lm.RData")
-saveRDS(rain_meanlnRT_context_arms, "fig/fig2_panelD.rds")
+saveRDS(rain_meanlnRT_context_arms,   "fig/fig2_panelD.rds")
+saveRDS(correct_trait_glmm_IU_effect, "fig/fig4_panelA.rds")
+saveRDS(correct_trait_glmm_IU_inter,  "fig/fig4_panelE.rds")
+saveRDS(correct_trait_glmm_IM_effect, "fig/fig3_panelA.rds")
+saveRDS(correct_trait_glmm_IM_inter,  "fig/fig3_panelE.rds")
+saveRDS(correct_trait_glmm_Anx_effect,"fig/fig5_panelA.rds")
+saveRDS(correct_trait_glmm_Anx_inter, "fig/fig5_panelE.rds")
+saveRDS(correct_trait_glmm_RA_effect, "fig/fig6_panelA.rds")
+saveRDS(correct_trait_glmm_RA_inter,  "fig/fig6_panelE.rds")
