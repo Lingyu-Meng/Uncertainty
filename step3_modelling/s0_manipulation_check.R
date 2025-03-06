@@ -146,3 +146,5 @@ ggsave("step3_modelling/output/conditions_psychometric_curve.png", Psychometric_
 ggsave("step3_modelling/output/conditions_dist_V.png", dist_V, width = 5, height = 5)
 ggsave("step3_modelling/output/conditions_choice_proportion.png", choice_proportion, width = 5, height = 5)
 ggsave("step3_modelling/output/conditions_results.png", Conditions_Results, width = 10, height = 10)
+ggsave("fig/fig2_panelB.png", intercepts, width = 5, height = 5)
+ggsave("fig/fig2_panelC.png", slopes, width = 5, height = 5)
