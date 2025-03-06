@@ -884,3 +884,4 @@ ggsave("step2_descriptive_statistics/output/Results_Correct.png", Results_Correc
 
 # Save the models
 save(acc_trait_glm, lnRT_trait_lm, file = "step2_descriptive_statistics/output/acc_trait_RT_lm.RData")
+saveRDS(rain_meanlnRT_context_arms, "fig/fig2_panelD.rds")

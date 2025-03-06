@@ -148,3 +148,5 @@ ggsave("step3_modelling/output/conditions_choice_proportion.png", choice_proport
 ggsave("step3_modelling/output/conditions_results.png", Conditions_Results, width = 10, height = 10)
 ggsave("fig/fig2_panelB.png", intercepts, width = 5, height = 5)
 ggsave("fig/fig2_panelC.png", slopes, width = 5, height = 5)
+saveRDS(intercepts, "fig/fig2_panelB.rds")
+saveRDS(slopes, "fig/fig2_panelC.rds")

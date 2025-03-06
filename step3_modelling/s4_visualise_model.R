@@ -285,3 +285,4 @@ ggsave("step3_modelling/output/strategies_den.png", strategies_den, width = 17, 
 ggsave("step3_modelling/output/contexts_coeff.png", contexts_coeff, width = 10, height = 4)
 ggsave("step3_modelling/output/contexts_results.png", conext_results, width = 16, height = 4)
 ggsave("fig/fig2_panelA.png", contexts_raincloud, width = 11, height = 6)
+saveRDS(contexts_raincloud, "fig/fig2_panelA.rds")
