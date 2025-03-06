@@ -61,7 +61,7 @@ directed_ex <- ggplot(data_dir, aes(x = V, y = P, linetype = condition)) +
   labs(x = "Expected value difference V(1) - V(2)",
        y = "Choice Probability P(1)", linetype = "Directed exploration") +
   scale_linetype_manual(values = c("solid", "dotdash"),
-                        labels = c("No", "High")) +
+                        labels = c("High", "No")) +
   theme_cowplot() +
   scale_x_continuous(breaks = seq(-6, 6, 2)) +
   scale_y_continuous(breaks = seq(0, 1, 0.2)) +
