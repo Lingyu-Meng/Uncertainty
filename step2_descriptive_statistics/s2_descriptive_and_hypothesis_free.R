@@ -548,7 +548,8 @@ correct_trait_glmm_IU_effect <- plot_model(correct_trait_glmm,
            colors = "black") + # as colour is repersenting the context
   ylim(0.4, 0.8) +
   xlim(-3, 3) +
-  ylab("Probability of Correct Arm Selection")
+  ylab("Probability of Correct Arm Selection") +
+  theme_cowplot()
 correct_trait_glmm_IU_inter <- plot_model(correct_trait_glmm,
            title = "Choosing the Correct Arm",
            type = "pred",
@@ -556,7 +557,8 @@ correct_trait_glmm_IU_inter <- plot_model(correct_trait_glmm,
   scale_color_discrete(name = "Context", labels = c("Win", "Loss")) +
   ylim(0.4, 0.8) +
   xlim(-3, 3) +
-  ylab("Probability of Correct Arm Selection")
+  ylab("Probability of Correct Arm Selection") +
+  theme_cowplot()
 
 correct_trait_glmm_IM_effect <- plot_model(correct_trait_glmm,
            title = "Choosing the Correct Arm",
@@ -565,7 +567,8 @@ correct_trait_glmm_IM_effect <- plot_model(correct_trait_glmm,
            colors = "black") +
   ylim(0.4, 0.8) +
   xlim(-3, 3) +
-  ylab("Probability of Correct Arm Selection")
+  ylab("Probability of Correct Arm Selection") +
+  theme_cowplot()
 correct_trait_glmm_IM_inter <- plot_model(correct_trait_glmm,
            title = "Choosing the Correct Arm",
            type = "pred",
@@ -573,7 +576,8 @@ correct_trait_glmm_IM_inter <- plot_model(correct_trait_glmm,
   scale_color_discrete(name = "Context", labels = c("Win", "Loss")) +
   ylim(0.4, 0.8) +
   xlim(-3, 3) +
-  ylab("Probability of Correct Arm Selection")
+  ylab("Probability of Correct Arm Selection") +
+  theme_cowplot()
 
 correct_trait_glmm_Anx_effect <- plot_model(correct_trait_glmm,
            title = "Choosing the Correct Arm",
@@ -582,7 +586,8 @@ correct_trait_glmm_Anx_effect <- plot_model(correct_trait_glmm,
            colors = "black") +
   ylim(0.4, 0.8) +
   xlim(-3, 3) +
-  ylab("Probability of Correct Arm Selection")
+  ylab("Probability of Correct Arm Selection") +
+  theme_cowplot()
 correct_trait_glmm_Anx_inter <- plot_model(correct_trait_glmm,
            title = "Choosing the Correct Arm",
            type = "pred",
@@ -590,7 +595,8 @@ correct_trait_glmm_Anx_inter <- plot_model(correct_trait_glmm,
   scale_color_discrete(name = "Context", labels = c("Win", "Loss")) +
   ylim(0.4, 0.8) +
   xlim(-3, 3) +
-  ylab("Probability of Correct Arm Selection")
+  ylab("Probability of Correct Arm Selection") +
+  theme_cowplot()
 
 correct_trait_glmm_RA_effect <- plot_model(correct_trait_glmm,
            title = "Choosing the Correct Arm",
@@ -599,7 +605,8 @@ correct_trait_glmm_RA_effect <- plot_model(correct_trait_glmm,
            colors = "black") +
   ylim(0.4, 0.8) +
   xlim(-3, 3) +
-  ylab("Probability of Correct Arm Selection")
+  ylab("Probability of Correct Arm Selection") +
+  theme_cowplot()
 correct_trait_glmm_RA_inter <- plot_model(correct_trait_glmm,
            title = "Choosing the Correct Arm",
            type = "pred",
@@ -607,7 +614,8 @@ correct_trait_glmm_RA_inter <- plot_model(correct_trait_glmm,
   scale_color_discrete(name = "Context", labels = c("Win", "Loss")) +
   ylim(0.4, 0.8) +
   xlim(-3, 3) +
-  ylab("Probability of Correct Arm Selection")
+  ylab("Probability of Correct Arm Selection") +
+  theme_cowplot()
 
 correct_trait_Fig <- cowplot::plot_grid(correct_trait_fig,
                                         traits_acc_context,
