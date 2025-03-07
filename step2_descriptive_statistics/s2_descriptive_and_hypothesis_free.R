@@ -637,31 +637,41 @@ RT_trait <- RT_data %>%
   group_by(`Participant Private ID`) %>%
   summarise(`Mean RT` = mean(`Reaction Time`),
             `Mean lnRT` = mean(lnRT)) %>%
-  left_join(traits_data, by = "Participant Private ID")
+  left_join(traits_data, by = "Participant Private ID") %>% 
+  ungroup() %>%
+  mutate(across(IU:RA, scale)) # for standardised coefficients
 
 RT_IU <- RT_trait %>%
   ggplot(aes(x = IU, y = `Mean RT`)) +
   geom_point() +
   geom_smooth(method = "lm") +
-  theme_cowplot()
+  theme_cowplot() +
+  scale_y_log10() +
+  xlim(-3, 3)
 
 RT_IM <- RT_trait %>%
   ggplot(aes(x = IM, y = `Mean RT`)) +
   geom_point() +
   geom_smooth(method = "lm") +
-  theme_cowplot()
+  theme_cowplot() +
+  scale_y_log10() +
+  xlim(-3, 3)
 
 RT_anx <- RT_trait %>%
   ggplot(aes(x = Anxi, y = `Mean RT`)) +
   geom_point() +
   geom_smooth(method = "lm") +
-  theme_cowplot()
+  theme_cowplot() +
+  scale_y_log10() +
+  xlim(-3, 3)
 
 RT_risk <- RT_trait %>%
   ggplot(aes(x = RA, y = `Mean RT`)) +
   geom_point() +
   geom_smooth(method = "lm") +
-  theme_cowplot()
+  theme_cowplot() +
+  scale_y_log10() +
+  xlim(-3, 3)
 
 RT_trait_plot <- cowplot::plot_grid(RT_IU, RT_IM, RT_anx, RT_risk,
                            labels = c('E', 'F', 'G', 'H'),
@@ -759,6 +769,48 @@ traits_lnRT_context <- RT_data %>%
     y = "Mean Log RT"
   )
 
+## separately
+RT_traits_context <- RT_data %>% 
+  group_by(`Participant Private ID`, context) %>%
+  summarise(`Mean RT` = mean(`Reaction Time`),
+            `Mean lnRT` = mean(lnRT)
+            ) %>% 
+  left_join(traits_data, by = "Participant Private ID") %>% 
+  ungroup() %>% 
+  mutate(across(IU:RA, scale)) # for standardised coefficients
+
+IM_RT_context <- RT_traits_context %>% 
+  ggplot(aes(x = IM, y = `Mean RT`, color = context)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  theme_cowplot() +
+  scale_y_log10() +
+  xlim(-3, 3)
+
+IU_RT_context <- RT_traits_context %>% 
+  ggplot(aes(x = IU, y = `Mean RT`, color = context)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  theme_cowplot() +
+  scale_y_log10() +
+  xlim(-3, 3)
+
+Anxi_RT_context <- RT_traits_context %>%
+  ggplot(aes(x = Anxi, y = `Mean RT`, color = context)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  theme_cowplot() +
+  scale_y_log10() +
+  xlim(-3, 3)
+
+RA_RT_context <- RT_traits_context %>%
+  ggplot(aes(x = RA, y = `Mean RT`, color = context)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  theme_cowplot() +
+  scale_y_log10() +
+  xlim(-3, 3)
+
 # trials level analysis
 lnRT_trait_glmm <- RT_data %>% 
   left_join(traits_data, by = "Participant Private ID") %>% 
@@ -807,6 +859,11 @@ lnRT_trait_Fig <- cowplot::plot_grid(lnRT_trait_fig,
 Results_RT <- cowplot::plot_grid(lnRT_trait_fig,
                                  RT_traits_glmm_Ani_effect,
                                  labels = c('A', 'B'))
+
+### IM
+RT_glmm_IM <- RT_glmm_data %>% 
+  glmer(`Reaction Time` ~ IM + context + (1|`Participant Private ID`),
+        data = ., family = Gamma(link = "log")) # Gamma distribution
 
 ## traits and omission
 data_with_omit <- read_csv("step1_data_wrangling/output/cleaned_data_with_omit.csv") %>% 
@@ -935,3 +992,11 @@ saveRDS(correct_trait_glmm_Anx_effect,"fig/fig5_panelA.rds")
 saveRDS(correct_trait_glmm_Anx_inter, "fig/fig5_panelF.rds")
 saveRDS(correct_trait_glmm_RA_effect, "fig/fig6_panelA.rds")
 saveRDS(correct_trait_glmm_RA_inter,  "fig/fig6_panelF.rds")
+saveRDS(RT_IM, "fig/fig3_panelE.rds")
+saveRDS(RT_IU, "fig/fig4_panelE.rds")
+saveRDS(RT_anx, "fig/fig5_panelE.rds")
+saveRDS(RT_risk, "fig/fig6_panelE.rds")
+saveRDS(IM_RT_context, "fig/fig3_panelJ.rds")
+saveRDS(IU_RT_context, "fig/fig4_panelJ.rds")
+saveRDS(Anxi_RT_context, "fig/fig5_panelJ.rds")
+saveRDS(RA_RT_context, "fig/fig6_panelJ.rds")
