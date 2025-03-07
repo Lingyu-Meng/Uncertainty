@@ -1,4 +1,16 @@
-Descriptive statistics results
+# Main Results
+
+![](fig/fig1_panel_BC.png)
+
+![](fig/fig2.png)
+
+![](fig/fig3.png)
+
+![](fig/fig4.png)
+
+![](fig/fig5.png)
+
+![](fig/fig6.png)
 
 # Demographic
 
