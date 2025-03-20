@@ -270,6 +270,33 @@ lnRT_cond_inter <- vis_data_lnRT %>%
        x = "Context") +
   theme_cowplot()
 
+## as four condition
+lnRT_cond_inter_4 <- vis_data_lnRT %>% 
+  unite(condition, context, arms, sep = " ", remove = FALSE) %>% 
+  mutate(condition = factor(condition, levels = c("Lose rR", "Lose SR", "Win SR", "Win rR")),
+         context = factor(context, levels = c("Lose", "Win"))) %>% 
+  ggplot(aes(x = condition, y = lnRT)) +
+  geom_point(aes(color = context),size = 3) +
+  geom_errorbar(aes(ymin = lnRT_LCI, ymax = lnRT_UCI, color = context),
+                width = 0.05) +
+  geom_signif(comparisons = list(c("Win SR", "Lose SR")),
+              y_position = 6.657,
+              annotation = c("***"), tip_length = 0) +
+  geom_signif(comparisons = list(c("Win rR", "Lose rR")),
+              y_position = 6.669,
+              annotation = c("***"), tip_length = 0.01) +
+  geom_signif(comparisons = list(c("Win SR", "Win rR")),
+              y_position = 6.6,
+              annotation = c("NS."), tip_length = 0) +
+  geom_signif(comparisons = list(c("Lose rR", "Lose SR")),
+              y_position = 6.65,
+              annotation = c("NS."), tip_length = 0) +
+  labs(color = "Arms",
+       y = "Log RT",
+       x = "Condition") +
+  theme_cowplot() +
+  theme(legend.position = "none")
+
 ## Response rate
 response_rate <- RT_data %>% 
   group_by(`Participant Private ID`, context, arms) %>%
@@ -413,6 +440,33 @@ acc_cond_inter <- vis_data_acc %>%
        ) +
   theme_cowplot()
 
+## four condition version
+acc_cond_inter_4 <- vis_data_acc %>% 
+  unite(condition, context, arms, sep = " ", remove = FALSE) %>% 
+  mutate(condition = factor(condition, levels = c("Lose rR", "Lose SR", "Win SR", "Win rR")),
+         context = factor(context, levels = c("Lose", "Win"))) %>% 
+  ggplot(aes(x = condition, y = performance)) +
+  geom_point(aes(color = context),size = 3) +
+  geom_errorbar(aes(ymin = performance_LCI, ymax = performance_UCI, color = context),
+                width = 0.05) +
+  geom_signif(comparisons = list(c("Win SR", "Lose SR")),
+              y_position = 0.62,
+              annotation = c("NS."), tip_length = 0) +
+  geom_signif(comparisons = list(c("Win rR", "Lose rR")),
+              y_position = 0.63,
+              annotation = c("NS."), tip_length = 0.01) +
+  geom_signif(comparisons = list(c("Win SR", "Win rR")),
+              y_position = 0.60,
+              annotation = c("***"), tip_length = 0) +
+  geom_signif(comparisons = list(c("Lose rR", "Lose SR")),
+              y_position = 0.61,
+              annotation = c("***"), tip_length = 0) +
+  labs(color = "Arms",
+       y = "Performance ",
+       x = "Condition") +
+  theme_cowplot() +
+  theme(legend.position = "none")
+
 ## RT x Performance  by context x arms
 vis_data <- vis_data_acc %>% 
   transmute(context = context, arms = arms,
@@ -522,6 +576,23 @@ correct_trait_data <- correct_data %>%
 correct_trait_glmm <- glmer(correct ~ (IU + IM + Anxi + RA) * (context + arms) + (1|`Participant Private ID`),
                             data = correct_trait_data, family = "binomial")
 HLM_summary(correct_trait_glmm)
+# Another way to make sure the context and arms are treat as factors,, but it yields the exactly the same results
+# contr <- list(context = contr.sum, arms = contr.sum)
+# correct_trait_glmm_factor <- glmer(correct ~ (IU + IM + Anxi + RA) * (context + arms) + (1|`Participant Private ID`),
+#                             data = correct_trait_data %>% 
+#                               mutate(context = factor(context),
+#                                      arms = factor(arms)),
+#                             family = "binomial",
+#                             contrasts = contr)
+# HLM_summary(correct_trait_glmm_factor)
+IM_simple_effects <- emtrends(correct_trait_glmm, ~ context, var = "IM", at = list(context = c(-0.5, 0.5)))
+print(IM_simple_effects)
+IU_simple_effects <- emtrends(correct_trait_glmm, ~ context, var = "IU", at = list(context = c(-0.5, 0.5)))
+print(IU_simple_effects)
+Anxi_simple_effects <- emtrends(correct_trait_glmm, ~ context, var = "Anxi", at = list(context = c(-0.5, 0.5)))
+print(Anxi_simple_effects)
+RA_simple_effects <- emtrends(correct_trait_glmm, ~ context, var = "RA", at = list(context = c(-0.5, 0.5)))
+print(RA_simple_effects)
 
 correct_trait_glmm2 <- glmer(correct ~ (IUi + IUp + IM + Anxi + RA) * (context + arms) + (1|`Participant Private ID`),
                              data = correct_trait_data, family = "binomial")
@@ -837,6 +908,8 @@ lnRT_trait_glmm <- RT_data %>%
           (1|`Participant Private ID`),
         data = ., family = Gamma(link = "log")) # Gamma distribution
 HLM_summary(lnRT_trait_glmm)
+Anxi_simple_effects <- emtrends(lnRT_trait_glmm, ~ context, var = "Anxi", at = list(context = c(-0.5, 0.5)))
+# all simple effects are not significant
 
 ggpredict(lnRT_trait_glmm, terms = c("Anxi [0, 1]", "context"))
 
@@ -988,6 +1061,8 @@ ggsave("step2_descriptive_statistics/output/correct_trait_glmm_IM_inter.png", co
 ggsave("step2_descriptive_statistics/output/RT_traits_glmm_Ani_effect.png", RT_traits_glmm_Ani_effect, width = 8, height = 6)
 ggsave("step2_descriptive_statistics/output/Results_RT.png", Results_RT, width = 12.6, height = 6)
 ggsave("step2_descriptive_statistics/output/Results_Correct.png", Results_Correct, width = 9.9, height = 9)
+ggsave("fig/fig2_RT.png", lnRT_cond_inter_4, width = 5, height = 5)
+ggsave("fig/fig2_Per.png", acc_cond_inter_4, width = 5, height = 5)
 
 # Save the models
 save(acc_trait_glm, lnRT_trait_lm, file = "step2_descriptive_statistics/output/acc_trait_RT_lm.RData")

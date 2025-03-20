@@ -84,28 +84,36 @@ slopes <- summary(condition_model)$coefficients %>%
   rownames_to_column(var = "condition") %>% 
   filter(str_detect(condition, "V")) %>%
   mutate(condition = str_remove(condition, "condition"),
-         condition = str_remove(condition, ":V")) %>%
+         condition = str_remove(condition, ":V"),
+         condition = factor(condition, levels = c("Lose rR", "Lose SR", "Win SR", "Win rR")),
+         Context = ifelse(str_detect(condition, "Lose"), "Loss", "Win")
+         ) %>%
   ggplot(aes(x = condition, y = Estimate,
              ymin = Estimate + `Std. Error` * -1.96,
              ymax = Estimate + `Std. Error` * 1.96)) +
-  geom_pointrange() +
+  geom_pointrange(aes(colour = Context)) +
   geom_signif(comparisons = list(c("Lose rR", "Lose SR")),
               annotation = c("***"), tip_length = 0) +
   geom_signif(comparisons = list(c("Win rR", "Win SR")),
               annotation = c("***"), tip_length = 0) +
   theme_cowplot() +
   labs(x = "Condition",
-       y = "Slope")
+       y = "Slope") +
+  theme(legend.position = "none")
 
 intercepts <- summary(condition_model)$coefficients %>% 
   as.data.frame() %>% 
   rownames_to_column(var = "condition") %>% 
   filter(str_detect(condition, "V", negate = T)) %>%
-  mutate(condition = str_remove(condition, "condition")) %>%
+  mutate(condition = str_remove(condition, "condition"),
+         condition = factor(condition, levels = c("Lose rR", "Lose SR", "Win SR", "Win rR")),
+         Context = ifelse(str_detect(condition, "Lose"), "Loss", "Win")
+         ) %>%
   ggplot(aes(x = condition, y = Estimate,
              ymin = Estimate + `Std. Error` * -1.96,
-             ymax = Estimate + `Std. Error` * 1.96)) +
-  geom_pointrange() +
+             ymax = Estimate + `Std. Error` * 1.96)
+         ) +
+  geom_pointrange(aes(colour = Context)) +
   geom_signif(comparisons = list(c("Lose rR", "Lose SR")),
               y_position = 0,
               annotation = c("***"), tip_length = 0.03) +
@@ -119,7 +127,8 @@ intercepts <- summary(condition_model)$coefficients %>%
               annotation = c("***"), tip_length = -0.03) +
   theme_cowplot() +
   labs(x = "Condition",
-       y = "Intercept")
+       y = "Intercept") +
+  theme(legend.position = "none")
 
 coefficients <- cowplot::plot_grid(intercepts, slopes, nrow = 1)
 
