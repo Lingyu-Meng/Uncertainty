@@ -69,46 +69,44 @@ file = "Basic_Models.doc"
 )
 
 ## theory-derived models IU2
-# H1: IIU, PIU affect RU
+# H1: IIU, PIU affect V
 model_IU2_1 <- glmer(
   choice ~ -1 + V + RU + VTU +
-           RU:(IIU + PIU) + (-1 + V + RU + VTU|ID),
+    (V + RU + VTU):context +
+    V:(IIU + PIU) + V:(IIU + PIU):context +
+    (-1 + V + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
 )
-# H1: IIU, PIU affect V, RU, VTU
+# H1: IIU, PIU affect RU
 model_IU2_2 <- glmer(
   choice ~ -1 + V + RU + VTU +
-           V:(IIU + PIU) +
-           RU:(IIU + PIU) +
-           VTU:(IIU + PIU) +
-           (-1 + V + RU + VTU|ID),
+    (V + RU + VTU):context +
+    RU:(IIU + PIU) + RU:(IIU + PIU):context +
+    (-1 + V + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
 )
-# H3: IIU affect RU more under lose context & H1
+# H3: IIU and PIU affect VTU
 model_IU2_3 <- glmer(
   choice ~ -1 + V + RU + VTU +
-           RU:(IIU + PIU) + RU:IIU:context +
-          (V + RU + VTU):context +
-          (-1 + V + RU + VTU|ID),
+    (V + RU + VTU):context +
+    VTU:(IIU + PIU) + VTU:(IIU + PIU):context +
+    (-1 + V + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
 )
-# H3: IIU and PIU affect V, RU, VTU more under lose context & H1
+# H3: IIU and PIU affect V, RU, VTU
 model_IU2_4 <- glmer(
   choice ~ -1 + V + RU + VTU +
-           V:(IIU + PIU) +
-           RU:(IIU + PIU) +
-           VTU:(IIU + PIU) +
-           V:(IIU + PIU):context +
-           RU:(IIU + PIU):context + 
-           VTU:(IIU + PIU):context +
-          (V + RU + VTU):context +
-          (-1 + V + RU + VTU|ID),
+    (V + RU + VTU):context +
+    V:(IIU + PIU) + V:(IIU + PIU):context +
+    RU:(IIU + PIU) + RU:(IIU + PIU):context +
+    VTU:(IIU + PIU) + VTU:(IIU + PIU):context +
+    (-1 + V + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -125,46 +123,44 @@ file = "theory_IU2_Models.doc"
 )
 
 ## theory-driven models IU
-# H1b: IU affect RU
+# H1b: IU affect V
 model_IU_1 <- glmer(
   choice ~ -1 + V + RU + VTU +
-           RU:IU + (-1 + V + RU + VTU|ID),
+    (V + RU + VTU):context +
+    V:IU + V:IU:context +
+    (-1 + V + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
 )
-# H1b: IU affect V, RU, VTU
+# H1b: IU affect RU
 model_IU_2 <- glmer(
-  choice ~ -1 + V + RU + VTU + 
-           V:IU +
-           RU:IU +
-           VTU:IU +
-           (-1 + V + RU + VTU|ID),
+  choice ~ -1 + V + RU + VTU +
+    (V + RU + VTU):context +
+    RU:IU + RU:IU:context +
+    (-1 + V + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
 )
-# H3b: IU x context affect RU & H1b
+# H3b: IU affect VTU
 model_IU_3 <- glmer(
   choice ~ -1 + V + RU + VTU +
-           RU:IU + RU:IU:context +
-          (V + RU + VTU):context +
-          (-1 + V + RU + VTU|ID),
+    (V + RU + VTU):context +
+    VTU:IU + VTU:IU:context +
+    (-1 + V + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
 )
-# H3b: IU x context affect V RU VTU & H1b
+# H3b: IU affect V RU VTU
 model_IU_4 <- glmer(
-  choice ~ -1 + V + RU + VTU + 
-           V:IU +
-           RU:IU +
-           VTU:IU +
-           V:IU:context +
-           RU:IU:context +
-           VTU:IU:context +
-          (V + RU + VTU):context +
-          (-1 + V + RU + VTU|ID),
+  choice ~ -1 + V + RU + VTU +
+    (V + RU + VTU):context +
+    V:IU + V:IU:context +
+    RU:IU + RU:IU:context +
+    VTU:IU + VTU:IU:context +
+    (-1 + V + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -181,46 +177,44 @@ file = "theory_IU_Models.doc"
 )
 
 # Theory-driven models IM
-# H2: IM affect V/TU
+# H2: IM affect V
 model_IM_1 <- glmer(
   choice ~ -1 + V + RU + VTU +
-           VTU:IM + (-1 + V + RU + VTU|ID),
+    (V + RU + VTU):context +
+    V:IM + V:IM:context +
+    (-1 + V + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
 )
-# H2: IM affect V, RU, V/TU
+# H2: IM affect RU
 model_IM_2 <- glmer(
   choice ~ -1 + V + RU + VTU +
-           V:IM +
-           RU:IM +
-           VTU:IM +
-           (-1 + V + RU + VTU|ID),
+    (V + RU + VTU):context +
+    RU:IM + RU:IM:context +
+    (-1 + V + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
 )
-# H4: IM x context affect V/TU & H2
+# H2: IM affect V/TU
 model_IM_3 <- glmer(
   choice ~ -1 + V + RU + VTU +
-           VTU:IM + VTU:IM:context +
-          (V + RU + VTU):context +
-          (-1 + V + RU + VTU|ID),
+    (V + RU + VTU):context +
+    VTU:IM + VTU:IM:context +
+    (-1 + V + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
 )
-# H4: IM x context affect V, RU, V/TU & H2
+# H4: IM affect V, RU, V/TU
 model_IM_4 <- glmer(
   choice ~ -1 + V + RU + VTU +
-           V:IM +
-           RU:IM +
-           VTU:IM +
-           V:IM:context +
-           RU:IM:context +
-           VTU:IM:context +
-          (V + RU + VTU):context +
-          (-1 + V + RU + VTU|ID),
+    (V + RU + VTU):context +
+    V:IM + V:IM:context +
+    RU:IM + RU:IM:context +
+    VTU:IM + VTU:IM:context +
+    (-1 + V + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -238,46 +232,44 @@ file = "theory_IM_Models.doc"
 )
 
 # theory-driven models Anx
-# Anx affect RU
+# Anx affect V
 model_Anx_1 <- glmer(
   choice ~ -1 + V + RU + VTU +
-           RU:Anx + (-1 + V + RU + VTU|ID),
+    (V + RU + VTU):context +
+    V:Anx + V:Anx:context +
+    (-1 + V + RU + VTU|ID),
+  data = data,
+  family = binomial(link = "probit"),
+  control = glmerControl(optimizer = "bobyqa")
+)
+# Anx affect RU
+model_Anx_2 <- glmer(
+  choice ~ -1 + V + RU + VTU +
+    (V + RU + VTU):context +
+    RU:Anx + RU:Anx:context +
+    (-1 + V + RU + VTU|ID),
+  data = data,
+  family = binomial(link = "probit"),
+  control = glmerControl(optimizer = "bobyqa")
+)
+# Anx affect VTU
+model_Anx_3 <- glmer(
+  choice ~ -1 + V + RU + VTU +
+    (V + RU + VTU):context +
+    VTU:Anx + VTU:Anx:context +
+    (-1 + V + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
 )
 # Anx affect V, RU, VTU
-model_Anx_2 <- glmer(
-  choice ~ -1 + V + RU + VTU +
-           V:Anx +
-           RU:Anx +
-           VTU:Anx +
-           (-1 + V + RU + VTU|ID),
-  data = data,
-  family = binomial(link = "probit"),
-  control = glmerControl(optimizer = "bobyqa")
-)
-# Anx x context affect RU & Anx affect RU
-model_Anx_3 <- glmer(
-  choice ~ -1 + V + RU + VTU +
-           RU:Anx + RU:Anx:context +
-          (V + RU + VTU):context +
-          (-1 + V + RU + VTU|ID),
-  data = data,
-  family = binomial(link = "probit"),
-  control = glmerControl(optimizer = "bobyqa")
-)
-# Anx x context & Anx affect V, RU, VTU
 model_Anx_4 <- glmer(
   choice ~ -1 + V + RU + VTU +
-           V:Anx +
-           RU:Anx +
-           VTU:Anx +
-           V:Anx:context +
-           RU:Anx:context +
-           VTU:Anx:context +
-          (V + RU + VTU):context +
-          (-1 + V + RU + VTU|ID),
+    (V + RU + VTU):context +
+    V:Anx + V:Anx:context +
+    RU:Anx + RU:Anx:context +
+    VTU:Anx + VTU:Anx:context +
+    (-1 + V + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -294,28 +286,44 @@ file = "theory_Anx_Models.doc"
 )
 
 # theory-driven models RA
-# RA affect all
+# RA affect V
 model_RA_1 <- glmer(
   choice ~ -1 + V + RU + VTU +
-           V:RA +
-           RU:RA +
-           VTU:RA +
-           (-1 + V + RU + VTU|ID),
+    (V + RU + VTU):context +
+    V:RA + V:RA:context +
+    (-1 + V + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
 )
-# RA x context affect all
+# RA affect RU
 model_RA_2 <- glmer(
   choice ~ -1 + V + RU + VTU +
-           V:RA +
-           RU:RA +
-           VTU:RA +
-           V:RA:context +
-           RU:RA:context +
-           VTU:RA:context +
-          (V + RU + VTU):context +
-          (-1 + V + RU + VTU|ID),
+    (V + RU + VTU):context +
+    RU:RA + RU:RA:context +
+    (-1 + V + RU + VTU|ID),
+  data = data,
+  family = binomial(link = "probit"),
+  control = glmerControl(optimizer = "bobyqa")
+)
+# RA affect VTU
+model_RA_3 <- glmer(
+  choice ~ -1 + V + RU + VTU +
+    (V + RU + VTU):context +
+    VTU:RA + VTU:RA:context +
+    (-1 + V + RU + VTU|ID),
+  data = data,
+  family = binomial(link = "probit"),
+  control = glmerControl(optimizer = "bobyqa")
+)
+# RA affect V, RU, VTU
+model_RA_4 <- glmer(
+  choice ~ -1 + V + RU + VTU +
+    (V + RU + VTU):context +
+    V:RA + V:RA:context +
+    RU:RA + RU:RA:context +
+    VTU:RA + VTU:RA:context +
+    (-1 + V + RU + VTU|ID),
   data = data,
   family = binomial(link = "probit"),
   control = glmerControl(optimizer = "bobyqa")
@@ -323,6 +331,8 @@ model_RA_2 <- glmer(
 model_summary(list(
   model_RA_1,
   model_RA_2,
+  model_RA_3,
+  model_RA_4,
   context_model
 ),
 file = "theory_RA_Models.doc"

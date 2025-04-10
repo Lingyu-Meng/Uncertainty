@@ -585,14 +585,56 @@ HLM_summary(correct_trait_glmm)
 #                             family = "binomial",
 #                             contrasts = contr)
 # HLM_summary(correct_trait_glmm_factor)
-IM_simple_effects <- emtrends(correct_trait_glmm, ~ context, var = "IM", at = list(context = c(-0.5, 0.5)))
-print(IM_simple_effects)
-IU_simple_effects <- emtrends(correct_trait_glmm, ~ context, var = "IU", at = list(context = c(-0.5, 0.5)))
-print(IU_simple_effects)
-Anxi_simple_effects <- emtrends(correct_trait_glmm, ~ context, var = "Anxi", at = list(context = c(-0.5, 0.5)))
-print(Anxi_simple_effects)
-RA_simple_effects <- emtrends(correct_trait_glmm, ~ context, var = "RA", at = list(context = c(-0.5, 0.5)))
-print(RA_simple_effects)
+IM_main_effect <- emtrends(correct_trait_glmm, ~ IM, var = "IM",
+                           at = list(IM = c(0, 1))) %>%
+  pairs() %>% summary() %>% .$p.value %>% 
+  formatC(format = "f", digits = 4)
+IM_simple_effects <- emtrends(correct_trait_glmm, ~ IM | context, var = "IM",
+                              at = list(
+                                IM = c(0, 1),
+                                context = c(-0.5, 0.5))) %>% 
+  pairs(by = "context") %>%
+  summary() %>% .$p.value %>% 
+  formatC(format = "f", digits = 4)
+
+IU_main_effect <- emtrends(correct_trait_glmm, ~ IU, var = "IU",
+                           at = list(IU = c(0, 1))) %>%
+  pairs() %>% summary() %>% .$p.value %>% 
+  formatC(format = "f", digits = 4)
+IU_simple_effects <- emtrends(correct_trait_glmm, ~ IU | context,
+                              var = "IU",
+                              at = list(
+                                IU = c(0, 1),
+                                context = c(-0.5, 0.5))) %>% 
+  pairs(by = "context") %>%
+  summary() %>% .$p.value %>% 
+  formatC(format = "f", digits = 4)
+
+Anxi_main_effect <- emtrends(correct_trait_glmm, ~ Anxi, var = "Anxi",
+                             at = list(Anxi = c(0, 1))) %>%
+  pairs() %>% summary() %>% .$p.value %>% 
+  formatC(format = "f", digits = 4)
+Anxi_simple_effects <- emtrends(correct_trait_glmm, ~ Anxi | context,
+                                var = "Anxi",
+                                at = list(
+                                  Anxi = c(0, 1),
+                                  context = c(-0.5, 0.5))) %>% 
+  pairs(by = "context") %>%
+  summary() %>% .$p.value %>% 
+  formatC(format = "f", digits = 4)
+
+RA_main_effect <- emtrends(correct_trait_glmm, ~ RA, var = "RA",
+                           at = list(RA = c(0, 1))) %>%
+  pairs() %>% summary() %>% .$p.value %>% 
+  formatC(format = "f", digits = 4)
+RA_simple_effects <- emtrends(correct_trait_glmm, ~ RA | context,
+                              var = "RA",
+                              at = list(
+                                RA = c(0, 1),
+                                context = c(-0.5, 0.5))) %>% 
+  pairs(by = "context") %>%
+  summary() %>% .$p.value %>%
+  formatC(format = "f", digits = 4)
 
 correct_trait_glmm2 <- glmer(correct ~ (IUi + IUp + IM + Anxi + RA) * (context + arms) + (1|`Participant Private ID`),
                              data = correct_trait_data, family = "binomial")
@@ -606,87 +648,218 @@ correct_trait_fig <- plot_model(correct_trait_glmm,
   theme_bw() +
   ylim(0.8, 1.35)
 
-test_data = tibble(IU = 0, IM = 0, Anxi = 0, RA = 0, context = 0, arms = 0,`Participant Private ID` = NA)
+im_values <- seq(
+  from = min(correct_trait_data$IM),
+  to = max(correct_trait_data$IM),
+  length.out = 10
+)
+correct_trait_glmm_IM_effect <- emmeans(
+  correct_trait_glmm,
+  specs = ~ IM,
+  type = "response",
+  at = list(IM = im_values)
+) %>% 
+  as.data.frame() %>% 
+  ggplot(aes(x = IM, y = prob)) +
+  geom_line(aes(colour = "black")) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL), alpha = 0.2) +
+  theme_cowplot() + 
+  ylim(0.4, 0.8) +
+  xlim(-3, 3) +
+  ylab("Probability of Correct Arm Selection") +
+  xlab("← Less Impulsive               More Impulsive →") +
+  scale_colour_manual(values = "black",
+                      labels = paste0("p = ", IM_main_effect)
+  ) +
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(title = ""))
+correct_trait_glmm_IM_inter <- emmeans(
+  correct_trait_glmm,
+  specs = ~ IM | context,
+  type = "response",
+  at = list(
+    IM = im_values,
+    context = c(-0.5, 0.5)
+  )
+) %>% 
+  as.data.frame() %>% 
+  mutate(context = factor(context, levels = c(0.5, -0.5))) %>% # 0.5:loss, -0.5:win
+  ggplot(aes(x = IM, y = prob)) +
+  geom_line(aes(colour = context)) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
+  theme_cowplot() +
+  ylim(0.4, 0.8) +
+  xlim(-3, 3) +
+  ylab("Probability of Correct Arm Selection") +
+  xlab("← Less Impulsive               More Impulsive →") +
+  theme(legend.position = "top") +
+  scale_colour_discrete(
+    labels = c(
+      "-0.5" = paste0("p = ", IM_simple_effects[1]),
+      "0.5"  = paste0("p = ", IM_simple_effects[2]))
+  ) +
+  guides(colour = guide_legend(title = NULL),
+         fill = "none")
 
-ggpredict(correct_trait_glmm, terms = "IU [0, 1]")
-ggpredict(correct_trait_glmm, terms = c("IU [0, 1]", "context"))
-ggpredict(correct_trait_glmm, terms = c("IM [0, 1]", "context"))
+iu_values <- seq(
+  from = min(correct_trait_data$IU),
+  to = max(correct_trait_data$IU),
+  length.out = 10
+)
+correct_trait_glmm_IU_effect <- emmeans(
+  correct_trait_glmm,
+  specs = ~ IU,
+  type = "response",
+  at = list(IU = iu_values)
+) %>% 
+  as.data.frame() %>% 
+  ggplot(aes(x = IU, y = prob)) +
+  geom_line(aes(colour = "black")) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL), alpha = 0.2) +
+  theme_cowplot() + 
+  ylim(0.4, 0.8) +
+  xlim(-3, 3) +
+  ylab("Probability of Correct Arm Selection") +
+  xlab("← Less IU                      More IU →") +
+  scale_colour_manual(values = "black",
+                      labels = paste0("p = ", IU_main_effect)
+  ) +
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(title = ""))
 
-correct_trait_glmm_IU_effect <- plot_model(correct_trait_glmm,
-           title = "Choosing the Correct Arm",
-           type = "pred",
-           terms = c("IU"),
-           colors = "black") + # as colour is repersenting the context
+correct_trait_glmm_IU_inter <- emmeans(
+  correct_trait_glmm,
+  specs = ~ IU | context,
+  type = "response",
+  at = list(
+    IU = iu_values,
+    context = c(-0.5, 0.5)
+  )
+) %>% 
+  as.data.frame() %>% 
+  mutate(context = factor(context, levels = c(0.5, -0.5))) %>% # 0.5:loss, -0.5:win
+  ggplot(aes(x = IU, y = prob)) +
+  geom_line(aes(colour = context)) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
+  theme_cowplot() +
   ylim(0.4, 0.8) +
   xlim(-3, 3) +
   ylab("Probability of Correct Arm Selection") +
-  theme_cowplot()
-correct_trait_glmm_IU_inter <- plot_model(correct_trait_glmm,
-           title = "Choosing the Correct Arm",
-           type = "pred",
-           terms = c("IU","context"))+ 
-  scale_color_discrete(name = "Context", labels = c("Win", "Loss")) +
-  ylim(0.4, 0.8) +
-  xlim(-3, 3) +
-  ylab("Probability of Correct Arm Selection") +
-  theme_cowplot()
+  xlab("← Less IU                      More IU →") +
+  theme(legend.position = "top") +
+  scale_colour_discrete(
+    labels = c(
+      "-0.5" = paste0("p = ", IU_simple_effects[1]),
+      "0.5"  = paste0("p = ", IU_simple_effects[2]))
+  ) +
+  guides(colour = guide_legend(title = NULL),
+         fill = "none")
 
-correct_trait_glmm_IM_effect <- plot_model(correct_trait_glmm,
-           title = "Choosing the Correct Arm",
-           type = "pred",
-           terms = c("IM"),
-           colors = "black") +
+anxi_values <- seq(
+  from = min(correct_trait_data$Anxi),
+  to = max(correct_trait_data$Anxi),
+  length.out = 10
+)
+correct_trait_glmm_Anx_effect <- emmeans(
+  correct_trait_glmm,
+  specs = ~ Anxi,
+  type = "response",
+  at = list(Anxi = anxi_values)
+) %>% 
+  as.data.frame() %>% 
+  ggplot(aes(x = Anxi, y = prob)) +
+  geom_line(aes(colour = "black")) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL), alpha = 0.2) +
+  theme_cowplot() + 
   ylim(0.4, 0.8) +
   xlim(-3, 3) +
   ylab("Probability of Correct Arm Selection") +
-  theme_cowplot()
-correct_trait_glmm_IM_inter <- plot_model(correct_trait_glmm,
-           title = "Choosing the Correct Arm",
-           type = "pred",
-           terms = c("IM","context")) + 
-  scale_color_discrete(name = "Context", labels = c("Win", "Loss")) +
+  xlab("← Less Anxious               More Anxious →") +
+  scale_colour_manual(values = "black",
+                      labels = paste0("p = ", Anxi_main_effect)
+  ) +
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(title = ""))
+correct_trait_glmm_Anx_inter <- emmeans(
+  correct_trait_glmm,
+  specs = ~ Anxi | context,
+  type = "response",
+  at = list(
+    Anxi = anxi_values,
+    context = c(-0.5, 0.5)
+  )
+) %>% 
+  as.data.frame() %>% 
+  mutate(context = factor(context, levels = c(0.5, -0.5))) %>% # 0.5:loss, -0.5:win
+  ggplot(aes(x = Anxi, y = prob)) +
+  geom_line(aes(colour = context)) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
+  theme_cowplot() +
   ylim(0.4, 0.8) +
   xlim(-3, 3) +
   ylab("Probability of Correct Arm Selection") +
-  theme_cowplot()
+  xlab("← Less Anxious               More Anxious →") +
+  theme(legend.position = "top") +
+  scale_colour_discrete(
+    labels = c(
+      "-0.5" = paste0("p = ", Anxi_simple_effects[1]),
+      "0.5"  = paste0("p = ", Anxi_simple_effects[2]))
+  ) +
+  guides(colour = guide_legend(title = NULL),
+         fill = "none")
 
-correct_trait_glmm_Anx_effect <- plot_model(correct_trait_glmm,
-           title = "Choosing the Correct Arm",
-           type = "pred",
-           terms = c("Anxi"),
-           colors = "black") +
+ra_values <- seq(
+  from = min(correct_trait_data$RA),
+  to = max(correct_trait_data$RA),
+  length.out = 10
+)
+correct_trait_glmm_RA_effect <- emmeans(
+  correct_trait_glmm,
+  specs = ~ RA,
+  type = "response",
+  at = list(RA = ra_values)
+) %>% 
+  as.data.frame() %>% 
+  ggplot(aes(x = RA, y = prob)) +
+  geom_line(aes(colour = "black")) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL), alpha = 0.2) +
+  theme_cowplot() + 
   ylim(0.4, 0.8) +
   xlim(-3, 3) +
   ylab("Probability of Correct Arm Selection") +
-  theme_cowplot()
-correct_trait_glmm_Anx_inter <- plot_model(correct_trait_glmm,
-           title = "Choosing the Correct Arm",
-           type = "pred",
-           terms = c("Anxi","context")) + 
-  scale_color_discrete(name = "Context", labels = c("Win", "Loss")) +
+  xlab("← Less Risky               More Risky →") +
+  scale_colour_manual(values = "black",
+                      labels = paste0("p = ", RA_main_effect)
+  ) +
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(title = ""))
+correct_trait_glmm_RA_inter <- emmeans(
+  correct_trait_glmm,
+  specs = ~ RA | context,
+  type = "response",
+  at = list(
+    RA = ra_values,
+    context = c(-0.5, 0.5)
+  )
+) %>% 
+  as.data.frame() %>% 
+  mutate(context = factor(context, levels = c(0.5, -0.5))) %>% # 0.5:loss, -0.5:win
+  ggplot(aes(x = RA, y = prob)) +
+  geom_line(aes(colour = context)) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
+  theme_cowplot() +
   ylim(0.4, 0.8) +
   xlim(-3, 3) +
   ylab("Probability of Correct Arm Selection") +
-  theme_cowplot()
-
-correct_trait_glmm_RA_effect <- plot_model(correct_trait_glmm,
-           title = "Choosing the Correct Arm",
-           type = "pred",
-           terms = c("RA"),
-           colors = "black") +
-  ylim(0.4, 0.8) +
-  xlim(-3, 3) +
-  ylab("Probability of Correct Arm Selection") +
-  theme_cowplot()
-correct_trait_glmm_RA_inter <- plot_model(correct_trait_glmm,
-           title = "Choosing the Correct Arm",
-           type = "pred",
-           terms = c("RA","context")) + 
-  scale_color_discrete(name = "Context", labels = c("Win", "Loss")) +
-  ylim(0.4, 0.8) +
-  xlim(-3, 3) +
-  ylab("Probability of Correct Arm Selection") +
-  theme_cowplot()
+  xlab("← Less Risky               More Risky →") +
+  theme(legend.position = "top") +
+  scale_colour_discrete(
+    labels = c(
+      "-0.5" = paste0("p = ", RA_simple_effects[1]),
+      "0.5"  = paste0("p = ", RA_simple_effects[2]))
+  ) +
+  guides(colour = guide_legend(title = NULL),
+         fill = "none")
 
 correct_trait_Fig <- cowplot::plot_grid(correct_trait_fig,
                                         traits_acc_context,
@@ -908,20 +1081,166 @@ lnRT_trait_glmm <- RT_data %>%
           (1|`Participant Private ID`),
         data = ., family = Gamma(link = "log")) # Gamma distribution
 HLM_summary(lnRT_trait_glmm)
-Anxi_simple_effects <- emtrends(lnRT_trait_glmm, ~ context, var = "Anxi", at = list(context = c(-0.5, 0.5)))
+RT_IM_main <- emtrends(lnRT_trait_glmm, ~ IM, var = "IM", at = list(IM = c(0, 1))) %>% 
+  pairs() %>% summary() %>% .$p.value %>% formatC(format = "f", digits = 4)
+RT_IM_simple <- emtrends(lnRT_trait_glmm, ~ IM | context, var = "IM", at = list(IM = c(0, 1), context = c(-0.5, 0.5)) ) %>%
+  pairs(by = "context") %>% summary() %>% .$p.value %>% formatC(format = "f", digits = 4)
+RT_IU_main <- emtrends(lnRT_trait_glmm, ~ IU, var = "IU", at = list(IU = c(0, 1))) %>% 
+  pairs() %>% summary() %>% .$p.value %>% formatC(format = "f", digits = 4)
+RT_IU_simple <- emtrends(lnRT_trait_glmm, ~ IU | context, var = "IU", at = list(IU = c(0, 1), context = c(-0.5, 0.5)) ) %>%
+  pairs(by = "context") %>% summary() %>% .$p.value %>% formatC(format = "f", digits = 4)
+RT_Anx_main <- emtrends(lnRT_trait_glmm, ~ Anxi, var = "Anxi", at = list(Anxi = c(0, 1))) %>%
+  pairs() %>% summary() %>% .$p.value %>% formatC(format = "f", digits = 4)
+RT_Anx_simple <- emtrends(lnRT_trait_glmm, ~ Anxi | context, var = "Anxi", at = list(Anxi = c(0, 1), context = c(-0.5, 0.5)) ) %>%
+  pairs(by = "context") %>% summary() %>% .$p.value %>% formatC(format = "f", digits = 4)
+RT_RA_main <- emtrends(lnRT_trait_glmm, ~ RA, var = "RA", at = list(RA = c(0, 1))) %>%
+  pairs() %>% summary() %>% .$p.value %>% formatC(format = "f", digits = 4)
+RT_RA_simple <- emtrends(lnRT_trait_glmm, ~ RA | context, var = "RA", at = list(RA = c(0, 1), context = c(-0.5, 0.5)) ) %>%
+  pairs(by = "context") %>% summary() %>% .$p.value %>% formatC(format = "f", digits = 4)
 # all simple effects are not significant
 
-ggpredict(lnRT_trait_glmm, terms = c("Anxi [0, 1]", "context"))
+RT_traits_glmm_IM <- emmeans(lnRT_trait_glmm, specs = ~ IM, type = "response", at = list(IM = im_values)) %>% 
+  as.data.frame() %>% 
+  ggplot(aes(x = IM, y = response)) +
+  geom_line(aes(colour = "black")) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL), alpha = 0.2) +
+  theme_cowplot() + 
+  ylim(500, 1000) +
+  xlim(-3, 3) +
+  ylab("Reaction Time") +
+  xlab("← Less Impulsive               More Impulsive →") +
+  scale_colour_manual(values = "black",
+                      labels = paste0("p = ", RT_IM_main)
+  ) +
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(title = ""))
+RT_traits_glmm_IM_inter <- emmeans(lnRT_trait_glmm, specs = ~ IM | context, type = "response", at = list(IM = im_values, context = c(-0.5, 0.5))) %>%
+  as.data.frame() %>% 
+  mutate(context = factor(context, levels = c(0.5, -0.5))) %>% # 0.5:loss, -0.5:win
+  ggplot(aes(x = IM, y = response)) +
+  geom_line(aes(colour = context)) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
+  theme_cowplot() +
+  ylim(500, 1000) +
+  xlim(-3, 3) +
+  ylab("Reaction Time") +
+  xlab("← Less Impulsive               More Impulsive →") +
+  theme(legend.position = "top") +
+  scale_colour_discrete(
+    labels = c(
+      "-0.5" = paste0("p = ", RT_IM_simple[1]),
+      "0.5"  = paste0("p = ", RT_IM_simple[2]))
+  ) +
+  guides(colour = guide_legend(title = NULL),
+         fill = "none")
 
-RT_traits_glmm_Ani_effect <- plot_model(lnRT_trait_glmm,
-           title = "Interaction between anxiety and context on RT",
-           type = "pred",
-           terms = c("Anxi", "context"),
-           show.values = TRUE,
-           value.offset = 0.4,
-           sort.est = TRUE) + 
-  scale_color_discrete(name = "Context", labels = c("Win", "Loss"))
+RT_traits_glmm_IU <- emmeans(lnRT_trait_glmm, specs = ~ IU, type = "response", at = list(IU = iu_values)) %>%
+  as.data.frame() %>% 
+  ggplot(aes(x = IU, y = response)) +
+  geom_line(aes(colour = "black")) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL), alpha = 0.2) +
+  theme_cowplot() + 
+  ylim(500, 1000) +
+  xlim(-3, 3) +
+  ylab("Reaction Time") +
+  xlab("← Less IU                      More IU →") +
+  scale_colour_manual(values = "black",
+                      labels = paste0("p = ", RT_IU_main)
+  ) +
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(title = "")
+  )
+RT_traits_glmm_IU_inter <- emmeans(lnRT_trait_glmm, specs = ~ IU | context, type = "response", at = list(IU = iu_values, context = c(-0.5, 0.5))) %>%
+  as.data.frame() %>% 
+  mutate(context = factor(context, levels = c(0.5, -0.5))) %>% # 0.5:loss, -0.5:win
+  ggplot(aes(x = IU, y = response)) +
+  geom_line(aes(colour = context)) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
+  theme_cowplot() +
+  ylim(500, 1000) +
+  xlim(-3, 3) +
+  ylab("Reaction Time") +
+  xlab("← Less IU                      More IU →") +
+  theme(legend.position = "top") +
+  scale_colour_discrete(
+    labels = c(
+      "-0.5" = paste0("p = ", RT_IU_simple[1]),
+      "0.5"  = paste0("p = ", RT_IU_simple[2]))
+  ) +
+  guides(colour = guide_legend(title = NULL),
+         fill = "none")
 
+RT_traits_glmm_Ani <- emmeans(lnRT_trait_glmm, specs = ~ Anxi, type = "response", at = list(Anxi = anxi_values)) %>%
+  as.data.frame() %>% 
+  ggplot(aes(x = Anxi, y = response)) +
+  geom_line(aes(colour = "black")) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL), alpha = 0.2) +
+  theme_cowplot() + 
+  ylim(500, 1000) +
+  xlim(-3, 3) +
+  ylab("Reaction Time") +
+  xlab("← Less Anxious               More Anxious →") +
+  scale_colour_manual(values = "black",
+                      labels = paste0("p = ", RT_Anx_main)
+  ) +
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(title = "")
+  )
+RT_traits_glmm_Ani_inter <- emmeans(lnRT_trait_glmm, specs = ~ Anxi | context, type = "response", at = list(Anxi = anxi_values, context = c(-0.5, 0.5))) %>%
+  as.data.frame() %>% 
+  mutate(context = factor(context, levels = c(0.5, -0.5))) %>% # 0.5:loss, -0.5:win
+  ggplot(aes(x = Anxi, y = response)) +
+  geom_line(aes(colour = context)) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
+  theme_cowplot() +
+  ylim(500, 1000) +
+  xlim(-3, 3) +
+  ylab("Reaction Time") +
+  xlab("← Less Anxious               More Anxious →") +
+  theme(legend.position = "top") +
+  scale_colour_discrete(
+    labels = c(
+      "-0.5" = paste0("p = ", RT_Anx_simple[1]),
+      "0.5"  = paste0("p = ", RT_Anx_simple[2]))
+  ) +
+  guides(colour = guide_legend(title = NULL),
+         fill = "none")
+
+RT_traits_glmm_RA <- emmeans(lnRT_trait_glmm, specs = ~ RA, type = "response", at = list(RA = ra_values)) %>%
+  as.data.frame() %>% 
+  ggplot(aes(x = RA, y = response)) +
+  geom_line(aes(colour = "black")) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL), alpha = 0.2) +
+  theme_cowplot() + 
+  ylim(500, 1000) +
+  xlim(-3, 3) +
+  ylab("Reaction Time") +
+  xlab("← Less Risky               More Risky →") +
+  scale_colour_manual(values = "black",
+                      labels = paste0("p = ", RT_RA_main)
+  ) +
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(title = "")
+  )
+RT_traits_glmm_RA_inter <- emmeans(lnRT_trait_glmm, specs = ~ RA | context, type = "response", at = list(RA = ra_values, context = c(-0.5, 0.5))) %>%
+  as.data.frame() %>% 
+  mutate(context = factor(context, levels = c(0.5, -0.5))) %>% # 0.5:loss, -0.5:win
+  ggplot(aes(x = RA, y = response)) +
+  geom_line(aes(colour = context)) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
+  theme_cowplot() +
+  ylim(500, 1000) +
+  xlim(-3, 3) +
+  ylab("Reaction Time") +
+  xlab("← Less Risky               More Risky →") +
+  theme(legend.position = "top") +
+  scale_colour_discrete(
+    labels = c(
+      "-0.5" = paste0("p = ", RT_RA_simple[1]),
+      "0.5"  = paste0("p = ", RT_RA_simple[2]))
+  ) +
+  guides(colour = guide_legend(title = NULL),
+         fill = "none")
 lnRT_trait_fig <- plot_model(lnRT_trait_glmm,
                              type = "est",
                              title = "Log RT by Trait",
@@ -1063,6 +1382,22 @@ ggsave("step2_descriptive_statistics/output/Results_RT.png", Results_RT, width =
 ggsave("step2_descriptive_statistics/output/Results_Correct.png", Results_Correct, width = 9.9, height = 9)
 ggsave("fig/fig2_RT.png", lnRT_cond_inter_4, width = 5, height = 5)
 ggsave("fig/fig2_Per.png", acc_cond_inter_4, width = 5, height = 5)
+ggsave("fig/fig3_panelA.png", correct_trait_glmm_IM_effect, width = 5, height = 5)
+ggsave("fig/fig3_panelF.png", correct_trait_glmm_IM_inter, width = 5, height = 5)
+ggsave("fig/fig3_panelE.png", RT_traits_glmm_IM, width = 5, height = 5)
+ggsave("fig/fig3_panelJ.png", RT_traits_glmm_IM_inter, width = 5, height = 5)
+ggsave("fig/fig4_panelA.png", correct_trait_glmm_IU_effect, width = 5, height = 5)
+ggsave("fig/fig4_panelF.png", correct_trait_glmm_IU_inter, width = 5, height = 5)
+ggsave("fig/fig4_panelE.png", RT_traits_glmm_IU, width = 5, height = 5)
+ggsave("fig/fig4_panelJ.png", RT_traits_glmm_IU_inter, width = 5, height = 5)
+ggsave("fig/fig5_panelA.png", correct_trait_glmm_Anx_effect, width = 5, height = 5)
+ggsave("fig/fig5_panelF.png", correct_trait_glmm_Anx_inter, width = 5, height = 5)
+ggsave("fig/fig5_panelE.png", RT_traits_glmm_Ani, width = 5, height = 5)
+ggsave("fig/fig5_panelJ.png", RT_traits_glmm_Ani_inter, width = 5, height = 5)
+ggsave("fig/fig6_panelA.png", correct_trait_glmm_RA_effect, width = 5, height = 5)
+ggsave("fig/fig6_panelF.png", correct_trait_glmm_RA_inter, width = 5, height = 5)
+ggsave("fig/fig6_panelE.png", RT_traits_glmm_RA, width = 5, height = 5)
+ggsave("fig/fig6_panelJ.png", RT_traits_glmm_RA_inter, width = 5, height = 5)
 
 # Save the models
 save(acc_trait_glm, lnRT_trait_lm, file = "step2_descriptive_statistics/output/acc_trait_RT_lm.RData")

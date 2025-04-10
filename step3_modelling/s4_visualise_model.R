@@ -8,6 +8,7 @@ required_packages <- c("tidyverse",
                        "lattice", # dotplot
                        "lme4", # lmer
                        "ggrain", # geom_rain
+                       "emmeans", # emmeans
                        "png")
 
 # Check and install missing packages
@@ -35,184 +36,7 @@ trait_strategy <- coef(context_model)$ID %>% # Get the real slope for everyone
   rownames_to_column(var = "ID") %>%
   left_join(trait_data, by = "ID")
 
-## IU
-# fixed effects
-IU_fixed_effects <- plot_model(model_IU_3,
-                               type = "est",
-                               show.values = TRUE,
-                               show.p = TRUE,
-                               sort.est = TRUE,
-                               axis.title = "Coefficients",
-                               value.offset = 0.2,
-                               transform = NULL, # probit regression shouldn't be transformed by exp
-                               title = "Fixed Effects of IU Model") +
-  theme_bw() +
-  ylim(-0.75, 1)
-
-# random effects
-IU_random_effects <- plot_model(model_IU_3,
-                                type = "re",
-                                sort.est = "V",
-                                scales = "free",
-                                title = "Random Effects of IU Model",
-                                vline.color = "black"
-                                ) +
-  theme_bw() +
-  ylim(0.32, 8.7)
-
-## IM
-# fixed effects
-IM_fixed_effects <- plot_model(model_IM_3,
-                               type = "est",
-                               show.values = TRUE,
-                               show.p = TRUE,
-                               sort.est = TRUE,
-                               axis.title = "Coefficients",
-                               value.offset = 0.2,
-                               transform = NULL,
-                               title = "Fixed Effects of IM Model") +
-  theme_bw() +
-  ylim(-0.75, 1)
-
-# random effects
-IM_random_effects <- plot_model(model_IM_3,
-                                type = "re",
-                                sort.est = "V",
-                                scales = "free",
-                                title = "Random Effects of IM Model",
-                                vline.color = "black"
-                                ) +
-  theme_bw() +
-  ylim(0.32, 8.7)
-
-## Anx
-# fixed effects
-Anx_fixed_effects <- plot_model(model_Anx_3,
-                                type = "est",
-                                show.values = TRUE,
-                                show.p = TRUE,
-                                sort.est = TRUE,
-                                axis.title = "Coefficients",
-                                value.offset = 0.2,
-                                transform = NULL,
-                                title = "Fixed Effects of Anx Model") +
-  theme_bw() +
-  ylim(-0.75, 1)
-
-# random effects
-Anx_random_effects <- plot_model(model_Anx_3,
-                                 type = "re",
-                                 sort.est = "V",
-                                 scales = "free",
-                                 title = "Random Effects of Anx Model",
-                                 vline.color = "black"
-                                 ) +
-  theme_bw() +
-  ylim(0.32, 8.7)
-
-## RA
-# fixed effects
-RA_fixed_effects <- plot_model(model_RA_2,
-                               type = "est",
-                               show.values = TRUE,
-                               show.p = TRUE,
-                               sort.est = TRUE,
-                               axis.title = "Coefficients",
-                               value.offset = 0.3,
-                               transform = NULL,
-                               title = "Fixed Effects of RA Model") +
-  theme_bw() +
-  ylim(-0.75, 1)
-
-# random effects
-RA_random_effects <- plot_model(model_RA_2,
-                                type = "re",
-                                sort.est = "V",
-                                scales = "free",
-                                title = "Random Effects of RA Model",
-                                vline.color = "black"
-                                ) +
-  theme_bw() +
-  ylim(0.32, 8.7)
-
-## Combine fixed effects
-fixed_effects <- cowplot::plot_grid(
-  IU_fixed_effects,
-  IM_fixed_effects,
-  Anx_fixed_effects,
-  RA_fixed_effects,
-  ncol = 2, labels = c("A", "B", "C", "D"))
-
-### Point line plot by traits
-## IU
-IU_fixed_effects_p <- summary(model_IU_3)$coefficients %>%
-  as.data.frame() %>% 
-  rownames_to_column(var = "term") %>% 
-  filter(str_detect(term, "IU")) %>%
-  ggplot(aes(x = term, y = Estimate,
-             ymin = Estimate + `Std. Error` * -1.96,
-             ymax = Estimate + `Std. Error` * 1.96)) +
-  geom_pointrange() +
-  theme_cowplot() +
-  labs(x = "",
-    y = "Fixed-effect coefficient") +
-  ylim(-0.075, 0.15)
-
-## IM
-IM_fixed_effects_p <- summary(model_IM_3)$coefficients %>%
-  as.data.frame() %>% 
-  rownames_to_column(var = "term") %>% 
-  filter(str_detect(term, "IM")) %>%
-  ggplot(aes(x = term, y = Estimate,
-             ymin = Estimate + `Std. Error` * -1.96,
-             ymax = Estimate + `Std. Error` * 1.96)) +
-  geom_pointrange() +
-  theme_cowplot() +
-  annotate(geom = "text", x = 1, y = 0.135, label = "*",  size = 5) +
-  annotate(geom = "text", x = 2, y = 0.135, label = "**", size = 5) +
-  labs(x = "",
-    y = "Fixed-effect coefficient") +
-  ylim(-0.075, 0.15)
-
-## Anx
-Anx_fixed_effects_p <- summary(model_Anx_3)$coefficients %>%
-  as.data.frame() %>% 
-  rownames_to_column(var = "term") %>% 
-  filter(str_detect(term, "Anx")) %>%
-  ggplot(aes(x = term, y = Estimate,
-             ymin = Estimate + `Std. Error` * -1.96,
-             ymax = Estimate + `Std. Error` * 1.96)) +
-  geom_pointrange() +
-  theme_cowplot() +
-  labs(x = "",
-    y = "Fixed-effect coefficient")
-
-## RA
-RA_fixed_effects_p <- summary(model_RA_2)$coefficients %>%
-  as.data.frame() %>% 
-  rownames_to_column(var = "term") %>% 
-  filter(str_detect(term, "RA")) %>%
-  ggplot(aes(x = term, y = Estimate,
-             ymin = Estimate + `Std. Error` * -1.96,
-             ymax = Estimate + `Std. Error` * 1.96)) +
-  geom_pointrange() +
-  theme_cowplot() +
-  annotate(geom = "text", x = 1, y = 0, label = "*",  size = 5) +
-  annotate(geom = "text", x = 2, y = 0.13, label = "**", size = 5) +
-  theme(axis.text.x = element_text(angle = 25, hjust = 1)) +
-  labs(x = "",
-    y = "Fixed-effect coefficient")
-
-## Combine point line plot
-fixed_effects_p <- cowplot::plot_grid(
-  IU_fixed_effects_p,
-  IM_fixed_effects_p,
-  Anx_fixed_effects_p,
-  RA_fixed_effects_p,
-  align = "h",
-  ncol = 2, labels = c("A", "B", "C", "D"))
-
-### distribution of three strategies
+# distribution of three strategies
 strategies <- coef(full_model)$ID %>% # Get the real slope for everyone
   as.data.frame() %>%
   gather(key = "Strategy", value = "value") 
@@ -226,307 +50,877 @@ strategies_den <- strategies %>%
   labs(x = "Slope",
        y = "Density")
 
-# restore point from the model
-## IM
-IM_strategy <- coef(model_IM_4)$ID %>% # Get the real slope for everyone
-  as.data.frame() %>%
-  rownames_to_column(var = "ID") %>%
-  left_join(trait_data, by = "ID") %>% 
-  mutate(DE = RU + IM * `RU:IM`,
-         UDE = VTU + IM * `VTU:IM`,
-         UIE = V + IM * `V:IM`)
-IM_strategy_context <- IM_strategy %>% 
-  mutate(DE_loss = DE + 0.5 * `RU:context` + 0.5 * IM * `RU:IM:context`,
-         DE_win = DE - 0.5 * `RU:context` - 0.5 * IM * `RU:IM:context`,
-         UDE_loss = UDE + 0.5 * `VTU:context` + 0.5 * IM * `VTU:IM:context`,
-         UDE_win = UDE - 0.5 * `VTU:context` - 0.5 * IM * `VTU:IM:context`,
-         UIE_loss = UIE + 0.5 * `V:context` + 0.5 * IM * `V:IM:context`,
-         UIE_win = UIE - 0.5 * `V:context` - 0.5 * IM * `V:IM:context`) %>%
-  # transfer V_win: VTU_loss to Strategy: V RU VTU; context: Loss Win
-  gather(key = "Strategy", value = "value", DE_loss:UIE_win) %>%
-  separate(Strategy, c("Strategy", "Context"), sep = "_")
+# visualise the trait-strategy relationship
+## IM regardless of context
+### define the values of IM for which we want to plot the marginal effects
+im_values <- seq(
+  from = min(trait_data$IM),
+  to = max(trait_data$IM),
+  length.out = 10
+)
 
-IM_DE <- IM_strategy %>%
-  ggplot(aes(x = IM, y = DE)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
+### post hoc test for UIRE: whether the effect of IM on V is significant regardless of context
+IM_UIRE_p <- emtrends(
+  model_IM_1,
+  ~ IM,
+  var = "V",
+  at = list(IM = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs() %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4)
+
+### estimate the marginal effects
+IM_UIRE <- emmeans(
+  model_IM_1,
+  specs = ~ V | IM,
+  at = list(V = 1, IM = im_values, context = 0),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  ggplot(aes(x = IM, y = prob)) +
+  geom_line(aes(colour = "black")) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL), alpha = 0.2) +
   theme_cowplot() +
-  labs(x = "IM",
-       y = "Directed exploration") +
-  xlim(-3, 3)
+  labs(x = "← Less Impulsive               More Impulsive →",
+       y = "← Less UIRE                    More UIRE→") +
+  xlim(-3, 3) +
+  scale_colour_manual(values = "black",
+                      labels = paste0("p = ", IM_UIRE_p)
+  ) +
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(title = ""))
 
-IM_DE_context <- IM_strategy_context %>% 
-  filter(Strategy == "DE") %>%
-  ggplot(aes(x = IM, y = value, colour = Context)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
+### post hoc test for DE: whether the effect of IM on RU is significant regardless of context
+IM_DE_p <- emtrends(
+  model_IM_2,
+  ~ IM,
+  var = "RU",
+  at = list(IM = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs() %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4)
+
+IM_DE <- emmeans(
+  model_IM_2,
+  specs = ~ RU | IM,
+  at = list(RU = 1, IM = im_values, context = 0),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  ggplot(aes(x = IM, y = prob)) +
+  geom_line(aes(colour = "black")) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL), alpha = 0.2) +
   theme_cowplot() +
-  labs(x = "IM",
-       y = "Directed exploration") +
-  xlim(-3, 3)
+  labs(x = "← Less Impulsive               More Impulsive →",
+       y = "← Less DE                      More DE→") +
+  xlim(-3, 3) +
+  scale_colour_manual(values = "black",
+                      labels = paste0("p = ", IM_DE_p)
+  ) +
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(title = ""))
 
-IM_UDE <- IM_strategy %>%
-  ggplot(aes(x = IM, y = UDE)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
+### post hoc test for UDRE: whether the effect of IM on VTU is significant regardless of context
+IM_UDRE_p <- emtrends(
+  model_IM_3,
+  ~ IM,
+  var = "VTU",
+  at = list(IM = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs() %>% 
+  summary() %>%
+  .$p.value %>% # Get the p value
+  round(., 4)
+
+IM_UDRE <- emmeans(
+  model_IM_3,
+  specs = ~ VTU | IM,
+  at = list(VTU = 1, IM = im_values, context = 0),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  ggplot(aes(x = IM, y = prob)) +
+  geom_line(aes(colour = "black")) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL), alpha = 0.2) +
   theme_cowplot() +
-  labs(x = "IM",
-       y = "Uncertainty-dependent random exploration") +
-  xlim(-3, 3)
+  labs(x = "← Less Impulsive               More Impulsive →",
+       y = "← Less UDRE                    More UDRE→") +
+  xlim(-3, 3) +
+  scale_colour_manual(values = "black",
+                      labels = paste0("p = ", IM_UDRE_p)
+  ) +
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(title = NULL))
 
-IM_UDE_context <- IM_strategy_context %>%
-  filter(Strategy == "UDE") %>%
-  ggplot(aes(x = IM, y = value, colour = Context)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
+## IM regarding context
+### post hoc test for UIRE: whether the effect of IM on V is significant in different contexts
+IM_UIRE_post_hoc <- emtrends(
+  model_IM_1,
+  ~ IM | context,
+  var = "V",
+  at = list(context = c(-0.5, 0.5), IM = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs(by = "context") %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4)
+
+IM_UIRE_context <- emmeans(
+  model_IM_1,
+  specs = ~ V | IM | context,
+  at = list(V = 1, IM = im_values, context = c(0.5, -0.5)),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  mutate(context = factor(context, levels = c(0.5, -0.5))) %>% # 0.5:loss, -0.5:win
+  ggplot(aes(x = IM, y = prob)) +
+  geom_line(aes(colour = context)) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
   theme_cowplot() +
-  labs(x = "IM",
-       y = "Uncertainty-dependent random exploration") +
-  xlim(-3, 3)
+  labs(x = "← Less Impulsive               More Impulsive →",
+       y = "← Less UIRE                    More UIRE→") +
+  xlim(-3, 3) +
+  theme(legend.position = "top") +
+  scale_colour_discrete(
+    labels = c(
+      "-0.5" = paste0("p = ", IM_UIRE_post_hoc[1]),
+      "0.5"  = paste0("p = ", IM_UIRE_post_hoc[2]))
+  ) +
+  guides(colour = guide_legend(title = NULL),
+         fill = "none") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
 
-IM_UIE <- IM_strategy %>%
-  ggplot(aes(x = IM, y = UIE)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
+### post hoc test for DE: whether the effect of IM on RU is significant in different contexts
+IM_DE_post_hoc <- emtrends(
+  model_IM_2,
+  ~ IM | context,
+  var = "RU",
+  at = list(context = c(-0.5, 0.5), IM = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs(by = "context") %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4)
+
+IM_DE_context <- emmeans(
+  model_IM_2,
+  specs = ~ RU | IM | context,
+  at = list(RU = 1, IM = im_values, context = c(0.5, -0.5)),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  mutate(context = factor(context, levels = c(0.5, -0.5))) %>% # 0.5:loss, -0.5:win
+  ggplot(aes(x = IM, y = prob)) +
+  geom_line(aes(colour = context)) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
   theme_cowplot() +
-  labs(x = "IM",
-       y = "Uncertainty-independent random exploration") +
-  xlim(-3, 3)
+  labs(x = "← Less Impulsive               More Impulsive →",
+       y = "← Less DE                      More DE→") +
+  xlim(-3, 3) +
+  theme(legend.position = "top") +
+  scale_colour_discrete(
+    labels = c(
+      "-0.5" = paste0("p = ", IM_DE_post_hoc[1]),
+      "0.5"  = paste0("p = ", IM_DE_post_hoc[2]))
+    ) +
+  guides(colour = guide_legend(title = NULL),
+         fill = "none")
+  
+### post hoc test for UDRE: whether the effect of IM on VTU is significant in different contexts
+IM_UDRE_post_hoc <- emtrends(
+  model_IM_3,
+  ~ IM | context,
+  var = "VTU",
+  at = list(context = c(-0.5, 0.5), IM = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs(by = "context") %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4)
 
-IM_UIE_context <- IM_strategy_context %>%
-  filter(Strategy == "UIE") %>%
-  ggplot(aes(x = IM, y = value, colour = Context)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
+IM_UDRE_context <- emmeans(
+  model_IM_3,
+  specs = ~ VTU | IM | context,
+  at = list(VTU = 1, IM = im_values, context = c(0.5, -0.5)),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  mutate(context = factor(context, levels = c(0.5, -0.5))) %>% # 0.5:loss, -0.5:win
+  ggplot(aes(x = IM, y = prob)) +
+  geom_line(aes(colour = context)) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
   theme_cowplot() +
-  labs(x = "IM",
-       y = "Uncertainty-independent random exploration") +
-  xlim(-3, 3)
+  labs(x = "← Less Impulsive               More Impulsive →",
+       y = "← Less UDRE                    More UDRE→") +
+  xlim(-3, 3) +
+  theme(legend.position = "top") +
+  scale_colour_discrete(
+    labels = c(
+      "0.5"  = paste0("p = ", IM_UDRE_post_hoc[2]),
+      "-0.5" = paste0("p = ", IM_UDRE_post_hoc[1]))
+    ) +
+  guides(colour = guide_legend(title = NULL),
+         fill = "none") +
+  # keep 2 digits for y axis
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
 
-## IU
-IU_strategy <- coef(model_IU_4)$ID %>% # Get the real slope for everyone
-  as.data.frame() %>%
-  rownames_to_column(var = "ID") %>%
-  left_join(trait_data, by = "ID") %>% 
-  mutate(DE = RU + IU * `RU:IU`,
-         UDE = VTU + IU * `VTU:IU`,
-         UIE = V + IU * `V:IU`)
-IU_strategy_context <- IU_strategy %>%
-  mutate(DE_loss = DE + 0.5 * `RU:context` + 0.5 * IU * `RU:IU:context`,
-         DE_win = DE - 0.5 * `RU:context` - 0.5 * IU * `RU:IU:context`,
-         UDE_loss = UDE + 0.5 * `VTU:context` + 0.5 * IU * `VTU:IU:context`,
-         UDE_win = UDE - 0.5 * `VTU:context` - 0.5 * IU * `VTU:IU:context`,
-         UIE_loss = UIE + 0.5 * `V:context` + 0.5 * IU * `V:IU:context`,
-         UIE_win = UIE - 0.5 * `V:context` - 0.5 * IU * `V:IU:context`) %>%
-  gather(key = "Strategy", value = "value", DE_loss:UIE_win) %>%
-  separate(Strategy, c("Strategy", "Context"), sep = "_")
+## IU regardless of context
+### define the values of IU for which we want to plot the marginal effects
+iu_values <- seq(
+  from = min(trait_data$IU),
+  to = max(trait_data$IU),
+  length.out = 10
+)
 
-IU_DE <- IU_strategy %>%
-  ggplot(aes(x = IU, y = DE)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
+### post hoc test for UIRE: whether the effect of IU on V is significant regardless of context
+IU_UIRE_p <- emtrends(
+  model_IU_1,
+  ~ IU,
+  var = "V",
+  at = list(IU = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs() %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4)
+
+### estimate the marginal effects
+IU_UIRE <- emmeans(
+  model_IU_1,
+  specs = ~ V | IU,
+  at = list(V = 1, IU = iu_values, context = 0),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  ggplot(aes(x = IU, y = prob)) +
+  geom_line(aes(colour = "black")) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL), alpha = 0.2) +
   theme_cowplot() +
-  labs(x = "IU",
-       y = "Directed exploration") +
-  xlim(-3, 3)
+  labs(x = "← Less IU                      More IU →",
+       y = "← Less UIRE                    More UIRE→") +
+  xlim(-3, 3) +
+  scale_colour_manual(values = "black",
+                      labels = paste0("p = ", IU_UIRE_p)
+  ) +
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(title = ""))
 
-IU_DE_context <- IU_strategy_context %>%
-  filter(Strategy == "DE") %>%
-  ggplot(aes(x = IU, y = value, colour = Context)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
+### post hoc test for DE: whether the effect of IU on RU is significant regardless of context
+IU_DE_p <- emtrends(
+  model_IU_2,
+  ~ IU,
+  var = "RU",
+  at = list(IU = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs() %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4)
+
+IU_DE <- emmeans(
+  model_IU_2,
+  specs = ~ RU | IU,
+  at = list(RU = 1, IU = iu_values, context = 0),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  ggplot(aes(x = IU, y = prob)) +
+  geom_line(aes(colour = "black")) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL), alpha = 0.2) +
   theme_cowplot() +
-  labs(x = "IU",
-       y = "Directed exploration") +
-  xlim(-3, 3)
+  labs(x = "← Less IU                      More IU →",
+       y = "← Less DE                      More DE→") +
+  xlim(-3, 3) +
+  scale_colour_manual(values = "black",
+                      labels = paste0("p = ", IU_DE_p)
+  ) +
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(title = "")) +
+  # keep 2 digits for y axis
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
 
-IU_UDE <- IU_strategy %>%
-  ggplot(aes(x = IU, y = UDE)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
+### post hoc test for UDRE: whether the effect of IU on VTU is significant regardless of context
+IU_UDRE_p <- emtrends(
+  model_IU_3,
+  ~ IU,
+  var = "VTU",
+  at = list(IU = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs() %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4)
+
+IU_UDRE <- emmeans(
+  model_IU_3,
+  specs = ~ VTU | IU,
+  at = list(VTU = 1, IU = iu_values, context = 0),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  ggplot(aes(x = IU, y = prob)) +
+  geom_line(aes(colour = "black")) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL), alpha = 0.2) +
   theme_cowplot() +
-  labs(x = "IU",
-       y = "Uncertainty-dependent random exploration") +
-  xlim(-3, 3)
+  labs(x = "← Less IU                      More IU →",
+       y = "← Less UDRE                    More UDRE→") +
+  xlim(-3, 3) +
+  scale_colour_manual(values = "black",
+                      labels = paste0("p = ", IU_UDRE_p)
+  ) +
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(title = ""))
 
-IU_UDE_context <- IU_strategy_context %>%
-  filter(Strategy == "UDE") %>%
-  ggplot(aes(x = IU, y = value, colour = Context)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
+## IU regarding context
+### post hoc test for UIRE: whether the effect of IU on V is significant in different contexts
+IU_UIRE_post_hoc <- emtrends(
+  model_IU_1,
+  ~ IU | context,
+  var = "V",
+  at = list(context = c(-0.5, 0.5), IU = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs(by = "context") %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4)
+
+IU_UIRE_context <- emmeans(
+  model_IU_1,
+  specs = ~ V | IU | context,
+  at = list(V = 1, IU = iu_values, context = c(0.5, -0.5)),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  mutate(context = factor(context, levels = c(0.5, -0.5))) %>% # 0.5:loss, -0.5:win
+  ggplot(aes(x = IU, y = prob)) +
+  geom_line(aes(colour = context)) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
   theme_cowplot() +
-  labs(x = "IU",
-       y = "Uncertainty-dependent random exploration") +
-  xlim(-3, 3)
+  labs(x = "← Less IU                      More IU →",
+       y = "← Less UIRE                    More UIRE→") +
+  xlim(-3, 3) +
+  theme(legend.position = "top") +
+  scale_colour_discrete(
+    labels = c(
+      "-0.5" = paste0("p = ", IU_UIRE_post_hoc[1]),
+      "0.5"  = paste0("p = ", IU_UIRE_post_hoc[2]))
+  ) +
+  guides(colour = guide_legend(title = NULL),
+         fill = "none")
 
-IU_UIE <- IU_strategy %>%
-  ggplot(aes(x = IU, y = UIE)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
+### post hoc test for DE: whether the effect of IU on RU is significant in different contexts
+IU_DE_post_hoc <- emtrends(
+  model_IU_2,
+  ~ IU | context,
+  var = "RU",
+  at = list(context = c(-0.5, 0.5), IU = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs(by = "context") %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4)
+
+IU_DE_context <- emmeans(
+  model_IU_2,
+  specs = ~ RU | IU | context,
+  at = list(RU = 1, IU = iu_values, context = c(0.5, -0.5)),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  mutate(context = factor(context, levels = c(0.5, -0.5))) %>% # 0.5:loss, -0.5:win
+  ggplot(aes(x = IU, y = prob)) +
+  geom_line(aes(colour = context)) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
   theme_cowplot() +
-  labs(x = "IU",
-       y = "Uncertainty-independent random exploration") +
-  xlim(-3, 3)
+  labs(x = "← Less IU                      More IU →",
+       y = "← Less DE                      More DE→") +
+  xlim(-3, 3) +
+  theme(legend.position = "top") +
+  scale_colour_discrete(
+    labels = c(
+      "-0.5" = paste0("p = ", IU_DE_post_hoc[1]),
+      "0.5"  = paste0("p = ", IU_DE_post_hoc[2]))
+    ) +
+  guides(colour = guide_legend(title = NULL),
+         fill = "none")
 
-IU_UIE_context <- IU_strategy_context %>%
-  filter(Strategy == "UIE") %>%
-  ggplot(aes(x = IU, y = value, colour = Context)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
+### post hoc test for UDRE: whether the effect of IU on VTU is significant in different contexts
+IU_UDRE_post_hoc <- emtrends(
+  model_IU_3,
+  ~ IU | context,
+  var = "VTU",
+  at = list(context = c(-0.5, 0.5), IU = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs(by = "context") %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4)
+
+IU_UDRE_context <- emmeans(
+  model_IU_3,
+  specs = ~ VTU | IU | context,
+  at = list(VTU = 1, IU = iu_values, context = c(0.5, -0.5)),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  mutate(context = factor(context, levels = c(0.5, -0.5))) %>% # 0.5:loss, -0.5:win
+  ggplot(aes(x = IU, y = prob)) +
+  geom_line(aes(colour = context)) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
   theme_cowplot() +
-  labs(x = "IU",
-       y = "Uncertainty-independent random exploration") +
-  xlim(-3, 3)
+  labs(x = "← Less IU                      More IU →",
+       y = "← Less UDRE                    More UDRE→") +
+  xlim(-3, 3) +
+  theme(legend.position = "top") +
+  scale_colour_discrete(
+    labels = c(
+      "0.5"  = paste0("p = ", IU_UDRE_post_hoc[2]),
+      "-0.5" = paste0("p = ", IU_UDRE_post_hoc[1]))
+    ) +
+  guides(colour = guide_legend(title = NULL),
+         fill = "none")
 
-## Anx
-Anx_strategy <- coef(model_Anx_4)$ID %>% # Get the real slope for everyone
-  as.data.frame() %>%
-  rownames_to_column(var = "ID") %>%
-  left_join(trait_data, by = "ID") %>% 
-  mutate(DE = RU + Anx * `RU:Anx`,
-         UDE = VTU + Anx * `VTU:Anx`,
-         UIE = V + Anx * `V:Anx`)
-Anx_strategy_context <- Anx_strategy %>%
-  mutate(DE_loss = DE + 0.5 * `RU:context` + 0.5 * Anx * `RU:Anx:context`,
-         DE_win = DE - 0.5 * `RU:context` - 0.5 * Anx * `RU:Anx:context`,
-         UDE_loss = UDE + 0.5 * `VTU:context` + 0.5 * Anx * `VTU:Anx:context`,
-         UDE_win = UDE - 0.5 * `VTU:context` - 0.5 * Anx * `VTU:Anx:context`,
-         UIE_loss = UIE + 0.5 * `V:context` + 0.5 * Anx * `V:Anx:context`,
-         UIE_win = UIE - 0.5 * `V:context` - 0.5 * Anx * `V:Anx:context`) %>%
-  gather(key = "Strategy", value = "value", DE_loss:UIE_win) %>%
-  separate(Strategy, c("Strategy", "Context"), sep = "_")
+## Anx regardless of context
+### define the values of Anx for which we want to plot the marginal effects
+anx_values <- seq(
+  from = min(trait_data$Anx),
+  to = max(trait_data$Anx),
+  length.out = 10
+)
 
-Anx_DE <- Anx_strategy %>%
-  ggplot(aes(x = Anx, y = DE)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
+### post hoc test for UIRE: whether the effect of Anx on V is significant regardless of context
+Anx_UIRE_p <- emtrends(
+  model_Anx_1,
+  ~ Anx,
+  var = "V",
+  at = list(Anx = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs() %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4)
+
+### estimate the marginal effects
+Anx_UIRE <- emmeans(
+  model_Anx_1,
+  specs = ~ V | Anx,
+  at = list(V = 1, Anx = anx_values, context = 0),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  ggplot(aes(x = Anx, y = prob)) +
+  geom_line(aes(colour = "black")) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL), alpha = 0.2) +
   theme_cowplot() +
-  labs(x = "Anx",
-       y = "Directed exploration") +
-  xlim(-3, 3)
+  labs(x = "← Less Anxious               More Anxious →",
+       y = "← Less UIRE                    More UIRE→") +
+  xlim(-3, 3) +
+  scale_colour_manual(values = "black",
+                      labels = paste0("p = ", Anx_UIRE_p)
+  ) +
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(title = ""))
 
-Anx_DE_context <- Anx_strategy_context %>%
-  filter(Strategy == "DE") %>%
-  ggplot(aes(x = Anx, y = value, colour = Context)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
+### post hoc test for DE: whether the effect of Anx on RU is significant regardless of context
+Anx_DE_p <- emtrends(
+  model_Anx_2,
+  ~ Anx,
+  var = "RU",
+  at = list(Anx = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs() %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4)
+
+Anx_DE <- emmeans(
+  model_Anx_2,
+  specs = ~ RU | Anx,
+  at = list(RU = 1, Anx = anx_values, context = 0),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  ggplot(aes(x = Anx, y = prob)) +
+  geom_line(aes(colour = "black")) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL), alpha = 0.2) +
   theme_cowplot() +
-  labs(x = "Anx",
-       y = "Directed exploration") +
-  xlim(-3, 3)
+  labs(x = "← Less Anxious               More Anxious →",
+       y = "← Less DE                      More DE→") +
+  xlim(-3, 3) +
+  scale_colour_manual(values = "black",
+                      labels = paste0("p = ", Anx_DE_p)
+  ) +
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(title = ""))
 
-Anx_UDE <- Anx_strategy %>%
-  ggplot(aes(x = Anx, y = UDE)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
+### post hoc test for UDRE: whether the effect of Anx on VTU is significant regardless of context
+Anx_UDRE_p <- emtrends(
+  model_Anx_3,
+  ~ Anx,
+  var = "VTU",
+  at = list(Anx = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs() %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4)
+
+Anx_UDRE <- emmeans(
+  model_Anx_3,
+  specs = ~ VTU | Anx,
+  at = list(VTU = 1, Anx = anx_values, context = 0),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  ggplot(aes(x = Anx, y = prob)) +
+  geom_line(aes(colour = "black")) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL), alpha = 0.2) +
   theme_cowplot() +
-  labs(x = "Anx",
-       y = "Uncertainty-dependent random exploration") +
-  xlim(-3, 3)
+  labs(x = "← Less Anxious               More Anxious →",
+       y = "← Less UDRE                    More UDRE→") +
+  xlim(-3, 3) +
+  scale_colour_manual(values = "black",
+                      labels = paste0("p = ", Anx_UDRE_p)
+  ) +
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(title = ""))
 
-Anx_UDE_context <- Anx_strategy_context %>%
-  filter(Strategy == "UDE") %>%
-  ggplot(aes(x = Anx, y = value, colour = Context)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
+## Anx regarding context
+### post hoc test for UIRE: whether the effect of Anx on V is significant in different contexts
+Anx_UIRE_post_hoc <- emtrends(
+  model_Anx_1,
+  ~ Anx | context,
+  var = "V",
+  at = list(context = c(-0.5, 0.5), Anx = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs(by = "context") %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4)
+
+Anx_UIRE_context <- emmeans(
+  model_Anx_1,
+  specs = ~ V | Anx | context,
+  at = list(V = 1, Anx = anx_values, context = c(0.5, -0.5)),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  mutate(context = factor(context, levels = c(0.5, -0.5))) %>% # 0.5:loss, -0.5:win
+  ggplot(aes(x = Anx, y = prob)) +
+  geom_line(aes(colour = context)) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
   theme_cowplot() +
-  labs(x = "Anx",
-       y = "Uncertainty-dependent random exploration") +
-  xlim(-3, 3)
+  labs(x = "← Less Anxious               More Anxious →",
+       y = "← Less UIRE                    More UIRE→") +
+  xlim(-3, 3) +
+  theme(legend.position = "top") +
+  scale_colour_discrete(
+    labels = c(
+      "-0.5" = paste0("p = ", Anx_UIRE_post_hoc[1]),
+      "0.5"  = paste0("p = ", Anx_UIRE_post_hoc[2]))
+  ) +
+  guides(colour = guide_legend(title = NULL),
+         fill = "none")
 
-Anx_UIE <- Anx_strategy %>%
-  ggplot(aes(x = Anx, y = UIE)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
+### post hoc test for DE: whether the effect of Anx on RU is significant in different contexts
+Anx_DE_post_hoc <- emtrends(
+  model_Anx_2,
+  ~ Anx | context,
+  var = "RU",
+  at = list(context = c(-0.5, 0.5), Anx = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs(by = "context") %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4)
+
+Anx_DE_context <- emmeans(
+  model_Anx_2,
+  specs = ~ RU | Anx | context,
+  at = list(RU = 1, Anx = anx_values, context = c(0.5, -0.5)),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  mutate(context = factor(context, levels = c(0.5, -0.5))) %>% # 0.5:loss, -0.5:win
+  ggplot(aes(x = Anx, y = prob)) +
+  geom_line(aes(colour = context)) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
   theme_cowplot() +
-  labs(x = "Anx",
-       y = "Uncertainty-independent random exploration") +
-  xlim(-3, 3)
+  labs(x = "← Less Anxious               More Anxious →",
+       y = "← Less DE                      More DE→") +
+  xlim(-3, 3) +
+  theme(legend.position = "top") +
+  scale_colour_discrete(
+    labels = c(
+      "-0.5" = paste0("p = ", Anx_DE_post_hoc[1]),
+      "0.5"  = paste0("p = ", Anx_DE_post_hoc[2]))
+    ) +
+  guides(colour = guide_legend(title = NULL),
+         fill = "none") +
+  # keep 2 digits for y axis
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
 
-Anx_UIE_context <- Anx_strategy_context %>%
-  filter(Strategy == "UIE") %>%
-  ggplot(aes(x = Anx, y = value, colour = Context)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
+### post hoc test for UDRE: whether the effect of Anx on VTU is significant in different contexts
+Anx_UDRE_post_hoc <- emtrends(
+  model_Anx_3,
+  ~ Anx | context,
+  var = "VTU",
+  at = list(context = c(-0.5, 0.5), Anx = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs(by = "context") %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4)
+
+Anx_UDRE_context <- emmeans(
+  model_Anx_3,
+  specs = ~ VTU | Anx | context,
+  at = list(VTU = 1, Anx = anx_values, context = c(0.5, -0.5)),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  mutate(context = factor(context, levels = c(0.5, -0.5))) %>% # 0.5:loss, -0.5:win
+  ggplot(aes(x = Anx, y = prob)) +
+  geom_line(aes(colour = context)) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
   theme_cowplot() +
-  labs(x = "Anx",
-       y = "Uncertainty-independent random exploration") +
-  xlim(-3, 3)
+  labs(x = "← Less Anxious               More Anxious →",
+       y = "← Less UDRE                    More UDRE→") +
+  xlim(-3, 3) +
+  theme(legend.position = "top") +
+  scale_colour_discrete(
+    labels = c(
+      "0.5"  = paste0("p = ", Anx_UDRE_post_hoc[2]),
+      "-0.5" = paste0("p = ", Anx_UDRE_post_hoc[1]))
+    ) +
+  guides(colour = guide_legend(title = NULL),
+         fill = "none") +
+  # keep 2 digits for y axis
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
 
-## RA
-RA_strategy <- coef(model_RA_2)$ID %>% # Get the real slope for everyone
-  as.data.frame() %>%
-  rownames_to_column(var = "ID") %>%
-  left_join(trait_data, by = "ID") %>% 
-  mutate(DE = RU + RA * `RU:RA`,
-         UDE = VTU + RA * `VTU:RA`,
-         UIE = V + RA * `V:RA`)
-RA_strategy_context <- RA_strategy %>%
-  mutate(DE_loss = DE + 0.5 * `RU:context` + 0.5 * RA * `RU:RA:context`,
-         DE_win = DE - 0.5 * `RU:context` - 0.5 * RA * `RU:RA:context`,
-         UDE_loss = UDE + 0.5 * `VTU:context` + 0.5 * RA * `VTU:RA:context`,
-         UDE_win = UDE - 0.5 * `VTU:context` - 0.5 * RA * `VTU:RA:context`,
-         UIE_loss = UIE + 0.5 * `V:context` + 0.5 * RA * `V:RA:context`,
-         UIE_win = UIE - 0.5 * `V:context` - 0.5 * RA * `V:RA:context`) %>%
-  gather(key = "Strategy", value = "value", DE_loss:UIE_win) %>%
-  separate(Strategy, c("Strategy", "Context"), sep = "_")
+## RA regardless of context
+### define the values of RA for which we want to plot the marginal effects
+ra_values <- seq(
+  from = min(trait_data$RA),
+  to = max(trait_data$RA),
+  length.out = 10
+)
 
-RA_DE <- RA_strategy %>%
-  ggplot(aes(x = RA, y = DE)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
+### post hoc test for UIRE: whether the effect of RA on V is significant regardless of context
+RA_UIRE_p <- emtrends(
+  model_RA_1,
+  ~ RA,
+  var = "V",
+  at = list(RA = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs() %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4)
+
+### estimate the marginal effects
+RA_UIRE <- emmeans(
+  model_RA_1,
+  specs = ~ V | RA,
+  at = list(V = 1, RA = ra_values, context = 0),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  ggplot(aes(x = RA, y = prob)) +
+  geom_line(aes(colour = "black")) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL), alpha = 0.2) +
   theme_cowplot() +
-  labs(x = "RA",
-       y = "Directed exploration") +
-  xlim(-3, 3)
+  labs(x = "← Less Risk Aversive           More Risk Aversive →",
+       y = "← Less UIRE                    More UIRE→") +
+  xlim(-3, 3) +
+  scale_colour_manual(values = "black",
+                      labels = paste0("p = ", RA_UIRE_p)
+  ) +
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(title = ""))
 
-RA_DE_context <- RA_strategy_context %>%
-  filter(Strategy == "DE") %>%
-  ggplot(aes(x = RA, y = value, colour = Context)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
-  theme_cowplot() +
-  labs(x = "RA",
-       y = "Directed exploration") +
-  xlim(-3, 3)
+### post hoc test for DE: whether the effect of RA on RU is significant regardless of context
+RA_DE_p <- emtrends(
+  model_RA_2,
+  ~ RA,
+  var = "RU",
+  at = list(RA = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs() %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4)
 
-RA_UDE <- RA_strategy %>%
-  ggplot(aes(x = RA, y = UDE)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
+RA_DE <- emmeans(
+  model_RA_2,
+  specs = ~ RU | RA,
+  at = list(RU = 1, RA = ra_values, context = 0),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  ggplot(aes(x = RA, y = prob)) +
+  geom_line(aes(colour = "black")) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL), alpha = 0.2) +
   theme_cowplot() +
-  labs(x = "RA",
-       y = "Uncertainty-dependent random exploration") +
-  xlim(-3, 3)
+  labs(x = "← Less Risk Aversive           More Risk Aversive →",
+       y = "← Less DE                      More DE→") +
+  xlim(-3, 3) +
+  scale_colour_manual(values = "black",
+                      labels = paste0("p = ", RA_DE_p)
+  ) +
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(title = ""))
 
-RA_UDE_context <- RA_strategy_context %>%
-  filter(Strategy == "UDE") %>%
-  ggplot(aes(x = RA, y = value, colour = Context)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
-  theme_cowplot() +
-  labs(x = "RA",
-       y = "Uncertainty-dependent random exploration") +
-  xlim(-3, 3)
+### post hoc test for UDRE: whether the effect of RA on VTU is significant regardless of context
+RA_UDRE_p <- emtrends(
+  model_RA_3,
+  ~ RA,
+  var = "VTU",
+  at = list(RA = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs() %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4)
 
-RA_UIE <- RA_strategy %>%
-  ggplot(aes(x = RA, y = UIE)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
+RA_UDRE <- emmeans(
+  model_RA_3,
+  specs = ~ VTU | RA,
+  at = list(VTU = 1, RA = ra_values, context = 0),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  ggplot(aes(x = RA, y = prob)) +
+  geom_line(aes(colour = "black")) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL), alpha = 0.2) +
   theme_cowplot() +
-  labs(x = "RA",
-       y = "Uncertainty-independent random exploration") +
-  xlim(-3, 3)
+  labs(x = "← Less Risk Aversive           More Risk Aversive →",
+       y = "← Less UDRE                    More UDRE→") +
+  xlim(-3, 3) +
+  scale_colour_manual(values = "black",
+                      labels = paste0("p = ", RA_UDRE_p)
+  ) +
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(title = ""))
 
-RA_UIE_context <- RA_strategy_context %>%
-  filter(Strategy == "UIE") %>%
-  ggplot(aes(x = RA, y = value, colour = Context)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
+## RA regarding context
+### post hoc test for UIRE: whether the effect of RA on V is significant in different contexts
+RA_UIRE_post_hoc <- emtrends(
+  model_RA_1,
+  ~ RA | context,
+  var = "V",
+  at = list(context = c(-0.5, 0.5), RA = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs(by = "context") %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4)
+
+RA_UIRE_context <- emmeans(
+  model_RA_1,
+  specs = ~ V | RA | context,
+  at = list(V = 1, RA = ra_values, context = c(0.5, -0.5)),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  mutate(context = factor(context, levels = c(0.5, -0.5))) %>% # 0.5:loss, -0.5:win
+  ggplot(aes(x = RA, y = prob)) +
+  geom_line(aes(colour = context)) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
   theme_cowplot() +
-  labs(x = "RA",
-       y = "Uncertainty-independent random exploration") +
-  xlim(-3, 3)
+  labs(x = "← Less Risk Aversive           More Risk Aversive →",
+       y = "← Less UIRE                    More UIRE→") +
+  xlim(-3, 3) +
+  theme(legend.position = "top") +
+  scale_colour_discrete(
+    labels = c(
+      "-0.5" = paste0("p = ", RA_UIRE_post_hoc[1]),
+      "0.5"  = paste0("p = ", RA_UIRE_post_hoc[2]))
+  ) +
+  guides(colour = guide_legend(title = NULL),
+         fill = "none") +
+  # keep 2 digits for y axis
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
+
+### post hoc test for DE: whether the effect of RA on RU is significant in different contexts
+RA_DE_post_hoc <- emtrends(
+  model_RA_2,
+  ~ RA | context,
+  var = "RU",
+  at = list(context = c(-0.5, 0.5), RA = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs(by = "context") %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4) %>% 
+  format(scientific = FALSE)
+
+RA_DE_context <- emmeans(
+  model_RA_2,
+  specs = ~ RU | RA | context,
+  at = list(RU = 1, RA = ra_values, context = c(0.5, -0.5)),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  mutate(context = factor(context, levels = c(0.5, -0.5))) %>% # 0.5:loss, -0.5:win
+  ggplot(aes(x = RA, y = prob)) +
+  geom_line(aes(colour = context)) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
+  theme_cowplot() +
+  labs(x = "← Less Risk Aversive           More Risk Aversive →",
+       y = "← Less DE                      More DE→") +
+  xlim(-3, 3) +
+  theme(legend.position = "top") +
+  scale_colour_discrete(
+    labels = c(
+      "-0.5" = paste0("p = ", RA_DE_post_hoc[1]),
+      "0.5"  = paste0("p = ", RA_DE_post_hoc[2]))
+    ) +
+  guides(colour = guide_legend(title = NULL),
+         fill = "none")
+
+### post hoc test for UDRE: whether the effect of RA on VTU is significant in different contexts
+RA_UDRE_post_hoc <- emtrends(
+  model_RA_3,
+  ~ RA | context,
+  var = "VTU",
+  at = list(context = c(-0.5, 0.5), RA = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs(by = "context") %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4)
+
+RA_UDRE_context <- emmeans(
+  model_RA_3,
+  specs = ~ VTU | RA | context,
+  at = list(VTU = 1, RA = ra_values, context = c(0.5, -0.5)),
+  type = "response"
+) %>% 
+  as.data.frame() %>% 
+  mutate(context = factor(context, levels = c(0.5, -0.5))) %>% # 0.5:loss, -0.5:win
+  ggplot(aes(x = RA, y = prob)) +
+  geom_line(aes(colour = context)) +
+  geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
+  theme_cowplot() +
+  labs(x = "← Less Risk Aversive           More Risk Aversive →",
+       y = "← Less UDRE                    More UDRE→") +
+  xlim(-3, 3) +
+  theme(legend.position = "top") +
+  scale_colour_discrete(
+    labels = c(
+      "0.5"  = paste0("p = ", RA_UDRE_post_hoc[2]),
+      "-0.5" = paste0("p = ", RA_UDRE_post_hoc[1]))
+    ) +
+  guides(colour = guide_legend(title = NULL),
+         fill = "none") +
+  # keep 2 digits for y axis
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
 
 # visualise trait free model
 contexts_coeff <- t(coef(summary(context_model))) %>%
@@ -564,19 +958,21 @@ conext_results <- cowplot::plot_grid(
 ## context model with data points (random effects)
 contexts_raincloud <- coef(context_model)$ID %>% # Get the real slope for everyone
   as.data.frame() %>%
-  transmute(`Uncertainty-independent random exploration in Loss` = V + 0.5 * `V:context`,
-            `Uncertainty-independent random exploration in Win`  = V - 0.5 * `V:context`,
-            `Directed exploration in Loss` = RU + 0.5 * `RU:context`,
-            `Directed exploration in Win`  = RU - 0.5 * `RU:context`,
-            `Uncertainty-dependent random exploration in Loss` = VTU + 0.5 * `VTU:context`,
-            `Uncertainty-dependent random exploration in Win`  = VTU - 0.5 * `VTU:context`
+  transmute(`UIRE in Loss` = V + 0.5 * `V:context`,
+            `UIRE in Win`  = V - 0.5 * `V:context`,
+            `DE in Loss` = RU + 0.5 * `RU:context`,
+            `DE in Win`  = RU - 0.5 * `RU:context`,
+            `UDRE in Loss` = VTU + 0.5 * `VTU:context`,
+            `UDRE in Win`  = VTU - 0.5 * `VTU:context`
   ) %>%
   gather(key = "Strategy", value = "Coefficient") %>%
   mutate(Context = ifelse(str_detect(Strategy, "Loss"), "Loss", "Win"),
          Strategy = str_remove(Strategy, " in Loss| in Win")) %>%
-  ggplot(aes(x = Strategy, y = Coefficient, fill = Context)) +
+  ggplot(aes(x = Strategy, y = Coefficient, fill = Context, colour = Context)) +
   # drow raincloud and aviod overlap boxplot
-  geom_rain(alpha = 0.5, point.args = list(alpha = .2)) +
+  geom_rain(alpha = 0.5, point.args = list(alpha = .2),
+            boxplot.args.pos = list(width = 0.04, position = position_nudge(x = c(0.07, 0.12)))  # Manual dodge
+            ) +
   theme_cowplot() +
   geom_segment(y = 0, yend = 0, x = 0.9, xend = 1.3) +
   geom_segment(y = 2.5, yend = 2.5, x = 1.9, xend = 2.3) +
@@ -596,7 +992,31 @@ ggsave("step3_modelling/output/fixed_effects_p.png", fixed_effects_p, width = 10
 ggsave("step3_modelling/output/strategies_den.png", strategies_den, width = 17, height = 5)
 ggsave("step3_modelling/output/contexts_coeff.png", contexts_coeff, width = 10, height = 4)
 ggsave("step3_modelling/output/contexts_results.png", conext_results, width = 16, height = 4)
-ggsave("fig/fig2_panelA.png", contexts_raincloud, width = 11, height = 6)
+ggsave("fig/fig2_panelA.png", contexts_raincloud, width = 8, height = 6)
+ggsave("fig/fig3_panelB.png", IM_DE, width = 5, height = 5)
+ggsave("fig/fig3_panelC.png", IM_UDRE, width = 5, height = 5)
+ggsave("fig/fig3_panelD.png", IM_UIRE, width = 5, height = 5)
+ggsave("fig/fig3_panelG.png", IM_DE_context, width = 5, height = 5)
+ggsave("fig/fig3_panelH.png", IM_UDRE_context, width = 5, height = 5)
+ggsave("fig/fig3_panelI.png", IM_UIRE_context, width = 5, height = 5)
+ggsave("fig/fig4_panelB.png", IU_DE, width = 5, height = 5)
+ggsave("fig/fig4_panelC.png", IU_UDRE, width = 5, height = 5)
+ggsave("fig/fig4_panelD.png", IU_UIRE, width = 5, height = 5)
+ggsave("fig/fig4_panelG.png", IU_DE_context, width = 5, height = 5)
+ggsave("fig/fig4_panelH.png", IU_UDRE_context, width = 5, height = 5)
+ggsave("fig/fig4_panelI.png", IU_UIRE_context, width = 5, height = 5)
+ggsave("fig/fig5_panelB.png", Anx_DE, width = 5, height = 5)
+ggsave("fig/fig5_panelC.png", Anx_UDRE, width = 5, height = 5)
+ggsave("fig/fig5_panelD.png", Anx_UIRE, width = 5, height = 5)
+ggsave("fig/fig5_panelG.png", Anx_DE_context, width = 5, height = 5)
+ggsave("fig/fig5_panelH.png", Anx_UDRE_context, width = 5, height = 5)
+ggsave("fig/fig5_panelI.png", Anx_UIRE_context, width = 5, height = 5)
+ggsave("fig/fig6_panelB.png", RA_DE, width = 5, height = 5)
+ggsave("fig/fig6_panelC.png", RA_UDRE, width = 5, height = 5)
+ggsave("fig/fig6_panelD.png", RA_UIRE, width = 5, height = 5)
+ggsave("fig/fig6_panelG.png", RA_DE_context, width = 5, height = 5)
+ggsave("fig/fig6_panelH.png", RA_UDRE_context, width = 5, height = 5)
+ggsave("fig/fig6_panelI.png", RA_UIRE_context, width = 5, height = 5)
 saveRDS(contexts_raincloud, "fig/fig2_panelA.rds")
 saveRDS(IM_DE, "fig/fig3_panelB.rds")
 saveRDS(IM_UDE, "fig/fig3_panelC.rds")
