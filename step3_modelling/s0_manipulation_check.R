@@ -3,7 +3,7 @@
 # We will use a basic model (V) which will have slope and intercept for each condition
 # Need to run s1_Kalman_filtering.m before running this script (if the data is not already available)
 
-required_packages <- c("tidyverse","lme4","sjPlot","ggridges","car")
+required_packages <- c("tidyverse","lme4","sjPlot","ggridges","car","emmeans","ggsignif","cowplot")
 
 # Check and install missing packages
 install_and_Load <- function(packages) {
@@ -26,8 +26,13 @@ data <- read_csv("step3_modelling/output/data.csv") %>%
            grepl("S", selection) ~ "S",
            ),
          risky = if_else(selection == "R", 1, 0),
-         condition = paste(context, arms), # combine it for convenience
-         V = if_else(left == "**R**", V, -V)) # flip the value if the right arm is risky
+         condition = paste(context, arms)) %>% # combine it for convenience
+  ## flip the left and right arm for the subjects who has even number ID
+  mutate(left  = if_else(ID %% 2 == 0, right, left),
+         right = if_else(ID %% 2 == 0, left, right),
+         V     = if_else(ID %% 2 == 0, -V, V),
+         choice = 2 - choice, # V = Q(1) - Q(2); encode arm 1 as 1 and arm 2 as 0, therefore, positive w1 indicate a choice of arm 1
+         choice = if_else(ID %% 2 == 0, choice, 1 - choice))
 
 # condition
 dist_V <- data %>%
@@ -52,7 +57,7 @@ choice_proportion <- data %>%
   coord_flip()
 
 # Modelling
-condition_model <- glmer(risky ~ -1 + condition + condition:V + (-1 + V|ID),
+condition_model <- glmer(choice ~ -1 + condition + condition:V + (-1 + V|ID),
                        data = data, family = binomial(link = "probit"),
                        control = glmerControl(optimizer = "bobyqa"))
 summary(condition_model)
@@ -76,9 +81,6 @@ slope_comparison_4 <- linearHypothesis(
 slope_comparison <- rbind(slope_comparison_1, slope_comparison_2, slope_comparison_3, slope_comparison_4)
 
 # Visualisation
-risk_ratios <- plot_model(condition_model) +
-  ylim(0.5, 2) 
-
 slopes <- summary(condition_model)$coefficients %>% 
   as.data.frame() %>% 
   rownames_to_column(var = "condition") %>% 
@@ -115,16 +117,16 @@ intercepts <- summary(condition_model)$coefficients %>%
          ) +
   geom_pointrange(aes(colour = Context)) +
   geom_signif(comparisons = list(c("Lose rR", "Lose SR")),
-              y_position = 0,
+              y_position = 0.12,
               annotation = c("***"), tip_length = 0.03) +
   geom_signif(comparisons = list(c("Win rR", "Win SR")),
-              annotation = c("***"), tip_length = 0.03) +
+              annotation = c("N.S."), tip_length = 0.03) +
   geom_signif(comparisons = list(c("Lose rR", "Win rR")),
-              y_position = -0.35, vjust = 3,
+              y_position = -0.08, vjust = 3,
               annotation = c("***"), tip_length = -0.03) +
   geom_signif(comparisons = list(c("Lose SR", "Win SR")),
-              y_position = -0.18, vjust = 3,
-              annotation = c("***"), tip_length = -0.03) +
+              y_position = -0.055, vjust = 3,
+              annotation = c("N.S."), tip_length = -0.03) +
   theme_cowplot() +
   labs(x = "Condition",
        y = "Intercept") +
@@ -132,29 +134,28 @@ intercepts <- summary(condition_model)$coefficients %>%
 
 coefficients <- cowplot::plot_grid(intercepts, slopes, nrow = 1)
 
-Psychometric_curve <- plot_model(condition_model, type = "pred", terms=c("V [all]", "condition")) +
-  theme_minimal() +
-  labs(title = "Psychometric curve for each condition",
-       x = "Value difference(risky - other)",
-       y = "P(choose risky arm)")
-
-psychometric_curve_adjusted <- cowplot::plot_grid(
-  '',Psychometric_curve,'', rel_widths = c(0.4, 1, 0.4),
-  nrow = 1, labels = c('', 'A', ''))
-
-coefficients_labeled <- cowplot::plot_grid(
-  intercepts, slopes, nrow = 1, labels = c('B', 'C'))
-
-Conditions_Results <- cowplot::plot_grid(
-  psychometric_curve_adjusted, coefficients_labeled, nrow = 2)
+# Psychometric_curve <- plot_model(condition_model, type = "pred", terms=c("V [all]", "condition")) +
+#   theme_minimal() +
+#   labs(title = "Psychometric curve for each condition",
+#        x = "Value difference(risky - other)",
+#        y = "P(choose risky arm)")
+# 
+# psychometric_curve_adjusted <- cowplot::plot_grid(
+#   '',Psychometric_curve,'', rel_widths = c(0.4, 1, 0.4),
+#   nrow = 1, labels = c('', 'A', ''))
+# 
+# coefficients_labeled <- cowplot::plot_grid(
+#   intercepts, slopes, nrow = 1, labels = c('B', 'C'))
+# 
+# Conditions_Results <- cowplot::plot_grid(
+#   psychometric_curve_adjusted, coefficients_labeled, nrow = 2)
 
 # Save
 ggsave("step3_modelling/output/conditions_coefficients.png", coefficients, width = 10, height = 5)
-ggsave("step3_modelling/output/conditions_risk_ratios.png", risk_ratios, width = 5, height = 5)
-ggsave("step3_modelling/output/conditions_psychometric_curve.png", Psychometric_curve, width = 5, height = 5)
+# ggsave("step3_modelling/output/conditions_psychometric_curve.png", Psychometric_curve, width = 5, height = 5)
 ggsave("step3_modelling/output/conditions_dist_V.png", dist_V, width = 5, height = 5)
 ggsave("step3_modelling/output/conditions_choice_proportion.png", choice_proportion, width = 5, height = 5)
-ggsave("step3_modelling/output/conditions_results.png", Conditions_Results, width = 10, height = 10)
+# ggsave("step3_modelling/output/conditions_results.png", Conditions_Results, width = 10, height = 10)
 ggsave("fig/fig2_panelB.png", intercepts, width = 5, height = 5)
 ggsave("fig/fig2_panelC.png", slopes, width = 5, height = 5)
 saveRDS(intercepts, "fig/fig2_panelB.rds")
