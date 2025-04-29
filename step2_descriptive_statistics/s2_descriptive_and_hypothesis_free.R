@@ -356,12 +356,13 @@ correct_data <- read_csv("step1_data_wrangling/output/cleaned_data.csv") %>% # t
       grepl("r", `Spreadsheet: Condition`) ~ "rR",
     )
   ) %>% 
+  filter(`Spreadsheet: Left Correct` == 1 | `Spreadsheet: Right Correct` == 1) %>% # remove the trials with both arms incorrect
   transmute(`Participant Private ID`, context, arms,
             correct = `Store: trial_correct`) %>% 
   mutate(context = factor(context, levels = c("Win", "Lose")),
          arms = factor(arms, levels = c("SR", "rR")))
 
-accuracy_data <- correct_data%>% # condition level
+accuracy_data <- correct_data %>% # condition level
   group_by(`Participant Private ID`, context, arms) %>%
   summarise(Performance = mean(correct)) %>%
   left_join(demo, by = "Participant Private ID")
@@ -392,13 +393,13 @@ accuracy_rain <- accuracy_data %>%
   geom_signif(comparisons = list(c("Win", "Lose")),
               annotation = c("NS."), tip_length = 0) +
   geom_signif(comparisons = list(c("Win", "Lose")),
-              annotation = c("*"), tip_length = 0,
-              y_position = 0.785, colour = "#00BFC4",
+              annotation = c("**"), tip_length = 0,
+              y_position = 0.985, colour = "#00BFC4",
               vjust = 2.3) +
-  geom_signif(y_position = 0.81, xmin = 0.85, xmax = 0.95,
+  geom_signif(y_position = 1.01, xmin = 0.85, xmax = 0.95,
               annotation = c("***"), tip_length = 0,
               colour = "black") +
-  geom_signif(y_position = 0.81, xmin = 2.05, xmax = 2.15,
+  geom_signif(y_position = 1.01, xmin = 2.05, xmax = 2.15,
               annotation = c("***"), tip_length = 0,
               colour = "black") +
   theme_cowplot()
@@ -425,7 +426,7 @@ acc_cond_inter <- vis_data_acc %>%
               annotation = c("NS."), tip_length = 0,
               y_position = 0.61) +
   geom_signif(comparisons = list(c("Win", "Lose")),
-              annotation = c("*"), tip_length = 0,
+              annotation = c("**"), tip_length = 0,
               y_position = 0.608, colour = "#00BFC4",
               vjust = 2.3) +
   geom_signif(y_position = 0.607, xmin = 0.95, xmax = 1.05, 
@@ -450,16 +451,16 @@ acc_cond_inter_4 <- vis_data_acc %>%
   geom_errorbar(aes(ymin = performance_LCI, ymax = performance_UCI, color = context),
                 width = 0.05) +
   geom_signif(comparisons = list(c("Win SR", "Lose SR")),
-              y_position = 0.62,
+              y_position = 0.76,
               annotation = c("NS."), tip_length = 0) +
   geom_signif(comparisons = list(c("Win rR", "Lose rR")),
-              y_position = 0.63,
+              y_position = 0.77,
               annotation = c("NS."), tip_length = 0.01) +
   geom_signif(comparisons = list(c("Win SR", "Win rR")),
-              y_position = 0.60,
+              y_position = 0.75,
               annotation = c("***"), tip_length = 0) +
   geom_signif(comparisons = list(c("Lose rR", "Lose SR")),
-              y_position = 0.61,
+              y_position = 0.758,
               annotation = c("***"), tip_length = 0) +
   labs(color = "Arms",
        y = "Performance ",
