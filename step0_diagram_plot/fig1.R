@@ -57,8 +57,8 @@ panel_C <- df_SR %>%
   scale_y_continuous(breaks = seq(0, 12, 3)) +
   theme(legend.position = "top")
 
-ggsave(file.path(save_path, "fig1_panel_B.png"), panel_B, width = 5, height = 5)
-ggsave(file.path(save_path, "fig1_panel_C.png"), panel_C, width = 5, height = 5)
+ggsave(file.path(save_path, "fig1_panel_B.png"), panel_B, width = 3, height = 3)
+ggsave(file.path(save_path, "fig1_panel_C.png"), panel_C, width = 3, height = 3)
 
 # Panel D, psychometric curve for directed exploration, uncertainty-dependent random exploration, and uncertainty-independent random exploration
 ## Directed exploration
@@ -79,16 +79,20 @@ data_SR_rR <- data.frame(V, SR, rR) %>%
 directed_ex <- ggplot(data_dir, aes(x = V, y = P, linetype = condition)) +
   geom_line(linewidth = 2, alpha = 0.5) +
   labs(x = "Expected value difference V(1) - V(2)",
-       y = "Choice Probability P(1)", linetype = "DE") +
+       y = "Choice Probability P(1)", linetype = "Directed Exploration") +
   scale_linetype_manual(values = c("solid", "dotdash", "dotted"),
-                        labels = c("Risk Seeking", "Risk neutral", "Risk Averse")) +
+                        labels = c("Risk Seeking", "Risk Neutral", "Risk Averse")) +
   theme_cowplot() +
   scale_x_continuous(breaks = seq(-6, 6, 2)) +
   scale_y_continuous(breaks = seq(0, 1, 0.2)) +
-  theme(legend.position = "top") +
-  theme(legend.key.width = unit(1.5,"cm"))
+  # To place the legend inside the plot area
+  theme(legend.position = "inside",
+        legend.position.inside = c(0.05, 0.85)) +
+  theme(legend.key.width = unit(1.5,"cm")) +
+  # make legend as three line
+  guides(linetype = guide_legend(nrow = 3, byrow = TRUE))
 
-ggsave(file.path(save_path, "fig1_panel_C_directed_exploration.png"), directed_ex, width = 7, height = 7)
+ggsave(file.path(save_path, "fig1_panel_C_directed_exploration.png"), directed_ex, width = 5, height = 5)
 
 ## Uncertainty-dependent random exploration
 no_UDR   <- pnorm(1 * V + 0 + 0 * V/ 1.72) # 1.72 is the standard deviation of the population (TU)
@@ -111,9 +115,12 @@ UDR_ex <- ggplot(data_UDR, aes(x = V, y = P, linetype = UDR, colour = uncertaint
   theme_cowplot() +
   scale_x_continuous(breaks = seq(-6, 6, 2)) +
   scale_y_continuous(breaks = seq(0, 1, 0.2)) +
-  theme(legend.position = "top")
+  theme(legend.position = "inside",
+        legend.position.inside = c(0.05, 0.8)) +
+  theme(legend.key.width = unit(1.5,"cm")) +
+  guides(linetype = guide_legend(nrow = 2, byrow = TRUE))
 
-ggsave(file.path(save_path, "fig1_panel_C_UDR_exploration.png"), UDR_ex, width = 7, height = 7)
+ggsave(file.path(save_path, "fig1_panel_C_UDR_exploration.png"), UDR_ex, width = 5, height = 5)
 
 ## Uncertainty-independent random exploration
 no_UIR   <- pnorm(0 * V + 0 + 1 * V/ 1.72) # 1.72 is the standard deviation of the population (TU)
@@ -136,9 +143,12 @@ UIR_ex <- ggplot(data_UIR, aes(x = V, y = P, linetype = UIR, colour = uncertaint
   theme_cowplot() +
   scale_x_continuous(breaks = seq(-6, 6, 2)) +
   scale_y_continuous(breaks = seq(0, 1, 0.2)) +
-  theme(legend.position = "top")
+  theme(legend.position = "inside",
+        legend.position.inside = c(0.05, 0.8)) +
+  theme(legend.key.width = unit(1.5,"cm")) +
+  guides(linetype = guide_legend(nrow = 2, byrow = TRUE))
 
-ggsave(file.path(save_path, "fig1_panel_C_UIR_exploration.png"), UIR_ex, width = 7, height = 7)
+ggsave(file.path(save_path, "fig1_panel_C_UIR_exploration.png"), UIR_ex, width = 5, height = 5)
 
 # combine the four figures
 panel_BC <- plot_grid(panel_B, directed_ex, UDR_ex, UIR_ex, ncol = 2)
