@@ -32,7 +32,7 @@ panel_B <- df_rR %>%
   ggplot(aes(x = reward, fill = condition)) +
   geom_histogram(binwidth = 1, position = "identity", alpha = 0.5) +
 ### add kerbal density estimation for R and r
-  geom_density(data = df %>% filter(condition %in% c("R", "r")),
+  geom_density(data = df_rR ,
                aes(y = ..count..), alpha = 0.3,
                adjust = 3) +
   labs(x = "Reward", y = "Frequency", fill = "Arm") +
@@ -47,7 +47,7 @@ panel_C <- df_SR %>%
   ggplot(aes(x = reward, fill = condition)) +
   geom_histogram(binwidth = 1, position = "identity", alpha = 0.5) +
 ### add kerbal density estimation for R
-  geom_density(data = df %>% filter(condition %in% "R"),
+  geom_density(data = df_SR,
                aes(y = ..count..), alpha = 0.3,
                adjust = 3) +
   labs(x = "Reward", y = "Frequency", fill = "Arm") +
