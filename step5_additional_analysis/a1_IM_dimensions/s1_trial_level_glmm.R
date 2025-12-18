@@ -2,7 +2,7 @@
 # Exploration of whether the better performance is correlated with specific IM dimensions
 
 # List of required packages
-required_packages <- c("tidyverse","lme4")
+required_packages <- c("tidyverse","lme4","bruceR","cowplot")
 
 # Check and install missing packages
 install_and_Load <- function(packages) {
@@ -45,7 +45,8 @@ SUPPS_sensation <- combined_SUPPS %>%
   group_by(`Participant Private ID`) %>% 
   summarise(Response = sum(as.numeric(Response)), Key = "SUPPS_sensation") %>% 
   spread(Key, Response) %>% 
-  mutate(`Participant Private ID` = as.double(`Participant Private ID`))
+  mutate(`Participant Private ID` = as.double(`Participant Private ID`),
+         SUPPS_sensation = scale(SUPPS_sensation)[,1]) # standardise
 
 cleaned_data <- read_csv("step1_data_wrangling/output/cleaned_data.csv")
 
@@ -64,7 +65,7 @@ correct_data <- cleaned_data %>% # trial level
   filter(`Spreadsheet: Left Correct` == 1 | `Spreadsheet: Right Correct` == 1) %>% # remove the trials with both arms incorrect
   transmute(`Participant Private ID`, context, arms,
             correct = `Store: trial_correct`) %>% 
-  mutate(context = factor(context, levels = c("Win", "Lose")),
+  mutate(context = factor(context, levels = c("Lose", "Win")),
          arms = factor(arms, levels = c("SR", "rR")))
 
 data <- correct_data %>% 
@@ -81,33 +82,44 @@ im_values <- seq(
   length.out = 10
 )
 
+SS_post_hoc <- emtrends(
+  correct_sensation_glmm,
+  ~ SUPPS_sensation | context,
+  var = "SUPPS_sensation",
+  at = list(context = c("Win", "Lose"), SUPPS_sensation = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs(by = "context") %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4) %>% # 1 Win 2 Lose
+  format(scientific = F)
+
 correct_sensation_inter <- emmeans(
   correct_sensation_glmm,
   specs = ~ SUPPS_sensation | context,
   type = "response",
   at = list(
     SUPPS_sensation = im_values,
-    context = c("Win", "Lose")
+    context = c("Lose", "Win")
   )
 ) %>% 
   as.data.frame() %>% 
-  mutate(context = factor(context, levels = c("Win", "Lose"))) %>%
   ggplot(aes(x = SUPPS_sensation, y = prob)) +
   geom_line(aes(colour = context)) +
   geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
   theme_cowplot() +
   # ylim(0.4, 0.8) +
-  # xlim(-3, 3) +
+  xlim(-3, 3) +
   ylab("Probability of Correct Arm Selection") +
   xlab("← Less Sensation Seeking               More Sensation Seeking →") +
   theme(legend.position = "top") +
-  # scale_colour_discrete(
-  #   labels = c(
-  #     "-0.5" = paste0("p = ", IM_simple_effects[1]),
-  #     "0.5"  = paste0("p = ", IM_simple_effects[2]))
-  # ) +
-  guides(colour = guide_legend(title = NULL),
-         fill = "none")
+  scale_fill_discrete(
+    labels = c(
+      "Win" = paste0("p = ", SS_post_hoc[1]),
+      "Lose"  = paste0("p = ", SS_post_hoc[2]))
+  ) +
+  guides(colour = guide_legend(title = NULL, order = 1),
+         fill   = guide_legend(title = NULL))
 
 ################### Negative Urgency ###################
 SUPPS_NU <- combined_SUPPS %>% 
@@ -120,7 +132,8 @@ SUPPS_NU <- combined_SUPPS %>%
   group_by(`Participant Private ID`) %>% 
   summarise(Response = sum(as.numeric(Response)), Key = "SUPPS_NU") %>% 
   spread(Key, Response) %>% 
-  mutate(`Participant Private ID` = as.double(`Participant Private ID`))
+  mutate(`Participant Private ID` = as.double(`Participant Private ID`),
+         SUPPS_NU = scale(SUPPS_NU)[,1]) # standardise
 
 # Trial level analysis
 data_NU <- correct_data %>% 
@@ -136,33 +149,44 @@ im_values_NU <- seq(
   length.out = 10
 )
 
+NU_post_hoc <- emtrends(
+  correct_NU_glmm,
+  ~ SUPPS_NU | context,
+  var = "SUPPS_NU",
+  at = list(context = c("Win", "Lose"), SUPPS_NU = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs(by = "context") %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4) %>% # 1 Win 2 Lose
+  format(scientific = F)
+
 correct_NU_inter <- emmeans(
   correct_NU_glmm,
   specs = ~ SUPPS_NU | context,
   type = "response",
   at = list(
     SUPPS_NU = im_values_NU,
-    context = c("Win", "Lose")
+    context = c("Lose", "Win")
   )
 ) %>% 
   as.data.frame() %>% 
-  mutate(context = factor(context, levels = c("Win", "Lose"))) %>%
   ggplot(aes(x = SUPPS_NU, y = prob)) +
   geom_line(aes(colour = context)) +
   geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
   theme_cowplot() +
   # ylim(0.4, 0.8) +
-  # xlim(-3, 3) +
+  xlim(-3, 3) +
   ylab("Probability of Correct Arm Selection") +
   xlab("← Less Negative Urgency            More Negative Urgency →") +
   theme(legend.position = "top") +
-  # scale_colour_discrete(
-  #   labels = c(
-  #     "-0.5" = paste0("p = ", IM_simple_effects[1]),
-  #     "0.5"  = paste0("p = ", IM_simple_effects[2]))
-  # ) +
-  guides(colour = guide_legend(title = NULL),
-         fill = "none")
+  scale_fill_discrete(
+    labels = c(
+      "Win" = paste0("p = ", NU_post_hoc[1]),
+      "Lose"  = paste0("p = ", NU_post_hoc[2]))
+  ) +
+  guides(colour = guide_legend(title = NULL, order = 1),
+         fill   = guide_legend(title = NULL))
 
 ################### Positve Urgency ###################
 SUPPS_PU <- combined_SUPPS %>%
@@ -175,7 +199,8 @@ SUPPS_PU <- combined_SUPPS %>%
   group_by(`Participant Private ID`) %>% 
   summarise(Response = sum(as.numeric(Response)), Key = "SUPPS_PU") %>% 
   spread(Key, Response) %>% 
-  mutate(`Participant Private ID` = as.double(`Participant Private ID`))
+  mutate(`Participant Private ID` = as.double(`Participant Private ID`),
+         SUPPS_PU = scale(SUPPS_PU)[,1]) # standardise
 
 # Trial level analysis
 data_PU <- correct_data %>% 
@@ -190,33 +215,44 @@ im_values_PU <- seq(
   length.out = 10
 )
 
+PU_post_hoc <- emtrends(
+  correct_PU_glmm,
+  ~ SUPPS_PU | context,
+  var = "SUPPS_PU",
+  at = list(context = c("Win", "Lose"), SUPPS_PU = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs(by = "context") %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4) %>% # 1 Win 2 Lose
+  format(scientific = F)
+
 correct_PU_inter <- emmeans(
   correct_PU_glmm,
   specs = ~ SUPPS_PU | context,
   type = "response",
   at = list(
     SUPPS_PU = im_values_PU,
-    context = c("Win", "Lose")
+    context = c("Lose", "Win")
   )
 ) %>% 
   as.data.frame() %>% 
-  mutate(context = factor(context, levels = c("Win", "Lose"))) %>%
   ggplot(aes(x = SUPPS_PU, y = prob)) +
   geom_line(aes(colour = context)) +
   geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
   theme_cowplot() +
   # ylim(0.4, 0.8) +
-  # xlim(-3, 3) +
+  xlim(-3, 3) +
   ylab("Probability of Correct Arm Selection") +
   xlab("← Less Positive Urgency            More Positive Urgency →") +
   theme(legend.position = "top") +
-  # scale_colour_discrete(
-  #   labels = c(
-  #     "-0.5" = paste0("p = ", IM_simple_effects[1]),
-  #     "0.5"  = paste0("p = ", IM_simple_effects[2]))
-  # ) +
-  guides(colour = guide_legend(title = NULL),
-         fill = "none")
+  scale_fill_discrete(
+    labels = c(
+      "Win" = paste0("p = ", PU_post_hoc[1]),
+      "Lose"  = paste0("p = ", PU_post_hoc[2]))
+  ) +
+  guides(colour = guide_legend(title = NULL, order = 1),
+         fill   = guide_legend(title = NULL))
 
 ################### Lack of Perseverance ###################
 SUPPS_LPer <- combined_SUPPS %>%
@@ -234,7 +270,8 @@ SUPPS_LPer <- combined_SUPPS %>%
   group_by(`Participant Private ID`) %>% 
   summarise(Response = sum(as.numeric(Response)), Key = "SUPPS_LPer") %>% 
   spread(Key, Response) %>% 
-  mutate(`Participant Private ID` = as.double(`Participant Private ID`))
+  mutate(`Participant Private ID` = as.double(`Participant Private ID`),
+         SUPPS_LPer = scale(SUPPS_LPer)[,1]) # standardise
 # Trial level analysis
 data_LPer <- correct_data %>% 
   left_join(SUPPS_LPer, by = "Participant Private ID")
@@ -248,33 +285,44 @@ im_values_LPer <- seq(
   length.out = 10
 )
 
+LPer_post_hoc <- emtrends(
+  correct_LPer_glmm,
+  ~ SUPPS_LPer | context,
+  var = "SUPPS_LPer",
+  at = list(context = c("Win", "Lose"), SUPPS_LPer = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs(by = "context") %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4) %>% # 1 Win 2 Lose
+  format(scientific = F)
+
 correct_LPer_inter <- emmeans(
   correct_LPer_glmm,
   specs = ~ SUPPS_LPer | context,
   type = "response",
   at = list(
     SUPPS_LPer = im_values_LPer,
-    context = c("Win", "Lose")
+    context = c("Lose", "Win")
   )
 ) %>% 
   as.data.frame() %>% 
-  mutate(context = factor(context, levels = c("Win", "Lose"))) %>%
   ggplot(aes(x = SUPPS_LPer, y = prob)) +
   geom_line(aes(colour = context)) +
   geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
   theme_cowplot() +
   # ylim(0.4, 0.8) +
-  # xlim(-3, 3) +
+  xlim(-3, 3) +
   ylab("Probability of Correct Arm Selection") +
   xlab("← Less Lack of Perseverance            More Lack of Perseverance →") +
   theme(legend.position = "top") +
-  # scale_colour_discrete(
-  #   labels = c(
-  #     "-0.5" = paste0("p = ", IM_simple_effects[1]),
-  #     "0.5"  = paste0("p = ", IM_simple_effects[2]))
-  # ) +
-  guides(colour = guide_legend(title = NULL),
-         fill = "none")
+  scale_fill_discrete(
+    labels = c(
+      "Win" = paste0("p = ", LPer_post_hoc[1]),
+      "Lose"  = paste0("p = ", LPer_post_hoc[2]))
+  ) +
+  guides(colour = guide_legend(title = NULL, order = 1),
+         fill = guide_legend(title = NULL))
 
 ################### Lack of Premeditation ###################
 SUPPS_LPre <- combined_SUPPS %>%
@@ -292,7 +340,8 @@ SUPPS_LPre <- combined_SUPPS %>%
   group_by(`Participant Private ID`) %>% 
   summarise(Response = sum(as.numeric(Response)), Key = "SUPPS_LPre") %>% 
   spread(Key, Response) %>% 
-  mutate(`Participant Private ID` = as.double(`Participant Private ID`))
+  mutate(`Participant Private ID` = as.double(`Participant Private ID`),
+         SUPPS_LPre = scale(SUPPS_LPre)[,1]) # standardise
 # Trial level analysis
 data_LPre <- correct_data %>%
   left_join(SUPPS_LPre, by = "Participant Private ID")
@@ -306,33 +355,44 @@ im_values_LPre <- seq(
   length.out = 10
 )
 
+LPre_post_hoc <- emtrends(
+  correct_LPre_glmm,
+  ~ SUPPS_LPre | context,
+  var = "SUPPS_LPre",
+  at = list(context = c("Win", "Lose"), SUPPS_LPre = c(0, 1)),
+  type = "response"
+) %>% 
+  pairs(by = "context") %>% 
+  summary() %>% .$p.value %>% # Get the p value
+  round(., 4) %>% # 1 Win 2 Lose
+  format(scientific = F)
+
 correct_LPre_inter <- emmeans(
   correct_LPre_glmm,
   specs = ~ SUPPS_LPre | context,
   type = "response",
   at = list(
     SUPPS_LPre = im_values_LPre,
-    context = c("Win", "Lose")
+    context = c("Lose", "Win")
   )
 ) %>% 
   as.data.frame() %>% 
-  mutate(context = factor(context, levels = c("Win", "Lose"))) %>%
   ggplot(aes(x = SUPPS_LPre, y = prob)) +
   geom_line(aes(colour = context)) +
   geom_ribbon(aes(ymin = asymp.LCL, ymax = asymp.UCL, fill = context), alpha = 0.2) +
   theme_cowplot() +
   # ylim(0.4, 0.8) +
-  # xlim(-3, 3) +
+  xlim(-3, 3) +
   ylab("Probability of Correct Arm Selection") +
   xlab("← Less Lack of Premeditation            More Lack of Premeditation →") +
   theme(legend.position = "top") +
-  # scale_colour_discrete(
-  #   labels = c(
-  #     "-0.5" = paste0("p = ", IM_simple_effects[1]),
-  #     "0.5"  = paste0("p = ", IM_simple_effects[2]))
-  # ) +
-  guides(colour = guide_legend(title = NULL),
-         fill = "none")
+  scale_fill_discrete(
+    labels = c(
+      "Win" = paste0("p = ", LPre_post_hoc[1]),
+      "Lose"  = paste0("p = ", LPre_post_hoc[2]))
+  ) +
+  guides(colour = guide_legend(title = NULL, order = 1),
+         fill   = guide_legend(title = NULL))
 
 # Save all plots
 ifelse(!dir.exists(file.path(output_dir)), dir.create(file.path(output_dir)), FALSE)
